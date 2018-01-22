@@ -21,12 +21,16 @@ file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
 add_executable(compress "${CMAKE_SOURCE_DIR}/programs/compress.cpp")
 add_executable(decompress "${CMAKE_SOURCE_DIR}/programs/decompress.cpp")
+add_executable(test_rmq "${CMAKE_SOURCE_DIR}/programs/test_rmq.cpp")
+add_executable(prueba_search "${CMAKE_SOURCE_DIR}/programs/prueba_search.cpp")
 
 add_library(relz SHARED ${SOURCES})
 link_directories(${CMAKE_BINARY_DIR})
 
 target_link_libraries(compress relz pthread)
 target_link_libraries(decompress relz pthread)
+target_link_libraries(test_rmq relz pthread)
+target_link_libraries(prueba_search relz pthread)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "/usr/" CACHE PATH "default install path" FORCE )
