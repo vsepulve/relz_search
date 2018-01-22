@@ -55,38 +55,6 @@ int main(int argc, char* argv[]){
 	cout<<"Start (reference \""<<reference_text<<"\", sequence \""<<sequence_text<<"\", output \""<<output<<"\")\n";
 	
 	
-	
-	
-	
-	
-	RMQRMM64 *rmq = NULL;
-	int *arr = NULL;
-	unsigned int len = 10;
-	unsigned int rmq_min;
-	unsigned int beg, end;
-	
-	arr = new int[len];
-	cout << "Test - Arreglo: ";
-	for(unsigned int i = 0; i < len; ++i){
-		arr[i] = rand() % 100;
-		cout << arr[i] << " | ";
-	}
-	cout<<"\n";
-	
-	rmq = new RMQRMM64(arr, len);
-	
-	beg = 0;
-	end = 10;
-	rmq_min = rmq->queryRMQ(beg, end);
-	cout << "Test - RMQ[" << beg << ", " << end << "]: " << rmq_min << " (" << arr[rmq_min] << ")\n";
-	
-	
-	
-	
-	
-	
-	
-	
 	BitsUtils utils;
 	NanoTimer timer;
 	
@@ -117,6 +85,10 @@ int main(int argc, char* argv[]){
 		text = new char[text_len + ns_len + alphabet.size() + 1];
 //		text = new char[text_len + ns_len + 1];
 		
+		/*
+		
+		// TEMPORALMENTE COMENTADO MIENTRAS PRUEBO LA BUSQUEDA
+		
 		//Agregacion de N's y del alfabeto valido completo
 		for(unsigned int i = 0; i < ns_len; ++i){
 			text[text_size++] = 'N';
@@ -124,6 +96,8 @@ int main(int argc, char* argv[]){
 		for(unsigned int i = 0; i < alphabet.size(); ++i){
 			text[text_size++] = alphabet[i];
 		}
+		
+		*/
 		
 		//Carga del texto de la referencia (metodo especial para cargar bases solamente)
 		text_size += filter->readReference(reference_text, text + text_size);
