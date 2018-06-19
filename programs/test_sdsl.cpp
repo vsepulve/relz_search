@@ -11,3 +11,5 @@ int main() {
     std::ofstream out("fm_index-file.sdsl.html");
     write_structure<HTML_FORMAT>(fm_index,out);
 }
+
+
