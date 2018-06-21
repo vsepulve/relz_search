@@ -77,7 +77,12 @@ int main() {
 	ez[6] = 8;
 	ez[7] = 8;
 	
-	rmq_succinct_sct<> rmq(&ez);
+
+
+	// rmq_succinct_sct<> rmq(&ez);
+	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq(&ez);
+	// rmq_maximum_sct<> rmq(&ez);
+
 	
 	
 	csa_wt<> fm_index;
@@ -104,7 +109,9 @@ int main() {
 			cout << "select: " << select << " => pos_ez: " << pos_ez << "\n";
 			
 			// Ahora la busqueda (recursiva) en el rmq (entre 0 y pos_ez)
-			
+			unsigned int max = rmq(0, pos_ez);
+			cout << "max: " << max << "\n";
+
 		}
 	}
 	
