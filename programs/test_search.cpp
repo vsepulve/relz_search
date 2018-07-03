@@ -100,7 +100,7 @@ int main() {
 		new CoderBlocksRelz(reference), 
 		new DecoderBlocksRelz(reference->getText()), 
 		filter
-		);
+	);
 	
 	compressor.compress(input.c_str(), 1, 1000000, 0, &factors);
 	
@@ -201,7 +201,7 @@ int main() {
 	rrr_vector<127>::select_1_type select1_b(&rrr_b);
 	rrr_vector<127>::select_0_type select0_b(&rrr_b);
 	
-	
+	// Construccion del FM Index (aunque use el SA original para la compresion, esto es para la busqueda)
 	csa_wt<> fm_index;
 	// Construccion con datos en memoria, en un string
 	construct_im(fm_index, ref, 1);
@@ -229,23 +229,14 @@ int main() {
 			// Ahora la busqueda (recursiva) en el rmq (entre 0 y pos_ez)
 //			unsigned int pos_max = rmq(0, pos_ez);
 //			cout << "max pos Ez: " << pos_max << " (Ez: " << ez[pos_max] << ", factor: " << perm[pos_max] << ")\n";
-			cout << "Search V1 -----\n";
+			cout << "----- Search V1 -----\n";
 			recursive_rmq(0, pos_ez, (occ_i + m - 1), rmq, ez, perm);
-			cout << "Search V2 -----\n";
+			cout << "----- Search V2 -----\n";
 			recursive_rmq_v2(0, pos_ez, (occ_i + m), rmq, select1_s, select1_b, select0_b, perm);
-			cout << " -----\n";
+			cout << "----- -----\n";
 
 		}
 	}
-	
-//	std::cout << "'si' occurs " << count(fm_index,"si") << " times.\n";
-//	store_to_file(fm_index,"fm_index-file.sdsl");
-//	std::ofstream out("fm_index-file.sdsl.html");
-//	write_structure<HTML_FORMAT>(fm_index,out);
-	
-	
-	
-	
 	
 	
 	
