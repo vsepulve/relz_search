@@ -28,8 +28,6 @@
 #include "TextFilterBasic.h"
 #include "TextFilterFull.h"
 
-#include "RMQRMM64.h"
-
 using namespace std;
 
 int main(int argc, char* argv[]){
