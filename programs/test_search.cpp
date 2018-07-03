@@ -23,6 +23,28 @@
 using namespace sdsl;
 using namespace std;
 
+void recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit, rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > &rmq, int_vector<> &ez, inv_perm_support<> &perm){
+	cout << " -> recursive_rmq(" << ini << ", " << fin << ")\n";
+	
+	unsigned int pos_max = rmq(ini, fin);
+	
+	cout << " -> max pos Ez: " << pos_max << " (Ez: " << ez[pos_max] << ", factor: " << perm[pos_max] << ")\n";
+	if( ez[pos_max] < crit ){
+		cout << "Omitiendo\n";
+		return;
+	}
+	else{
+		cout << "Agregando\n";
+	}
+	
+	if( (pos_max > 0) && (ini < pos_max) ){
+		recursive_rmq(ini, pos_max-1, crit, rmq, ez, perm);
+	}
+	if( pos_max < fin ){
+		recursive_rmq(pos_max+1, fin, crit, rmq, ez, perm);
+	}
+}
+
 int main() {
 	
 	string ref = "ALABARDAS";
@@ -112,13 +134,16 @@ int main() {
 	
 	// Permutacion 
 	int_vector<> pi(z);
+	int_vector<> pi_inv(z);
 	for( unsigned int i = 0; i < z; ++i ){
 		pi[i] = factors_sort[i].second.second;
+		pi_inv[ factors_sort[i].second.second ] = i;
 	}
 	inv_perm_support<> perm_inv(&pi);
+	inv_perm_support<> perm(&pi_inv);
 	cout << "Permutation: \n";
 	for( unsigned int i = 0; i < z; ++i ){
-		cout << "pi[" << i << "]: " << pi[i] << ", perm_inv[" << i << "]: " << perm_inv[i] << "\n";
+		cout << "pi[" << i << "]: " << pi[i] << ", perm[" << i << "]: " << perm[i] << ", perm_inv[" << i << "]: " << perm_inv[i] << "\n";
 	}
 	
 	// Posiciones finales Ez
@@ -139,6 +164,7 @@ int main() {
 	
 	cout << "Texto de ref: \"" << ref << "\"\n";
 	
+//	string query = "LA";
 	string query = "BA";
 	size_t m = query.size();
 	size_t occs = sdsl::count(fm_index, query.begin(), query.end());
@@ -155,8 +181,9 @@ int main() {
 			cout << "select: " << select << " => pos_ez: " << pos_ez << "\n";
 			
 			// Ahora la busqueda (recursiva) en el rmq (entre 0 y pos_ez)
-			unsigned int max = rmq(0, pos_ez);
-			cout << "max pos Ez: " << max << " (Ez: " << ez[max] << ")\n";
+//			unsigned int pos_max = rmq(0, pos_ez);
+//			cout << "max pos Ez: " << pos_max << " (Ez: " << ez[pos_max] << ", factor: " << perm[pos_max] << ")\n";
+			recursive_rmq(0, pos_ez, (occ_i + m - 1), rmq, ez, perm);
 
 		}
 	}
