@@ -6,39 +6,94 @@
 #include <fstream>
 #include <string.h>
 
+#include <algorithm>
+#include <vector>
+
 #include <sdsl/suffix_arrays.hpp>
 #include <sdsl/bit_vectors.hpp>
 #include <sdsl/rmq_support.hpp>
+#include <sdsl/inv_perm_support.hpp>
+
+#include "ReferenceIndexBasic.h"
+#include "CompressorSingleBuffer.h"
+#include "CoderBlocksRelz.h"
+#include "DecoderBlocksRelz.h"
+#include "TextFilterFull.h"
 
 using namespace sdsl;
 using namespace std;
 
 int main() {
-//	csa_wt<> fm_index;
-//	construct_im(fm_index, "mississippi!", 1);
-//	std::cout << "'si' occurs " << count(fm_index,"si") << " times.\n";
-//	store_to_file(fm_index,"fm_index-file.sdsl");
-//	std::ofstream out("fm_index-file.sdsl.html");
-//	write_structure<HTML_FORMAT>(fm_index,out);
-
 	
-	string ref = "alabardas";
-	string text = "alba";
-	text += "balas";
-	text += "lalabas";
-	string pat = "ba";
-	unsigned int len_r = 9;
-	unsigned int z = 8;
+	string ref = "ALABARDAS";
+	string text = "ALBA";
+	text += "BALAS";
+	text += "LALABAS";
+	string input = "test_text.txt";
+	string output = "test_output.relz";
+	string serialized_reference = "test_ref.bin";
 	
-	bit_vector arr_s(len_r + z, 0);
-	arr_s[0] = 1;
-	arr_s[2] = 1;
-	arr_s[3] = 1;
-	arr_s[4] = 1;
-	arr_s[7] = 1;
-	arr_s[8] = 1;
-	arr_s[14] = 1;
-	arr_s[15] = 1;
+	vector<pair<unsigned int, unsigned int> > factors;
+	
+	unsigned int len_ref = ref.length();
+	unsigned int z = 0;
+	
+	// Construir SA referencia
+	// Esto eventualmente se convertira en un FM-index (csa_wt)
+	ReferenceIndex *reference = new ReferenceIndexBasic(ref.c_str(), 1);
+	reference->save(serialized_reference.c_str());
+	
+	// Preparar Compresor
+	TextFilter *filter = new TextFilterFull();
+	CompressorSingleBuffer compressor(
+		output.c_str(), 
+		new CoderBlocksRelz(reference), 
+		new DecoderBlocksRelz(reference->getText()), 
+		filter
+		);
+	
+	compressor.compress(input.c_str(), 1, 1000000, 0, &factors);
+	
+	cout << "Factors: \n";
+	// Factores en version ini, fin (absoluto) y ordenados por ini
+//	vector<pair<unsigned int, unsigned int> > factors_sort;
+	vector<pair<unsigned int, pair<unsigned int, unsigned int> > > factors_sort;
+	unsigned cur_pos = 0;
+	for( pair<unsigned int, unsigned int> factor : factors ){
+		cout << "(" << factor.first << ", " << factor.second << ", " << cur_pos << ")\n";
+		factors_sort.push_back( 
+			pair<unsigned int, pair<unsigned int, unsigned int> >(
+				factor.first, pair<unsigned int, unsigned int>(factor.first + factor.second - 1, cur_pos++)
+				)
+			);
+	}
+	sort(factors_sort.begin(), factors_sort.end());
+	cout << "Factors Sorted: \n";
+	for( pair<unsigned int, pair<unsigned int, unsigned int> > factor : factors_sort ){
+		cout << "(" << factor.first << ", " << factor.second.first << ", " << factor.second.second << ")\n";
+	}
+	z = factors_sort.size();
+	
+	// Bit vector S
+	bit_vector arr_s(len_ref + z, 0);
+	unsigned cur_ref = 0;
+	cur_pos = 0;
+	for( unsigned int i = 0; i < z; ++i ){
+		unsigned int ini = factors_sort[i].first;
+//		unsigned int fin = factors_sort[i].second.first;
+		if( ini == cur_ref ){
+			arr_s[cur_pos++] = 1;
+		}
+		else{
+			arr_s[cur_pos++] = 0;
+			++cur_ref;
+			--i;
+		}
+	}
+	cout << "Bit Array S: \n";
+	for( unsigned int i = 0; i < len_ref + z; ++i ){
+		cout << "arr_s[" << i << "]: " << arr_s[i] << "\n";
+	}
 	
 	rrr_vector<127> rrr_s(arr_s);
 	rrr_vector<127>::select_1_type select1(&rrr_s);
@@ -54,36 +109,27 @@ int main() {
 	cout << "Posicion de quinto 0: " << select0(5) << "\n";
 	cout << "Posicion de 0th 0: " << select0(0) << "\n";
 	
-	// En esta primera prueba, almaceno la permutacion de z descomprimida
-	vector<unsigned int> pi(8);
-	pi[0] = 0;
-	pi[1] = 3;
-	pi[2] = 5;
-	pi[3] = 6;
-	pi[4] = 1;
-	pi[5] = 2;
-	pi[6] = 4;
-	pi[7] = 7;
 	
-	// Para esta prueba tambien guardo ez descomprimido
+	// Permutacion 
+	int_vector<> pi(z);
+	for( unsigned int i = 0; i < z; ++i ){
+		pi[i] = factors_sort[i].second.second;
+	}
+	inv_perm_support<> perm_inv(&pi);
+	cout << "Permutation: \n";
+	for( unsigned int i = 0; i < z; ++i ){
+		cout << "pi[" << i << "]: " << pi[i] << ", perm_inv[" << i << "]: " << perm_inv[i] << "\n";
+	}
+	
+	// Posiciones finales Ez
 //	vector<unsigned int> ez(8);
-	int_vector<> ez(8);
-	ez[0] = 1;
-	ez[1] = 2;
-	ez[2] = 2;
-	ez[3] = 4;
-	ez[4] = 4;
-	ez[5] = 4;
-	ez[6] = 8;
-	ez[7] = 8;
-	
-
-
+	int_vector<> ez(z);
+	for( unsigned int i = 0; i < z; ++i ){
+		ez[i] = factors_sort[i].second.first;
+	}
 	// rmq_succinct_sct<> rmq(&ez);
 	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq(&ez);
 	// rmq_maximum_sct<> rmq(&ez);
-
-	
 	
 	csa_wt<> fm_index;
 	// Construccion con datos en memoria, en un string
@@ -93,7 +139,7 @@ int main() {
 	
 	cout << "Texto de ref: \"" << ref << "\"\n";
 	
-	string query = "ba";
+	string query = "BA";
 	size_t m = query.size();
 	size_t occs = sdsl::count(fm_index, query.begin(), query.end());
 	cout << "# occs de \"" << query << "\": " << occs << "\n";
@@ -110,7 +156,7 @@ int main() {
 			
 			// Ahora la busqueda (recursiva) en el rmq (entre 0 y pos_ez)
 			unsigned int max = rmq(0, pos_ez);
-			cout << "max: " << max << "\n";
+			cout << "max pos Ez: " << max << " (Ez: " << ez[max] << ")\n";
 
 		}
 	}
@@ -133,7 +179,7 @@ int main() {
 
 
 
-
+	delete reference;
 
 
 
