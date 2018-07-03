@@ -45,6 +45,33 @@ void recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit, rmq_su
 	}
 }
 
+void recursive_rmq_v2(unsigned int ini, unsigned int fin, unsigned int crit, rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > &rmq, rrr_vector<127>::select_1_type &select1_s, rrr_vector<127>::select_1_type &select1_b, rrr_vector<127>::select_0_type &select0_b, inv_perm_support<> &perm){
+	cout << " -> recursive_rmq(" << ini << ", " << fin << ")\n";
+	
+	unsigned int pos_max = rmq(ini, fin);
+	
+	unsigned int tu = select1_s(pos_max + 1) - pos_max;
+	unsigned int pu = select1_b(perm[pos_max] + 1);
+	unsigned int lu = select1_b(perm[pos_max] + 2) - pu;
+	
+//	cout << " -> max pos Ez: " << pos_max << " (Ez: " << ez[pos_max] << ", factor: " << perm[pos_max] << ")\n";
+	cout << " -> max pos Ez: " << pos_max << " (tu: " << tu << ", pu: " << pu << ", lu: " << lu << ")\n";
+	if( tu + lu < crit ){
+		cout << "Omitiendo\n";
+		return;
+	}
+	else{
+		cout << "Agregando\n";
+	}
+	
+	if( (pos_max > 0) && (ini < pos_max) ){
+		recursive_rmq_v2(ini, pos_max-1, crit, rmq, select1_s, select1_b, select0_b, perm);
+	}
+	if( pos_max < fin ){
+		recursive_rmq_v2(pos_max+1, fin, crit, rmq, select1_s, select1_b, select0_b, perm);
+	}
+}
+
 int main() {
 	
 	string ref = "ALABARDAS";
@@ -58,6 +85,7 @@ int main() {
 	vector<pair<unsigned int, unsigned int> > factors;
 	
 	unsigned int len_ref = ref.length();
+	unsigned int len_text = text.length();
 	unsigned int z = 0;
 	
 	// Construir SA referencia
@@ -118,18 +146,18 @@ int main() {
 	}
 	
 	rrr_vector<127> rrr_s(arr_s);
-	rrr_vector<127>::select_1_type select1(&rrr_s);
-	cout << "Posicion de primer 1: " << select1(1) << "\n";
-	cout << "Posicion de tercer 1: " << select1(3) << "\n";
-	cout << "Posicion de quinto 1: " << select1(5) << "\n";
+	rrr_vector<127>::select_1_type select1_s(&rrr_s);
+	cout << "Posicion de primer 1: " << select1_s(1) << "\n";
+	cout << "Posicion de tercer 1: " << select1_s(3) << "\n";
+	cout << "Posicion de quinto 1: " << select1_s(5) << "\n";
 	
 	// Notar que la posicion del select DEBE empezar desde 1, no desde 0
 	// De este modo, hay que sumar 1 a las posiciones de la ref para buscar en S
-	rrr_vector<127>::select_0_type select0(&rrr_s);
-	cout << "Posicion de primer 0: " << select0(1) << "\n";
-	cout << "Posicion de tercer 0: " << select0(3) << "\n";
-	cout << "Posicion de quinto 0: " << select0(5) << "\n";
-	cout << "Posicion de 0th 0: " << select0(0) << "\n";
+	rrr_vector<127>::select_0_type select0_s(&rrr_s);
+	cout << "Posicion de primer 0: " << select0_s(1) << "\n";
+	cout << "Posicion de tercer 0: " << select0_s(3) << "\n";
+	cout << "Posicion de quinto 0: " << select0_s(5) << "\n";
+	cout << "Posicion de 0th 0: " << select0_s(0) << "\n";
 	
 	
 	// Permutacion 
@@ -156,6 +184,24 @@ int main() {
 	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq(&ez);
 	// rmq_maximum_sct<> rmq(&ez);
 	
+	// Bit vector B (inicio de las frases en texto)
+	bit_vector arr_b(len_text, 0);
+	unsigned int pos_text = 0;
+	for( unsigned int i = 0; i < z; ++i ){
+//		unsigned int ini = factors[i].first;
+		unsigned int len = factors[i].second;
+		arr_b[ pos_text ] = 1;
+		pos_text += len;
+	}
+	cout << "Bit Vector B: \n";
+	for( unsigned int i = 0; i < len_text; ++i ){
+		cout << "B[" << i << "]: " << arr_b[i] << "\n";
+	}
+	rrr_vector<127> rrr_b(arr_b);
+	rrr_vector<127>::select_1_type select1_b(&rrr_b);
+	rrr_vector<127>::select_0_type select0_b(&rrr_b);
+	
+	
 	csa_wt<> fm_index;
 	// Construccion con datos en memoria, en un string
 	construct_im(fm_index, ref, 1);
@@ -176,14 +222,18 @@ int main() {
 			unsigned int occ_i = locations[i];
 			cout << "occ[" << i << "]: " << occ_i << " (" << ref.substr(occ_i, m) << ")\n";
 			// Comprobar los factores que cuben esta ocurrencia (el string ref[occ_i, occ_i + m - 1])
-			unsigned int select = select0(occ_i + 1);
+			unsigned int select = select0_s(occ_i + 1);
 			unsigned int pos_ez = select - 1 - occ_i;
 			cout << "select: " << select << " => pos_ez: " << pos_ez << "\n";
 			
 			// Ahora la busqueda (recursiva) en el rmq (entre 0 y pos_ez)
 //			unsigned int pos_max = rmq(0, pos_ez);
 //			cout << "max pos Ez: " << pos_max << " (Ez: " << ez[pos_max] << ", factor: " << perm[pos_max] << ")\n";
+			cout << "Search V1 -----\n";
 			recursive_rmq(0, pos_ez, (occ_i + m - 1), rmq, ez, perm);
+			cout << "Search V2 -----\n";
+			recursive_rmq_v2(0, pos_ez, (occ_i + m), rmq, select1_s, select1_b, select0_b, perm);
+			cout << " -----\n";
 
 		}
 	}
