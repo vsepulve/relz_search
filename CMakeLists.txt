@@ -21,8 +21,6 @@ file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
 add_executable(compress "${CMAKE_SOURCE_DIR}/programs/compress.cpp")
 add_executable(decompress "${CMAKE_SOURCE_DIR}/programs/decompress.cpp")
-#add_executable(test_rmq "${CMAKE_SOURCE_DIR}/programs/test_rmq.cpp")
-#add_executable(prueba_search "${CMAKE_SOURCE_DIR}/programs/prueba_search.cpp")
 add_executable(test_sdsl "${CMAKE_SOURCE_DIR}/programs/test_sdsl.cpp")
 add_executable(test_search "${CMAKE_SOURCE_DIR}/programs/test_search.cpp")
 
@@ -31,8 +29,6 @@ link_directories(${CMAKE_BINARY_DIR})
 
 target_link_libraries(compress relz pthread)
 target_link_libraries(decompress relz pthread)
-#target_link_libraries(test_rmq relz pthread)
-#target_link_libraries(prueba_search relz pthread)
 target_link_libraries(test_sdsl relz pthread sdsl divsufsort divsufsort64)
 target_link_libraries(test_search relz pthread sdsl divsufsort divsufsort64)
 
