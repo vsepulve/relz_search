@@ -14,7 +14,7 @@ unsigned int CoderBlocksRelz::codingBufferSize(unsigned int block_size){
 	return 2 * (block_size + 1) * sizeof(int);
 }
 
-void CoderBlocksRelz::codeBlock(const char *text, unsigned int text_size, fstream *file_headers, fstream *file_data, unsigned int &bytes_headers, unsigned int &bytes_data, char *full_buffer){
+void CoderBlocksRelz::codeBlock(const char *text, unsigned int text_size, fstream *file_headers, fstream *file_data, unsigned int &bytes_headers, unsigned int &bytes_data, char *full_buffer, vector<pair<unsigned int, unsigned int> > *external_factors){
 	
 	if(file_headers == NULL || file_data == NULL || (! file_headers->good()) || (! file_data->good()) || referencia == NULL){
 		cerr<<"CoderBlocksRelz::codeBlock - Error en fstreams\n";
@@ -55,7 +55,13 @@ void CoderBlocksRelz::codeBlock(const char *text, unsigned int text_size, fstrea
 		if(pos_prefijo > max_pos){
 			max_pos = pos_prefijo;
 		}
-//		cout<<"factor\t"<<n_factores<<"\t"<<pos_prefijo<<"\t"<<largo_prefijo<<"\n";
+		
+		cout<<"factor\t"<<n_factores<<"\t"<<pos_prefijo<<"\t"<<largo_prefijo<<"\n";
+		
+		if( external_factors != NULL ){
+			external_factors->push_back( pair<unsigned int, unsigned int>(pos_prefijo, largo_prefijo) );
+		}
+		
 //		cout<<"("<<pos_prefijo<<", "<<largo_prefijo<<")\n";
 //		cout<<"factor_length\t"<<largo_prefijo<<"\n";
 		buff_pos[n_factores] = pos_prefijo;
