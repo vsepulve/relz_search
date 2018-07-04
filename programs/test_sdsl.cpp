@@ -10,6 +10,7 @@
 #include <sdsl/bit_vectors.hpp>
 #include <sdsl/rmq_support.hpp>
 #include <sdsl/inv_perm_support.hpp>
+#include <sdsl/wavelet_trees.hpp>
 
 using namespace sdsl;
 using namespace std;
@@ -121,12 +122,24 @@ int main() {
 //	write_structure<HTML_FORMAT>(fm_index,out);
 	
 	
+	cout << "Prueba de WT\n";
 	
+	wt_int<rrr_vector<63>> wt;
+	construct_im(wt, int_vector<> {0, 6, 3, 5, 7, 1, 2, 4});
+	// La consulta de rango recibe [min_x, max_x, min_y, max_y] inclusivos (es decir, horizontal primero, vertical despues)
+	// Los resultados son pares [x, y] (horizontal primero, vertical despues)
+	// Los contadores de valores y posiciones empiezan en 0
+	cout << "Buscando en [1, 2] x [1, 5]:\n";
+	auto res = wt.range_search_2d(1, 2, 1, 5);
+	for (auto point : res.second){
+		cout << "(" << point.first << ", " << point.second << ")\n";
+	}
 	
-	
-	
-	
-	
+	cout << "Buscando en [1, 3] x [1, 5]:\n";
+	res = wt.range_search_2d(1, 3, 1, 5);
+	for (auto point : res.second){
+		cout << "(" << point.first << ", " << point.second << ")\n";
+	}
 	
 	
 	
