@@ -72,6 +72,85 @@ void recursive_rmq_v2(unsigned int ini, unsigned int fin, unsigned int crit, rmq
 	}
 }
 
+class FactorsIterator {
+
+private: 
+	
+	rrr_vector<127>::select_1_type *select1_s;
+	rrr_vector<127>::select_1_type *select1_b;
+	rrr_vector<127>::select_0_type *select0_b;
+	inv_perm_support<> *perm;
+	char *ref_text;
+	
+	// Posicion actual en la referencia para el factor actual
+	unsigned int cur_pos;
+	
+	// Factor actual, con posiciones para la referencia
+	unsigned int start_f;
+	unsigned int n_factors;
+	unsigned int cur_f;
+	unsigned int cur_f_ini;
+	unsigned int cur_f_fin;
+	
+	void loadFactor(unsigned int f){
+		cout << "FactorsIterator::loadFactor\n";
+		cur_f = f;
+		unsigned int tu = select1_s->operator()(cur_f + 1) - cur_f;
+		unsigned int pu = select1_b->operator()( (*perm)[cur_f] + 1);
+		unsigned int lu = select1_b->operator()( (*perm)[cur_f] + 2) - pu;
+		cout << "FactorsIterator::loadFactor - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
+		cur_f_ini = tu;
+		cur_f_fin = tu + lu - 1;
+		cur_pos = cur_f_ini;
+	}
+	
+public: 
+	
+	FactorsIterator( unsigned int _start_f, unsigned int _n_factors, 
+			rrr_vector<127>::select_1_type *_select1_s, 
+			rrr_vector<127>::select_1_type *_select1_b, 
+			rrr_vector<127>::select_0_type *_select0_b, 
+			inv_perm_support<> *_perm, 
+			char *_ref_text ){
+		start_f = _start_f;
+		n_factors = _n_factors;
+		select1_s = _select1_s;
+		select1_b = _select1_b;
+		select0_b = _select0_b;
+		ref_text = _ref_text;
+		cur_pos = 0;
+		cur_f = 0;
+		cur_f_ini = 0;
+		cur_f_fin = 0;
+		reset();
+	}
+	
+	void reset(){
+		cout << "FactorsIterator::reset\n";
+		loadFactor(start_f);
+	}
+	
+	char next(){
+		cout << "FactorsIterator::next - cur_pos: " << cur_pos << ", cur_f_fin: " << cur_f_fin << ", cur_f: " << cur_f << " / " << n_factors << "\n";
+//		return 0;
+		char ret = ref_text[cur_pos++];
+		if( (cur_pos > cur_f_fin) && cur_f < n_factors ){
+			loadFactor(++cur_f);
+		}
+		return ret;
+	}
+	
+	bool hasNext(){
+		cout << "FactorsIterator::hasNext - " << cur_pos << " <= " << cur_f_fin << "?\n";
+//		return false;
+		if( cur_pos <= cur_f_fin ){
+			return true;
+		}
+		return false;
+	}
+	
+};
+
 int main() {
 	
 	string ref = "ALABARDAS";
@@ -234,13 +313,18 @@ int main() {
 			cout << "----- Search V2 -----\n";
 			recursive_rmq_v2(0, pos_ez, (occ_i + m), rmq, select1_s, select1_b, select0_b, perm);
 			cout << "----- -----\n";
-
+			
 		}
 	}
 	
+	// Indice secundario
+	cout << "Preparando estructuras de indice secundario\n";
 	
-	
-	
+	// Creo que seria ideal preparar iteradores de factor directo y reverso, que accedan a la referencia
+	// Esas estructuras deberian poder usar las estructuras comprimidas para evaluar la info de los factores
+	// Cada iterador internamente puede mantener los valores actuales dada un cur_pos actual
+	// Basta con que los iteradores retornen el char de cierta pos FactorsIterator::get(unsigned int pos) o "char FactorsIterator::next()"
+	// A parte del next, necesitaria una forma de controlar el final del iterator, quizas "bool FactorsIterator::hasNext()"
 	
 	
 	
