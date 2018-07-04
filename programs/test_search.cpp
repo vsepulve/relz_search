@@ -80,7 +80,8 @@ private:
 	rrr_vector<127>::select_1_type *select1_b;
 	rrr_vector<127>::select_0_type *select0_b;
 	inv_perm_support<> *perm;
-	char *ref_text;
+	inv_perm_support<> *perm_inv;
+	const char *ref_text;
 	
 	// Posicion actual en la referencia para el factor actual
 	unsigned int cur_pos;
@@ -93,11 +94,13 @@ private:
 	unsigned int cur_f_fin;
 	
 	void loadFactor(unsigned int f){
-		cout << "FactorsIterator::loadFactor\n";
+		cout << "FactorsIterator::loadFactor - Cargando factor " << f << "\n";
 		cur_f = f;
-		unsigned int tu = select1_s->operator()(cur_f + 1) - cur_f;
-		unsigned int pu = select1_b->operator()( (*perm)[cur_f] + 1);
-		unsigned int lu = select1_b->operator()( (*perm)[cur_f] + 2) - pu;
+		// Convertir el factor posicional creciente a la posicion EN la permutacion (con perm_inv)
+		unsigned int cur_perm = (*perm_inv)[cur_f];
+		unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
+		unsigned int pu = select1_b->operator()( (*perm)[cur_perm] + 1);
+		unsigned int lu = select1_b->operator()( (*perm)[cur_perm] + 2) - pu;
 		cout << "FactorsIterator::loadFactor - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 		cur_f_ini = tu;
 		cur_f_fin = tu + lu - 1;
@@ -111,12 +114,15 @@ public:
 			rrr_vector<127>::select_1_type *_select1_b, 
 			rrr_vector<127>::select_0_type *_select0_b, 
 			inv_perm_support<> *_perm, 
-			char *_ref_text ){
+			inv_perm_support<> *_perm_inv, 
+			const char *_ref_text ){
 		start_f = _start_f;
 		n_factors = _n_factors;
 		select1_s = _select1_s;
 		select1_b = _select1_b;
 		select0_b = _select0_b;
+		perm = _perm;
+		perm_inv = _perm_inv;
 		ref_text = _ref_text;
 		cur_pos = 0;
 		cur_f = 0;
@@ -127,14 +133,13 @@ public:
 	
 	void reset(){
 		cout << "FactorsIterator::reset\n";
-		loadFactor(start_f);
+		loadFactor( start_f );
 	}
 	
 	char next(){
 		cout << "FactorsIterator::next - cur_pos: " << cur_pos << ", cur_f_fin: " << cur_f_fin << ", cur_f: " << cur_f << " / " << n_factors << "\n";
-//		return 0;
 		char ret = ref_text[cur_pos++];
-		if( (cur_pos > cur_f_fin) && cur_f < n_factors ){
+		if( (cur_pos > cur_f_fin) && (cur_f < n_factors-1) ){
 			loadFactor(++cur_f);
 		}
 		return ret;
@@ -142,7 +147,6 @@ public:
 	
 	bool hasNext(){
 		cout << "FactorsIterator::hasNext - " << cur_pos << " <= " << cur_f_fin << "?\n";
-//		return false;
 		if( cur_pos <= cur_f_fin ){
 			return true;
 		}
@@ -326,8 +330,17 @@ int main() {
 	// Basta con que los iteradores retornen el char de cierta pos FactorsIterator::get(unsigned int pos) o "char FactorsIterator::next()"
 	// A parte del next, necesitaria una forma de controlar el final del iterator, quizas "bool FactorsIterator::hasNext()"
 	
+	cout << "Probando Iterador\n";
 	
+	FactorsIterator it( 2, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	cout << "-----\n";
 	
+	while( it.hasNext() ){
+		cout << "it.next(): " << it.next() << "\n";
+		cout << "-----\n";
+	}
+	
+	cout << "Fin prueba iterador\n";
 
 
 
