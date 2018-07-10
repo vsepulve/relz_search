@@ -94,20 +94,39 @@ private:
 	unsigned int cur_f_fin;
 	
 	void loadFactor(unsigned int f){
-		cout << "FactorsIterator::loadFactor - Cargando factor " << f << "\n";
+//		cout << "FactorsIterator::loadFactor - Cargando factor " << f << "\n";
 		cur_f = f;
+		if( cur_f == (unsigned int)(-1) || cur_f >= n_factors){
+			return;
+		}
 		// Convertir el factor posicional creciente a la posicion EN la permutacion (con perm_inv)
 		unsigned int cur_perm = (*perm_inv)[cur_f];
 		unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
 		unsigned int pu = select1_b->operator()( (*perm)[cur_perm] + 1);
 		unsigned int lu = select1_b->operator()( (*perm)[cur_perm] + 2) - pu;
-		cout << "FactorsIterator::loadFactor - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
+//		cout << "FactorsIterator::loadFactor - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 		cur_f_ini = tu;
 		cur_f_fin = tu + lu - 1;
 		cur_pos = cur_f_ini;
 	}
 	
 public: 
+	
+	FactorsIterator(){
+		start_f = 0;
+		n_factors = 0;
+		select1_s = NULL;
+		select1_b = NULL;
+		select0_b = NULL;
+		perm = NULL;
+		perm_inv = NULL;
+		ref_text = NULL;
+		cur_pos = 0;
+		cur_f = 0;
+		cur_f_ini = 0;
+		cur_f_fin = 0;
+		reset();
+	}
 	
 	FactorsIterator( unsigned int _start_f, unsigned int _n_factors, 
 			rrr_vector<127>::select_1_type *_select1_s, 
@@ -132,12 +151,12 @@ public:
 	}
 	
 	void reset(){
-		cout << "FactorsIterator::reset\n";
+//		cout << "FactorsIterator::reset\n";
 		loadFactor( start_f );
 	}
 	
 	char next(){
-		cout << "FactorsIterator::next - cur_pos: " << cur_pos << ", cur_f_fin: " << cur_f_fin << ", cur_f: " << cur_f << " / " << n_factors << "\n";
+//		cout << "FactorsIterator::next - cur_pos: " << cur_pos << ", cur_f_fin: " << cur_f_fin << ", cur_f: " << cur_f << " / " << n_factors << "\n";
 		char ret = ref_text[cur_pos++];
 		if( (cur_pos > cur_f_fin) && (cur_f < n_factors-1) ){
 			loadFactor(++cur_f);
@@ -146,13 +165,271 @@ public:
 	}
 	
 	bool hasNext(){
-		cout << "FactorsIterator::hasNext - " << cur_pos << " <= " << cur_f_fin << "?\n";
-		if( cur_pos <= cur_f_fin ){
+//		cout << "FactorsIterator::hasNext - " << cur_pos << " <= " << cur_f_fin << "?\n";
+//		if( cur_pos <= cur_f_fin ){
+		if( cur_pos <= cur_f_fin && cur_f >= 0 && cur_f < n_factors ){
 			return true;
 		}
 		return false;
 	}
 	
+};
+
+class FactorsIteratorReverse {
+
+private: 
+	
+	rrr_vector<127>::select_1_type *select1_s;
+	rrr_vector<127>::select_1_type *select1_b;
+	rrr_vector<127>::select_0_type *select0_b;
+	inv_perm_support<> *perm;
+	inv_perm_support<> *perm_inv;
+	const char *ref_text;
+	
+	// Posicion actual en la referencia para el factor actual
+	unsigned int cur_pos;
+	
+	// Factor actual, con posiciones para la referencia
+	unsigned int start_f;
+	unsigned int n_factors;
+	unsigned int cur_f;
+	unsigned int cur_f_ini;
+	unsigned int cur_f_fin;
+	
+	void loadFactor(unsigned int f){
+//		cout << "FactorsIteratorReverse::loadFactor - Cargando factor " << f << "\n";
+		cur_f = f;
+		if( cur_f == (unsigned int)(-1) || cur_f >= n_factors){
+			return;
+		}
+		// Convertir el factor posicional creciente a la posicion EN la permutacion (con perm_inv)
+		unsigned int cur_perm = (*perm_inv)[cur_f];
+		unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
+		unsigned int pu = select1_b->operator()( (*perm)[cur_perm] + 1);
+		unsigned int lu = select1_b->operator()( (*perm)[cur_perm] + 2) - pu;
+//		cout << "FactorsIteratorReverse::loadFactor - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
+		cur_f_ini = tu;
+		cur_f_fin = tu + lu - 1;
+		cur_pos = cur_f_fin;
+	}
+	
+public: 
+	
+	FactorsIteratorReverse(){
+		start_f = 0;
+		n_factors = 0;
+		select1_s = NULL;
+		select1_b = NULL;
+		select0_b = NULL;
+		perm = NULL;
+		perm_inv = NULL;
+		ref_text = NULL;
+		cur_pos = 0;
+		cur_f = 0;
+		cur_f_ini = 0;
+		cur_f_fin = 0;
+		reset();
+	}
+	
+	FactorsIteratorReverse( unsigned int _start_f, unsigned int _n_factors, 
+			rrr_vector<127>::select_1_type *_select1_s, 
+			rrr_vector<127>::select_1_type *_select1_b, 
+			rrr_vector<127>::select_0_type *_select0_b, 
+			inv_perm_support<> *_perm, 
+			inv_perm_support<> *_perm_inv, 
+			const char *_ref_text ){
+		start_f = _start_f;
+		n_factors = _n_factors;
+		select1_s = _select1_s;
+		select1_b = _select1_b;
+		select0_b = _select0_b;
+		perm = _perm;
+		perm_inv = _perm_inv;
+		ref_text = _ref_text;
+		cur_pos = 0;
+		cur_f = 0;
+		cur_f_ini = 0;
+		cur_f_fin = 0;
+		reset();
+	}
+	
+	void reset(){
+//		cout << "FactorsIteratorReverse::reset\n";
+		loadFactor( start_f );
+	}
+	
+	char next(){
+//		cout << "FactorsIteratorReverse::next - cur_pos: " << cur_pos << ", cur_f_ini: " << cur_f_ini << ", cur_f: " << cur_f << " / " << n_factors << "\n";
+		char ret = ref_text[cur_pos--];
+		if( (cur_pos < cur_f_ini || cur_pos == (unsigned int)(-1)) && (--cur_f != (unsigned int)(-1)) ){
+			loadFactor(cur_f);
+		}
+		return ret;
+	}
+	
+	bool hasNext(){
+//		cout << "FactorsIteratorReverse::hasNext - " << cur_f << " != " << (unsigned int)(-1) << " (cur_pos: " << cur_pos << ")\n";
+//		if( cur_f != (unsigned int)(-1) ){
+		if( cur_f >= 0 && cur_f < n_factors ){
+			return true;
+		}
+		return false;
+	}
+	
+};
+
+/*
+class FactorsIteratorComparator : public std::binary_function<unsigned int, unsigned int, bool> {
+private:
+	FactorsIterator it_a;
+	FactorsIterator it_b;
+public:
+	FactorsIteratorComparator(){}
+	
+	FactorsIteratorComparator(unsigned int _start_f1, unsigned int _start_f2, 
+			unsigned int _n_factors, 
+			rrr_vector<127>::select_1_type *_select1_s, 
+			rrr_vector<127>::select_1_type *_select1_b, 
+			rrr_vector<127>::select_0_type *_select0_b, 
+			inv_perm_support<> *_perm, 
+			inv_perm_support<> *_perm_inv, 
+			const char *_ref_text) {
+		it_a = FactorsIterator( _start_f1, _n_factors, _select1_s, _select1_b, _select0_b, _perm, _perm_inv, _ref_text );
+		it_b = FactorsIterator( _start_f2, _n_factors, _select1_s, _select1_b, _select0_b, _perm, _perm_inv, _ref_text );
+	}
+	
+	inline bool operator()(const unsigned int a, const unsigned int b){
+		if( ! it_a.hasNext() ){
+			return true;
+		}
+		if( ! it_b.hasNext() ){
+			return false;
+		}
+		return (it_a.next() <= it_b.next());
+	}
+};
+*/
+
+class FactorsIteratorComparator : public std::binary_function<unsigned int, unsigned int, bool> {
+private:
+	unsigned int n_factors;
+	rrr_vector<127>::select_1_type *select1_s;
+	rrr_vector<127>::select_1_type *select1_b;
+	rrr_vector<127>::select_0_type *select0_b;
+	inv_perm_support<> *perm;
+	inv_perm_support<> *perm_inv;
+	const char *ref_text;
+
+public:
+	FactorsIteratorComparator(){
+		n_factors = 0;
+		select1_s = NULL;
+		select1_b = NULL;
+		select0_b = NULL;
+		perm = NULL;
+		perm_inv = NULL;
+		ref_text = NULL;
+	}
+	
+	FactorsIteratorComparator(unsigned int _n_factors, 
+			rrr_vector<127>::select_1_type *_select1_s, 
+			rrr_vector<127>::select_1_type *_select1_b, 
+			rrr_vector<127>::select_0_type *_select0_b, 
+			inv_perm_support<> *_perm, 
+			inv_perm_support<> *_perm_inv, 
+			const char *_ref_text) {
+		n_factors = _n_factors;
+		select1_s = _select1_s;
+		select1_b = _select1_b;
+		select0_b = _select0_b;
+		perm = _perm;
+		perm_inv = _perm_inv;
+		ref_text = _ref_text;
+	}
+	
+	inline bool operator()(const unsigned int a, const unsigned int b){
+		FactorsIterator it_a( a, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text );
+		FactorsIterator it_b( b, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text );
+		char ch_a, ch_b;
+		while( true ){
+			if( ! it_a.hasNext() ){
+				return true;
+			}
+			if( ! it_b.hasNext() ){
+				return false;
+			}
+			ch_a = it_a.next();
+			ch_b = it_b.next();
+			if( ch_a < ch_b ){
+				return true;
+			}
+			if( ch_b < ch_a){
+				return false;
+			}
+		}
+		return true;
+	}
+};
+
+class FactorsIteratorReverseComparator : public std::binary_function<unsigned int, unsigned int, bool> {
+private:
+	unsigned int n_factors;
+	rrr_vector<127>::select_1_type *select1_s;
+	rrr_vector<127>::select_1_type *select1_b;
+	rrr_vector<127>::select_0_type *select0_b;
+	inv_perm_support<> *perm;
+	inv_perm_support<> *perm_inv;
+	const char *ref_text;
+
+public:
+	FactorsIteratorReverseComparator(){
+		n_factors = 0;
+		select1_s = NULL;
+		select1_b = NULL;
+		select0_b = NULL;
+		perm = NULL;
+		perm_inv = NULL;
+		ref_text = NULL;
+	}
+	
+	FactorsIteratorReverseComparator(unsigned int _n_factors, 
+			rrr_vector<127>::select_1_type *_select1_s, 
+			rrr_vector<127>::select_1_type *_select1_b, 
+			rrr_vector<127>::select_0_type *_select0_b, 
+			inv_perm_support<> *_perm, 
+			inv_perm_support<> *_perm_inv, 
+			const char *_ref_text) {
+		n_factors = _n_factors;
+		select1_s = _select1_s;
+		select1_b = _select1_b;
+		select0_b = _select0_b;
+		perm = _perm;
+		perm_inv = _perm_inv;
+		ref_text = _ref_text;
+	}
+	
+	inline bool operator()(const unsigned int a, const unsigned int b){
+		FactorsIteratorReverse it_a( a - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text );
+		FactorsIteratorReverse it_b( b - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text );
+		char ch_a, ch_b;
+		while( true ){
+			if( ! it_a.hasNext() ){
+				return true;
+			}
+			if( ! it_b.hasNext() ){
+				return false;
+			}
+			ch_a = it_a.next();
+			ch_b = it_b.next();
+			if( ch_a < ch_b ){
+				return true;
+			}
+			if( ch_b < ch_a){
+				return false;
+			}
+		}
+		return true;
+	}
 };
 
 int main() {
@@ -330,6 +607,7 @@ int main() {
 	// Basta con que los iteradores retornen el char de cierta pos FactorsIterator::get(unsigned int pos) o "char FactorsIterator::next()"
 	// A parte del next, necesitaria una forma de controlar el final del iterator, quizas "bool FactorsIterator::hasNext()"
 	
+	/*
 	cout << "Probando Iterador\n";
 	
 	FactorsIterator it( 2, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
@@ -341,9 +619,117 @@ int main() {
 	}
 	
 	cout << "Fin prueba iterador\n";
+	cout << "-----\n";
+	
+	
+	cout << "Probando Iterador Reverso\n";
+	
+	FactorsIteratorReverse it_rev( 2, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	cout << "-----\n";
+	
+	while( it_rev.hasNext() ){
+		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		cout << "-----\n";
+	}
+	
+	cout << "Fin prueba iterador\n";
+	cout << "-----\n";
 
+	cout << "Probando Iterador Reverso -1\n";
+	it_rev = FactorsIteratorReverse( -1, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	while( it_rev.hasNext() ){
+		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		cout << "-----\n";
+	}
 
+	cout << "Probando Iterador Reverso 0\n";
+	it_rev = FactorsIteratorReverse( 0, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	while( it_rev.hasNext() ){
+		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		cout << "-----\n";
+	}
 
+	cout << "Probando Iterador Reverso 1\n";
+	it_rev = FactorsIteratorReverse( 1, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	while( it_rev.hasNext() ){
+		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		cout << "-----\n";
+	}
+
+	cout << "Probando Iterador Reverso 5\n";
+	it_rev = FactorsIteratorReverse( 5, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	while( it_rev.hasNext() ){
+		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		cout << "-----\n";
+	}
+
+	cout << "Probando Iterador Reverso 7\n";
+	it_rev = FactorsIteratorReverse( 7, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	while( it_rev.hasNext() ){
+		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		cout << "-----\n";
+	}
+	
+	cout << "-----\n";
+		
+	cout << "Probando Iterador Reverso 8\n";
+	it_rev = FactorsIteratorReverse( 8, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	while( it_rev.hasNext() ){
+		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		cout << "-----\n";
+	}
+	cout << "Probando reset\n";
+	it_rev.reset();
+	while( it_rev.hasNext() ){
+		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		cout << "-----\n";
+	}
+
+	cout << "-----\n";
+
+	cout << "Probando Iterador Reverso 5\n";
+	it_rev = FactorsIteratorReverse( 5, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	while( it_rev.hasNext() ){
+		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		cout << "-----\n";
+	}
+	cout << "Probando reset\n";
+	it_rev.reset();
+	while( it_rev.hasNext() ){
+		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		cout << "-----\n";
+	}
+	
+	cout << "-----\n";
+	*/
+	
+	cout << "Preparando arr Y\n";
+	vector<unsigned int> arr_y(z);
+	for( unsigned int i = 0; i < z; ++i ){
+		arr_y[i] = i;
+	}
+	
+	FactorsIteratorComparator comp(z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str());
+	stable_sort(arr_y.begin(), arr_y.end(), comp);
+	for( unsigned i = 0; i < z; ++i ){
+		cout << " arr_y[" << i << "]: " << arr_y[i] << " \n";
+	}
+	cout << "-----\n";
+	
+	cout << "Preparando arr X\n";
+	vector<unsigned int> arr_x(z);
+	for( unsigned int i = 0; i < z; ++i ){
+		arr_x[i] = i;
+	}
+	
+	FactorsIteratorReverseComparator comp_rev(z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str());
+	stable_sort(arr_x.begin(), arr_x.end(), comp_rev);
+	for( unsigned i = 0; i < z; ++i ){
+		cout << " arr_x[" << i << "]: " << arr_x[i] << " \n";
+	}
+	cout << "-----\n";
+	
+	
 	delete reference;
 
 
