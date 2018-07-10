@@ -13,6 +13,7 @@
 #include <sdsl/bit_vectors.hpp>
 #include <sdsl/rmq_support.hpp>
 #include <sdsl/inv_perm_support.hpp>
+#include <sdsl/wavelet_trees.hpp>
 
 #include "ReferenceIndexBasic.h"
 #include "CompressorSingleBuffer.h"
@@ -703,31 +704,67 @@ int main() {
 	cout << "-----\n";
 	*/
 	
-	cout << "Preparando arr Y\n";
-	vector<unsigned int> arr_y(z);
-	for( unsigned int i = 0; i < z; ++i ){
-		arr_y[i] = i;
-	}
-	
-	FactorsIteratorComparator comp(z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str());
-	stable_sort(arr_y.begin(), arr_y.end(), comp);
-	for( unsigned i = 0; i < z; ++i ){
-		cout << " arr_y[" << i << "]: " << arr_y[i] << " \n";
-	}
-	cout << "-----\n";
-	
 	cout << "Preparando arr X\n";
 	vector<unsigned int> arr_x(z);
 	for( unsigned int i = 0; i < z; ++i ){
 		arr_x[i] = i;
 	}
-	
 	FactorsIteratorReverseComparator comp_rev(z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str());
 	stable_sort(arr_x.begin(), arr_x.end(), comp_rev);
-	for( unsigned i = 0; i < z; ++i ){
+	for( unsigned int i = 0; i < z; ++i ){
 		cout << " arr_x[" << i << "]: " << arr_x[i] << " \n";
 	}
 	cout << "-----\n";
+	
+	cout << "Preparando arr Y\n";
+	vector<unsigned int> arr_y(z);
+	for( unsigned int i = 0; i < z; ++i ){
+		arr_y[i] = i;
+	}
+	FactorsIteratorComparator comp(z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str());
+	stable_sort(arr_y.begin(), arr_y.end(), comp);
+	int_vector<> pre_y(z);
+	int_vector<> pre_y_inv(z);
+	for( unsigned int i = 0; i < z; ++i ){
+		pre_y[i] = arr_y[i];
+		pre_y_inv[ arr_y[i] ] = i;
+	}
+	inv_perm_support<> perm_y_inv(&pre_y);
+	inv_perm_support<> perm_y(&pre_y_inv);
+	for( unsigned int i = 0; i < z; ++i ){
+		cout << " arr_y[" << i << "]: " << arr_y[i] << " (perm_y[" << i << "]: " << perm_y[i] << ", perm_y_inv[" << i << "]: " << perm_y_inv[i] << ")\n";
+	}
+	cout << "-----\n";
+	
+	cout << "Preparando WT\n";
+	int_vector<> values_wt(z);
+	for( unsigned int i = 0; i < z; ++i ){
+		values_wt[i] = perm_y_inv[ arr_x[ i ] ];
+		cout << " values_wt[" << i << "]: " << values_wt[i] << " \n";
+	}
+	
+	wt_int<rrr_vector<63>> wt;
+	construct_im(wt, values_wt);
+	
+//	cout << "Buscando en [1, 2] x [1, 5]:\n";
+//	auto res = wt.range_search_2d(1, 2, 1, 5);
+//	for (auto point : res.second){
+//		cout << "(" << point.first << ", " << point.second << ")\n";
+//	}
+	
+	cout << "Buscando en [1, 5] x [1, 2]:\n";
+	auto res = wt.range_search_2d(1, 5, 1, 2);
+	for (auto point : res.second){
+		cout << "(" << point.first << ", " << point.second << ") => factor " << perm_y[point.second] << "\n";
+		// Aqui tengo el id posicional del factor
+		// Puedo sacar sus datos con las formulas para tu, pu, lu
+		// Es necesario leer tambien el factor anterior tambien, pero la posicion se tiene
+		// Notar que las posiciones de corte en m las conozco porque itero por ella (en m^2)
+	}
+	
+	cout << "Realizando busquedas reales en el WT\n";
+	// El codigo de la busqueda de rangos deberia estar basado en el codigo de el del reference
+	
 	
 	
 	delete reference;
