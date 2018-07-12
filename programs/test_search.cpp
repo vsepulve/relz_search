@@ -77,15 +77,25 @@ class FactorsIterator {
 
 private: 
 	
+	// Valores y estructuras globales, compartidas entre iteradores
 	rrr_vector<127>::select_1_type *select1_s;
 	rrr_vector<127>::select_1_type *select1_b;
 	rrr_vector<127>::select_0_type *select0_b;
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
+	// Texto de la referencia descomprimido
 	const char *ref_text;
+	// Largo de la coleccion completa comprimida
+	unsigned int full_size;
 	
 	// Posicion actual en la referencia para el factor actual
 	unsigned int cur_pos;
+	
+	// Largo y posicion actual en el texto comprimido total 
+	// Es decir, su largo y posicion como si fuese un string independiente
+	// Estos datos pueden ser usados para simplificar comparaciones de strings
+	unsigned int text_length;
+	unsigned int text_pos;
 	
 	// Factor actual, con posiciones para la referencia
 	unsigned int start_f;
@@ -109,6 +119,9 @@ private:
 		cur_f_ini = tu;
 		cur_f_fin = tu + lu - 1;
 		cur_pos = cur_f_ini;
+		// valores como string independiente
+		text_length = full_size - pu;
+		text_pos = 0;
 	}
 	
 public: 
@@ -122,6 +135,7 @@ public:
 		perm = NULL;
 		perm_inv = NULL;
 		ref_text = NULL;
+		full_size = 0;
 		cur_pos = 0;
 		cur_f = 0;
 		cur_f_ini = 0;
@@ -135,7 +149,8 @@ public:
 			rrr_vector<127>::select_0_type *_select0_b, 
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
-			const char *_ref_text ){
+			const char *_ref_text,
+			unsigned int _full_size ){
 		start_f = _start_f;
 		n_factors = _n_factors;
 		select1_s = _select1_s;
@@ -144,6 +159,7 @@ public:
 		perm = _perm;
 		perm_inv = _perm_inv;
 		ref_text = _ref_text;
+		full_size = _full_size;
 		cur_pos = 0;
 		cur_f = 0;
 		cur_f_ini = 0;
@@ -158,7 +174,9 @@ public:
 	
 	char next(){
 //		cout << "FactorsIterator::next - cur_pos: " << cur_pos << ", cur_f_fin: " << cur_f_fin << ", cur_f: " << cur_f << " / " << n_factors << "\n";
-		char ret = ref_text[cur_pos++];
+		char ret = ref_text[cur_pos];
+		++cur_pos;
+		++text_pos;
 		if( (cur_pos > cur_f_fin) && (cur_f < n_factors-1) ){
 			loadFactor(++cur_f);
 		}
@@ -174,21 +192,38 @@ public:
 		return false;
 	}
 	
+	unsigned int length(){
+		return text_length;
+	}
+	
+	unsigned int position(){
+		return text_pos;
+	}
+	
 };
 
 class FactorsIteratorReverse {
 
 private: 
 	
+	// Valores y estructuras globales, compartidas entre iteradores
 	rrr_vector<127>::select_1_type *select1_s;
 	rrr_vector<127>::select_1_type *select1_b;
 	rrr_vector<127>::select_0_type *select0_b;
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
 	const char *ref_text;
+	// Largo de la coleccion completa comprimida
+	unsigned int full_size;
 	
 	// Posicion actual en la referencia para el factor actual
 	unsigned int cur_pos;
+	
+	// Largo y posicion actual en el texto comprimido total 
+	// Es decir, su largo y posicion como si fuese un string independiente
+	// Estos datos pueden ser usados para simplificar comparaciones de strings
+	unsigned int text_length;
+	unsigned int text_pos;
 	
 	// Factor actual, con posiciones para la referencia
 	unsigned int start_f;
@@ -212,6 +247,9 @@ private:
 		cur_f_ini = tu;
 		cur_f_fin = tu + lu - 1;
 		cur_pos = cur_f_fin;
+		// valores como string independiente
+		text_length = pu;
+		text_pos = 0;
 	}
 	
 public: 
@@ -225,6 +263,7 @@ public:
 		perm = NULL;
 		perm_inv = NULL;
 		ref_text = NULL;
+		full_size = 0;
 		cur_pos = 0;
 		cur_f = 0;
 		cur_f_ini = 0;
@@ -238,7 +277,8 @@ public:
 			rrr_vector<127>::select_0_type *_select0_b, 
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
-			const char *_ref_text ){
+			const char *_ref_text,
+			unsigned int _full_size ){
 		start_f = _start_f;
 		n_factors = _n_factors;
 		select1_s = _select1_s;
@@ -247,6 +287,7 @@ public:
 		perm = _perm;
 		perm_inv = _perm_inv;
 		ref_text = _ref_text;
+		full_size = _full_size;
 		cur_pos = 0;
 		cur_f = 0;
 		cur_f_ini = 0;
@@ -261,7 +302,9 @@ public:
 	
 	char next(){
 //		cout << "FactorsIteratorReverse::next - cur_pos: " << cur_pos << ", cur_f_ini: " << cur_f_ini << ", cur_f: " << cur_f << " / " << n_factors << "\n";
-		char ret = ref_text[cur_pos--];
+		char ret = ref_text[cur_pos];
+		--cur_pos;
+		++text_pos;
 		if( (cur_pos < cur_f_ini || cur_pos == (unsigned int)(-1)) && (--cur_f != (unsigned int)(-1)) ){
 			loadFactor(cur_f);
 		}
@@ -275,6 +318,14 @@ public:
 			return true;
 		}
 		return false;
+	}
+	
+	unsigned int length(){
+		return text_length;
+	}
+	
+	unsigned int position(){
+		return text_pos;
 	}
 	
 };
@@ -320,6 +371,7 @@ private:
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
 	const char *ref_text;
+	unsigned int full_size;
 
 public:
 	FactorsIteratorComparator(){
@@ -330,6 +382,7 @@ public:
 		perm = NULL;
 		perm_inv = NULL;
 		ref_text = NULL;
+		full_size = 0;
 	}
 	
 	FactorsIteratorComparator(unsigned int _n_factors, 
@@ -338,7 +391,8 @@ public:
 			rrr_vector<127>::select_0_type *_select0_b, 
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
-			const char *_ref_text) {
+			const char *_ref_text, 
+			unsigned int _full_size ) {
 		n_factors = _n_factors;
 		select1_s = _select1_s;
 		select1_b = _select1_b;
@@ -346,11 +400,12 @@ public:
 		perm = _perm;
 		perm_inv = _perm_inv;
 		ref_text = _ref_text;
+		full_size = _full_size;
 	}
 	
 	inline bool operator()(const unsigned int a, const unsigned int b){
-		FactorsIterator it_a( a, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text );
-		FactorsIterator it_b( b, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text );
+		FactorsIterator it_a( a, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size );
+		FactorsIterator it_b( b, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size );
 		char ch_a, ch_b;
 		while( true ){
 			if( ! it_a.hasNext() ){
@@ -381,6 +436,7 @@ private:
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
 	const char *ref_text;
+	unsigned int full_size;
 
 public:
 	FactorsIteratorReverseComparator(){
@@ -391,6 +447,7 @@ public:
 		perm = NULL;
 		perm_inv = NULL;
 		ref_text = NULL;
+		full_size = 0;
 	}
 	
 	FactorsIteratorReverseComparator(unsigned int _n_factors, 
@@ -399,7 +456,8 @@ public:
 			rrr_vector<127>::select_0_type *_select0_b, 
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
-			const char *_ref_text) {
+			const char *_ref_text, 
+			unsigned int _full_size ) {
 		n_factors = _n_factors;
 		select1_s = _select1_s;
 		select1_b = _select1_b;
@@ -407,11 +465,12 @@ public:
 		perm = _perm;
 		perm_inv = _perm_inv;
 		ref_text = _ref_text;
+		full_size = _full_size;
 	}
 	
 	inline bool operator()(const unsigned int a, const unsigned int b){
-		FactorsIteratorReverse it_a( a - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text );
-		FactorsIteratorReverse it_b( b - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text );
+		FactorsIteratorReverse it_a( a - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size );
+		FactorsIteratorReverse it_b( b - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size );
 		char ch_a, ch_b;
 		while( true ){
 			if( ! it_a.hasNext() ){
@@ -722,7 +781,7 @@ int main() {
 	for( unsigned int i = 0; i < z; ++i ){
 		arr_x[i] = i;
 	}
-	FactorsIteratorReverseComparator comp_rev(z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str());
+	FactorsIteratorReverseComparator comp_rev(z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	stable_sort(arr_x.begin(), arr_x.end(), comp_rev);
 	for( unsigned int i = 0; i < z; ++i ){
 		cout << " arr_x[" << i << "]: " << arr_x[i] << " \n";
@@ -734,7 +793,7 @@ int main() {
 	for( unsigned int i = 0; i < z; ++i ){
 		arr_y[i] = i;
 	}
-	FactorsIteratorComparator comp(z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str());
+	FactorsIteratorComparator comp(z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	stable_sort(arr_y.begin(), arr_y.end(), comp);
 	int_vector<> pre_y(z);
 	int_vector<> pre_y_inv(z);
