@@ -568,7 +568,7 @@ char getCharRev(unsigned int factor, unsigned int pos,
 
 // Notar que, a diferencia de la busqueda en referencia, esta debe ser completa
 // Es decir, solo importa el rango que contiene al patron completo
-pair<unsigned int, unsigned int> getRangeY( 
+pair<unsigned int, unsigned int> getRangeY(
 			const char *pattern,
 			inv_perm_support<> &perm_y,
 			unsigned int n_factors, 
@@ -657,6 +657,98 @@ pair<unsigned int, unsigned int> getRangeY(
 	}
 	
 	cout << "getRangeY - result: (" << izq << ", " << der << ")\n";
+	return pair<unsigned int, unsigned int>(izq, der);
+}
+
+pair<unsigned int, unsigned int> getRangeX(
+			const char *pattern,
+			inv_perm_support<> &perm_x,
+			unsigned int n_factors, 
+			rrr_vector<127>::select_1_type *select1_s, 
+			rrr_vector<127>::select_1_type *select1_b, 
+			rrr_vector<127>::select_0_type *select0_b, 
+			inv_perm_support<> *perm, 
+			inv_perm_support<> *perm_inv, 
+			const char *ref_text, 
+			unsigned int full_size ){
+	
+	unsigned int pat_len = strlen(pattern);
+	unsigned int izq = 0;
+	unsigned int der = n_factors-1;
+	
+	cout << "getRangeX - Inicio (pat_len: " << pat_len << ", izq: " << izq << ", der: " << der << ")\n";
+	
+	for( unsigned int cur_pos = 0; cur_pos < pat_len; ++cur_pos ){
+		cout << "getRangeX - cur_pos: " << cur_pos << " (pattern[" << cur_pos << "]: " << pattern[cur_pos] << ")\n";
+		
+		unsigned int l = izq;
+		unsigned int h = der;
+		unsigned int m;
+		unsigned int fm;
+		char c;
+		unsigned int text_len;
+		
+		// Busqueda binaria del lado izquierdo
+		cout << "getRangeX - l: " << l << ", h: " << h << "\n";
+		while(l < h){
+			m = l + ((h-l)>>1);
+			fm = perm_x[m];
+//			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) < (unsigned char)(*(text + cur_pos)) ){
+			c = getCharRev(fm-1, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+			text_len = mapa_iterators_rev[fm-1].length();
+			cout << "getRangeX - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
+			if( cur_pos > text_len || (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
+				cout << "getRangeX - caso 1: l = " << (m+1) << "\n";
+				l = m+1;
+			}
+			else{
+				cout << "getRangeX - caso 2: h = " << m << "\n";
+				h = m;
+			}
+		}
+		izq = h;
+		fm = perm_x[izq];
+		c = getCharRev(fm-1, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+		text_len = mapa_iterators_rev[fm-1].length();
+		if( (cur_pos < text_len) && (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
+			++izq;
+		}
+		cout << "getRangeX - izq: " << izq << "\n";
+		cout << "getRangeX - -----\n";
+		
+		// Busqueda binaria del lado derecho
+		l = izq;
+		h = der;
+		cout << "getRangeX - l: " << l << ", h: " << h << "\n";
+		while(l < h){
+			m = l + ((h-l)>>1);
+			fm = perm_x[m];
+			c = getCharRev(fm-1, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+			text_len = mapa_iterators_rev[fm-1].length();
+//			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) <= (unsigned char)(*(text + cur_pos)) ){
+			cout << "getRangeX - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
+			if( cur_pos > text_len || (unsigned char)(c) <= (unsigned char)(pattern[cur_pos]) ){
+				cout << "getRangeX - caso 1: l = " << (m+1) << "\n";
+				l = m+1;
+			}
+			else{
+				cout << "getRangeX - caso 2: h = " << m << "\n";
+				h = m;
+			}
+		}
+		der = h;
+		fm = perm_x[der];
+		c = getCharRev(fm-1, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+		text_len = mapa_iterators_rev[fm-1].length();
+		if( (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
+			--der;
+		}
+		cout << "getRangeX - der: " << der << "\n";
+		cout << "getRangeX - -----\n";
+		
+	}
+	
+	cout << "getRangeX - result: (" << izq << ", " << der << ")\n";
 	return pair<unsigned int, unsigned int>(izq, der);
 }
 
@@ -1002,8 +1094,14 @@ int main() {
 	}
 	FactorsIteratorReverseComparator comp_rev(z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	stable_sort(arr_x.begin(), arr_x.end(), comp_rev);
+	int_vector<> pre_x_inv(z);
 	for( unsigned int i = 0; i < z; ++i ){
-		cout << " arr_x[" << i << "]: " << arr_x[i] << " \n";
+		pre_x_inv[ arr_x[i] ] = i;
+	}
+	inv_perm_support<> perm_x(&pre_x_inv);
+	for( unsigned int i = 0; i < z; ++i ){
+		pre_x_inv[ arr_x[i] ] = i;
+		cout << " arr_x[" << i << "]: " << arr_x[i] << " (perm_x[" << i << "]: " << perm_x[i] << ") \n";
 	}
 	cout << "-----\n";
 	
@@ -1087,6 +1185,29 @@ int main() {
 	cout << "Prueba de patron \"\"\n";
 	getRangeY("", perm_y, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	cout << "-----\n";
+	
+	
+	string pattern = "AB";
+	for(unsigned int i = 1; i < pattern.length(); ++i){
+		string p1 = pattern.substr(0, i);
+		string p2 = pattern.substr(i, pattern.length() - i);
+		cout << "Corte de \"" << pattern << "\": (" << p1 << "| " << p2 << ")\n";
+		pair<unsigned int, unsigned int> r1 = getRangeX(p1.c_str(), perm_x, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str(), perm_y, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+		
+		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
+			|| r2.second == (unsigned int)(-1) || r2.second < r1.first ){
+			cout << "Rangos Invalidos, omitiendo...\n";
+			continue;
+		}
+		
+		cout << "Buscando en [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
+		for (auto point : res.second){
+			cout << "(" << point.first << ", " << point.second << ") => factor " << perm_y[point.second] << "\n";
+		}
+		
+	}
 	
 	
 	delete reference;
