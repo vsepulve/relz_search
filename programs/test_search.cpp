@@ -104,7 +104,7 @@ private:
 	unsigned int cur_f_ini;
 	unsigned int cur_f_fin;
 	
-	void loadFactor(unsigned int f){
+	void loadFactor(unsigned int f, bool reset = false){
 //		cout << "FactorsIterator::loadFactor - Cargando factor " << f << "\n";
 		cur_f = f;
 		if( cur_f == (unsigned int)(-1) || cur_f >= n_factors){
@@ -120,8 +120,10 @@ private:
 		cur_f_fin = tu + lu - 1;
 		cur_pos = cur_f_ini;
 		// valores como string independiente
-		text_length = full_size - pu;
-		text_pos = 0;
+		if(reset){
+			text_length = full_size - pu;
+			text_pos = 0;
+		}
 	}
 	
 public: 
@@ -169,7 +171,7 @@ public:
 	
 	void reset(){
 //		cout << "FactorsIterator::reset\n";
-		loadFactor( start_f );
+		loadFactor( start_f, true );
 	}
 	
 	char next(){
@@ -232,7 +234,7 @@ private:
 	unsigned int cur_f_ini;
 	unsigned int cur_f_fin;
 	
-	void loadFactor(unsigned int f){
+	void loadFactor(unsigned int f, bool reset = false){
 //		cout << "FactorsIteratorReverse::loadFactor - Cargando factor " << f << "\n";
 		cur_f = f;
 		if( cur_f == (unsigned int)(-1) || cur_f >= n_factors){
@@ -248,8 +250,12 @@ private:
 		cur_f_fin = tu + lu - 1;
 		cur_pos = cur_f_fin;
 		// valores como string independiente
-		text_length = pu;
-		text_pos = 0;
+		if(reset){
+			// Notar que este texto INCLUYE al factor actual
+			// El llamador obviamente pide el prefijo de f inverso como (f-1)
+			text_length = pu + lu;
+			text_pos = 0;
+		}
 	}
 	
 public: 
@@ -297,7 +303,7 @@ public:
 	
 	void reset(){
 //		cout << "FactorsIteratorReverse::reset\n";
-		loadFactor( start_f );
+		loadFactor( start_f, true );
 	}
 	
 	char next(){
@@ -492,17 +498,72 @@ public:
 	}
 };
 
+unordered_map<unsigned int, FactorsIterator> mapa_iterators;
+
 char getChar(unsigned int factor, unsigned int pos, 
-			unsigned int _n_factors, 
-			rrr_vector<127>::select_1_type *_select1_s, 
-			rrr_vector<127>::select_1_type *_select1_b, 
-			rrr_vector<127>::select_0_type *_select0_b, 
-			inv_perm_support<> *_perm, 
-			inv_perm_support<> *_perm_inv, 
-			const char *_ref_text){
+			unsigned int n_factors, 
+			rrr_vector<127>::select_1_type *select1_s, 
+			rrr_vector<127>::select_1_type *select1_b, 
+			rrr_vector<127>::select_0_type *select0_b, 
+			inv_perm_support<> *perm, 
+			inv_perm_support<> *perm_inv, 
+			const char *ref_text, 
+			unsigned int full_size ){
 	
+	// Segundo enfoque: cache de iteradores completos
+	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
+		mapa_iterators[factor] = FactorsIterator(factor, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+	}
+	FactorsIterator it = mapa_iterators[factor];
+	if( pos >= it.length() ){
+		return 0;
+	}
+	if( it.position() > pos ){
+		it.reset();
+	}
 	
-	return 0;
+	// Primer enfoque: sin caches 
+	// (porque quiza haga un multiiterador con caches internos solo para los valores especificos necesarios)
+//	FactorsIterator it( factor, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size );
+	char c = 0;
+	while( it.position() <= pos ){
+		c = it.next();
+	}
+	return c;
+}
+
+unordered_map<unsigned int, FactorsIteratorReverse> mapa_iterators_rev;
+
+char getCharRev(unsigned int factor, unsigned int pos, 
+			unsigned int n_factors, 
+			rrr_vector<127>::select_1_type *select1_s, 
+			rrr_vector<127>::select_1_type *select1_b, 
+			rrr_vector<127>::select_0_type *select0_b, 
+			inv_perm_support<> *perm, 
+			inv_perm_support<> *perm_inv, 
+			const char *ref_text, 
+			unsigned int full_size ){
+	
+	if( factor == (unsigned int)(-1) ){
+		return 0;
+	}
+	
+	// Segundo enfoque: cache de iteradores completos
+	if( mapa_iterators_rev.find(factor) == mapa_iterators_rev.end() ){
+		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+	}
+	FactorsIteratorReverse it = mapa_iterators_rev[factor];
+	if( pos >= it.length() ){
+		return 0;
+	}
+	if( it.position() > pos ){
+		it.reset();
+	}
+	char c = 0;
+	while( it.position() <= pos ){
+		c = it.next();
+	}
+	return c;
 }
 
 int main() {
@@ -680,101 +741,165 @@ int main() {
 	// Basta con que los iteradores retornen el char de cierta pos FactorsIterator::get(unsigned int pos) o "char FactorsIterator::next()"
 	// A parte del next, necesitaria una forma de controlar el final del iterator, quizas "bool FactorsIterator::hasNext()"
 	
-	/*
+	
 	cout << "Probando Iterador\n";
 	
-	FactorsIterator it( 2, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	FactorsIterator it( 2, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	cout << "-----\n";
 	
 	while( it.hasNext() ){
-		cout << "it.next(): " << it.next() << "\n";
+		char c = it.next();
+		cout << "it.next(): " << c << " (text_pos " << it.position() << " / " << it.length() << ")\n";
 		cout << "-----\n";
 	}
 	
 	cout << "Fin prueba iterador\n";
 	cout << "-----\n";
 	
-	
 	cout << "Probando Iterador Reverso\n";
 	
-	FactorsIteratorReverse it_rev( 2, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	FactorsIteratorReverse it_rev( 2, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	cout << "-----\n";
 	
 	while( it_rev.hasNext() ){
-		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		char c = it_rev.next();
+		cout << "it_rev.next(): " << c << " (text_pos " << it_rev.position() << " / " << it_rev.length() << ")\n";
 		cout << "-----\n";
 	}
 	
 	cout << "Fin prueba iterador\n";
 	cout << "-----\n";
 
+	
 	cout << "Probando Iterador Reverso -1\n";
-	it_rev = FactorsIteratorReverse( -1, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	it_rev = FactorsIteratorReverse( -1, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	while( it_rev.hasNext() ){
-		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		char c = it_rev.next();
+		cout << "it_rev.next(): " << c << " (text_pos " << it_rev.position() << " / " << it_rev.length() << ")\n";
 		cout << "-----\n";
 	}
 
 	cout << "Probando Iterador Reverso 0\n";
-	it_rev = FactorsIteratorReverse( 0, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	it_rev = FactorsIteratorReverse( 0, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	while( it_rev.hasNext() ){
-		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		char c = it_rev.next();
+		cout << "it_rev.next(): " << c << " (text_pos " << it_rev.position() << " / " << it_rev.length() << ")\n";
 		cout << "-----\n";
 	}
 
 	cout << "Probando Iterador Reverso 1\n";
-	it_rev = FactorsIteratorReverse( 1, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	it_rev = FactorsIteratorReverse( 1, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	while( it_rev.hasNext() ){
-		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		char c = it_rev.next();
+		cout << "it_rev.next(): " << c << " (text_pos " << it_rev.position() << " / " << it_rev.length() << ")\n";
 		cout << "-----\n";
 	}
 
 	cout << "Probando Iterador Reverso 5\n";
-	it_rev = FactorsIteratorReverse( 5, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	it_rev = FactorsIteratorReverse( 5, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	while( it_rev.hasNext() ){
-		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		char c = it_rev.next();
+		cout << "it_rev.next(): " << c << " (text_pos " << it_rev.position() << " / " << it_rev.length() << ")\n";
 		cout << "-----\n";
 	}
 
 	cout << "Probando Iterador Reverso 7\n";
-	it_rev = FactorsIteratorReverse( 7, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	it_rev = FactorsIteratorReverse( 7, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	while( it_rev.hasNext() ){
-		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		char c = it_rev.next();
+		cout << "it_rev.next(): " << c << " (text_pos " << it_rev.position() << " / " << it_rev.length() << ")\n";
 		cout << "-----\n";
 	}
 	
 	cout << "-----\n";
 		
 	cout << "Probando Iterador Reverso 8\n";
-	it_rev = FactorsIteratorReverse( 8, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	it_rev = FactorsIteratorReverse( 8, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	while( it_rev.hasNext() ){
-		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		char c = it_rev.next();
+		cout << "it_rev.next(): " << c << " (text_pos " << it_rev.position() << " / " << it_rev.length() << ")\n";
 		cout << "-----\n";
 	}
 	cout << "Probando reset\n";
 	it_rev.reset();
 	while( it_rev.hasNext() ){
-		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		char c = it_rev.next();
+		cout << "it_rev.next(): " << c << " (text_pos " << it_rev.position() << " / " << it_rev.length() << ")\n";
 		cout << "-----\n";
 	}
 
 	cout << "-----\n";
 
 	cout << "Probando Iterador Reverso 5\n";
-	it_rev = FactorsIteratorReverse( 5, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str() );
+	it_rev = FactorsIteratorReverse( 5, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
 	while( it_rev.hasNext() ){
-		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		char c = it_rev.next();
+		cout << "it_rev.next(): " << c << " (text_pos " << it_rev.position() << " / " << it_rev.length() << ")\n";
 		cout << "-----\n";
 	}
 	cout << "Probando reset\n";
 	it_rev.reset();
 	while( it_rev.hasNext() ){
-		cout << "it_rev.next(): " << it_rev.next() << "\n";
+		char c = it_rev.next();
+		cout << "it_rev.next(): " << c << " (text_pos " << it_rev.position() << " / " << it_rev.length() << ")\n";
 		cout << "-----\n";
 	}
 	
 	cout << "-----\n";
-	*/
+	
+	cout << "Probando acceso posicional\n";
+	unsigned int f = 5;
+	for( unsigned int i = 0; i < 10; ++i ){
+		char c = getChar( f, i, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+		if( c == 0){
+			break;
+		}
+		cout << "factor_" << f << "[" << i << "]: " << c << " \n";
+	}
+	cout << "-----\n";
+	f = 7;
+	for( unsigned int i = 0; i < 10; ++i ){
+		char c = getChar( f, i, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+		if( c == 0){
+			break;
+		}
+		cout << "factor_" << f << "[" << i << "]: " << c << " \n";
+	}
+	cout << "-----\n";
+	f = 3;
+	for( unsigned int i = 0; i < 10; ++i ){
+		char c = getChar( f, i, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+		if( c == 0){
+			break;
+		}
+		cout << "factor_" << f << "[" << i << "]: " << c << " \n";
+	}
+	cout << "-----\n";
+	
+	cout << "Probando acceso posicional Reverso\n";
+	f = 3;
+	for( unsigned int i = 0; i < 10; ++i ){
+		char c = getCharRev( f-1, i, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+		if( c == 0){
+			break;
+		}
+		cout << "factor_rev_" << f << "[" << i << "]: " << c << " \n";
+	}
+	cout << "-----\n";
+	f = 5;
+	for( unsigned int i = 0; i < 10; ++i ){
+		char c = getCharRev( f-1, i, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+		if( c == 0){
+			break;
+		}
+		cout << "factor_rev_" << f << "[" << i << "]: " << c << " \n";
+	}
+	cout << "-----\n";
+	cout << "factor_rev_" << f << "[" << 3 << "]: " << getCharRev( f-1, 3, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text) << " \n";
+	cout << "factor_rev_" << f << "[" << 5 << "]: " << getCharRev( f-1, 5, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text) << " \n";
+	cout << "factor_rev_" << f << "[" << 2 << "]: " << getCharRev( f-1, 2, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text) << " \n";
+	cout << "factor_rev_" << f << "[" << 0 << "]: " << getCharRev( f-1, 0, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text) << " \n";
+	cout << "-----\n";
 	
 	cout << "Preparando arr X\n";
 	vector<unsigned int> arr_x(z);
@@ -835,7 +960,7 @@ int main() {
 	}
 	
 	cout << "Realizando busquedas reales en el WT\n";
-	// El codigo de la busqueda de rangos deberia estar basado en el codigo de el del reference
+	// El codigo de la busqueda de rangos deberia estar basado en el codigo de reference
 	
 	
 	
