@@ -566,6 +566,100 @@ char getCharRev(unsigned int factor, unsigned int pos,
 	return c;
 }
 
+// Notar que, a diferencia de la busqueda en referencia, esta debe ser completa
+// Es decir, solo importa el rango que contiene al patron completo
+pair<unsigned int, unsigned int> getRangeY( 
+			const char *pattern,
+			inv_perm_support<> &perm_y,
+			unsigned int n_factors, 
+			rrr_vector<127>::select_1_type *select1_s, 
+			rrr_vector<127>::select_1_type *select1_b, 
+			rrr_vector<127>::select_0_type *select0_b, 
+			inv_perm_support<> *perm, 
+			inv_perm_support<> *perm_inv, 
+			const char *ref_text, 
+			unsigned int full_size ){
+	
+	unsigned int pat_len = strlen(pattern);
+	unsigned int izq = 0;
+	unsigned int der = n_factors-1;
+	
+	cout << "getRangeY - Inicio (pat_len: " << pat_len << ", izq: " << izq << ", der: " << der << ")\n";
+	
+	for( unsigned int cur_pos = 0; cur_pos < pat_len; ++cur_pos ){
+		cout << "getRangeY - cur_pos: " << cur_pos << " (pattern[" << cur_pos << "]: " << pattern[cur_pos] << ")\n";
+		
+		unsigned int l = izq;
+		unsigned int h = der;
+		unsigned int m;
+		unsigned int fm;
+		char c;
+		unsigned int text_len;
+		
+		// Busqueda binaria del lado izquierdo
+		cout << "getRangeY - l: " << l << ", h: " << h << "\n";
+		while(l < h){
+			m = l + ((h-l)>>1);
+			fm = perm_y[m];
+//			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) < (unsigned char)(*(text + cur_pos)) ){
+			c = getChar(fm, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+			text_len = mapa_iterators[fm].length();
+			cout << "getRangeY - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
+			if( cur_pos > text_len || (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
+				cout << "getRangeY - caso 1: l = " << (m+1) << "\n";
+				l = m+1;
+			}
+			else{
+				cout << "getRangeY - caso 2: h = " << m << "\n";
+				h = m;
+			}
+		}
+		izq = h;
+		fm = perm_y[izq];
+		c = getChar(fm, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+		text_len = mapa_iterators[fm].length();
+		if( (cur_pos < text_len) && (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
+			++izq;
+		}
+		cout << "getRangeY - izq: " << izq << "\n";
+		cout << "getRangeY - -----\n";
+		
+		// Busqueda binaria del lado derecho
+		l = izq;
+		h = der;
+		cout << "getRangeY - l: " << l << ", h: " << h << "\n";
+		while(l < h){
+			m = l + ((h-l)>>1);
+			fm = perm_y[m];
+			c = getChar(fm, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+			text_len = mapa_iterators[fm].length();
+//			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) <= (unsigned char)(*(text + cur_pos)) ){
+			cout << "getRangeY - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
+			if( cur_pos > text_len || (unsigned char)(c) <= (unsigned char)(pattern[cur_pos]) ){
+				cout << "getRangeY - caso 1: l = " << (m+1) << "\n";
+				l = m+1;
+			}
+			else{
+				cout << "getRangeY - caso 2: h = " << m << "\n";
+				h = m;
+			}
+		}
+		der = h;
+		fm = perm_y[der];
+		c = getChar(fm, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+		text_len = mapa_iterators[fm].length();
+		if( (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
+			--der;
+		}
+		cout << "getRangeY - der: " << der << "\n";
+		cout << "getRangeY - -----\n";
+		
+	}
+	
+	cout << "getRangeY - result: (" << izq << ", " << der << ")\n";
+	return pair<unsigned int, unsigned int>(izq, der);
+}
+
 int main() {
 	
 	string ref = "ALABARDAS";
@@ -962,6 +1056,37 @@ int main() {
 	cout << "Realizando busquedas reales en el WT\n";
 	// El codigo de la busqueda de rangos deberia estar basado en el codigo de reference
 	
+	cout << "Prueba de patron \"A\"\n";
+	getRangeY("A", perm_y, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+	cout << "-----\n";
+	
+	cout << "Prueba de patron \"B\"\n";
+	getRangeY("B", perm_y, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+	cout << "-----\n";
+	
+	cout << "Prueba de patron \"BA\"\n";
+	getRangeY("BA", perm_y, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+	cout << "-----\n";
+	
+	cout << "Prueba de patron \"BAL\"\n";
+	getRangeY("BAL", perm_y, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+	cout << "-----\n";
+	
+	cout << "Prueba de patron \"BALB\"\n";
+	getRangeY("BALB", perm_y, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+	cout << "-----\n";
+	
+	cout << "Prueba de patron \"Z\"\n";
+	getRangeY("Z", perm_y, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+	cout << "-----\n";
+	
+	cout << "Prueba de patron \"0\"\n";
+	getRangeY("0", perm_y, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+	cout << "-----\n";
+	
+	cout << "Prueba de patron \"\"\n";
+	getRangeY("", perm_y, z, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref.c_str(), len_text);
+	cout << "-----\n";
 	
 	
 	delete reference;
