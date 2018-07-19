@@ -27,8 +27,8 @@ add_executable(test_search "${CMAKE_SOURCE_DIR}/programs/test_search.cpp")
 add_library(relz SHARED ${SOURCES})
 link_directories(${CMAKE_BINARY_DIR})
 
-target_link_libraries(compress relz pthread)
-target_link_libraries(decompress relz pthread)
+target_link_libraries(compress relz pthread sdsl divsufsort divsufsort64)
+target_link_libraries(decompress relz pthread sdsl divsufsort divsufsort64)
 target_link_libraries(test_sdsl relz pthread sdsl divsufsort divsufsort64)
 target_link_libraries(test_search relz pthread sdsl divsufsort divsufsort64)
 
