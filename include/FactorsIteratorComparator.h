@@ -3,20 +3,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <iostream>
-#include <sstream>
-#include <fstream>
-#include <string.h>
 
 #include <algorithm>
 #include <vector>
 
-#include <sdsl/suffix_arrays.hpp>
 #include <sdsl/bit_vectors.hpp>
-#include <sdsl/rmq_support.hpp>
 #include <sdsl/inv_perm_support.hpp>
-#include <sdsl/wavelet_trees.hpp>
 
 #include "FactorsIterator.h"
 
