@@ -21,6 +21,7 @@
 #include "DecoderBlocksRelz.h"
 #include "TextFilterFull.h"
 
+#include "FactorsIndex.h"
 #include "FactorsIterator.h"
 #include "FactorsIteratorComparator.h"
 
@@ -55,7 +56,7 @@ int main(int argc, char* argv[]){
 	
 	unsigned int len_ref = reference->getLength();
 	unsigned int len_text = compressor.getTextSize();
-	unsigned int z = 0;
+//	unsigned int z = 0;
 	
 	const char *ref = reference->getText();
 	
@@ -91,15 +92,15 @@ int main(int argc, char* argv[]){
 	compressor.compress(input.c_str(), 1, 1000000, 0, &factors);
 	*/
 	
-	// FactorsIndex index(factors, len_text, ref, len_ref);
-	// index.find("AB");
+	 FactorsIndex index(factors, len_text, ref, len_ref);
+	 index.find("AB");
+	
 	
 	
 	
 	
 	
 	/*
-	
 	cout << "Factors: \n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
 //	vector<pair<unsigned int, unsigned int> > factors_sort;
@@ -203,6 +204,9 @@ int main(int argc, char* argv[]){
 	construct_im(fm_index, ref, 1);
 	// Construccion con datos en un archivo
 //	construct(fm_index, file, 1);
+	
+	
+	
 	
 	cout << "Texto de ref: \"" << ref << "\"\n";
 	
