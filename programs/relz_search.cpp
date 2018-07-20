@@ -93,6 +93,7 @@ int main(int argc, char* argv[]){
 	*/
 	
 	 FactorsIndex index(factors, len_text, ref, len_ref);
+//	 index.test("AB");
 	 index.find("AB");
 	
 	
