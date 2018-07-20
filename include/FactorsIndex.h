@@ -45,63 +45,34 @@ private:
 	bit_vector arr_b;
 	rrr_vector<127> rrr_b;
 	
+	inv_perm_support<> perm_x;
+	inv_perm_support<> perm_y;
+	inv_perm_support<> perm_y_inv;
+	
+	wt_int<rrr_vector<63>> wt;
+	
 	// Solo para pruebas
 	int_vector<> ez;
 	int_vector<> pi;
 	int_vector<> pi_inv;
+	int_vector<> pre_x_inv;
+	int_vector<> pre_y;
+	int_vector<> pre_y_inv;
+	int_vector<> values_wt;
 	
 	// Cache de iteradores
 	unordered_map<unsigned int, FactorsIterator> mapa_iterators;
 	unordered_map<unsigned int, FactorsIteratorReverse> mapa_iterators_rev;
 	
+	void recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit);
 	
-	void recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit, rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > &rmq, int_vector<> &ez, inv_perm_support<> &perm);
+	char getChar(unsigned int factor, unsigned int pos);
 	
-	void recursive_rmq_v2(unsigned int ini, unsigned int fin, unsigned int crit);
-	
-	char getChar(unsigned int factor, unsigned int pos, 
-			unsigned int n_factors, 
-			rrr_vector<127>::select_1_type *select1_s, 
-			rrr_vector<127>::select_1_type *select1_b, 
-			rrr_vector<127>::select_0_type *select0_b, 
-			inv_perm_support<> *perm, 
-			inv_perm_support<> *perm_inv, 
-			const char *ref_text, 
-			unsigned int full_size );
-	
-	char getCharRev(unsigned int factor, unsigned int pos, 
-			unsigned int n_factors, 
-			rrr_vector<127>::select_1_type *select1_s, 
-			rrr_vector<127>::select_1_type *select1_b, 
-			rrr_vector<127>::select_0_type *select0_b, 
-			inv_perm_support<> *perm, 
-			inv_perm_support<> *perm_inv, 
-			const char *ref_text, 
-			unsigned int full_size );
+	char getCharRev(unsigned int factor, unsigned int pos);
 			
-	pair<unsigned int, unsigned int> getRangeY(
-			const char *pattern,
-			inv_perm_support<> &perm_y,
-			unsigned int n_factors, 
-			rrr_vector<127>::select_1_type *select1_s, 
-			rrr_vector<127>::select_1_type *select1_b, 
-			rrr_vector<127>::select_0_type *select0_b, 
-			inv_perm_support<> *perm, 
-			inv_perm_support<> *perm_inv, 
-			const char *ref_text, 
-			unsigned int full_size );
+	pair<unsigned int, unsigned int> getRangeY(const char *pattern);
 			
-	pair<unsigned int, unsigned int> getRangeX(
-			const char *pattern,
-			inv_perm_support<> &perm_x,
-			unsigned int n_factors, 
-			rrr_vector<127>::select_1_type *select1_s, 
-			rrr_vector<127>::select_1_type *select1_b, 
-			rrr_vector<127>::select_0_type *select0_b, 
-			inv_perm_support<> *perm, 
-			inv_perm_support<> *perm_inv, 
-			const char *ref_text, 
-			unsigned int full_size );
+	pair<unsigned int, unsigned int> getRangeX(const char *pattern);
 			
 	
 public: 

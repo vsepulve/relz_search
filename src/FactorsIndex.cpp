@@ -76,12 +76,11 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	cout << "Posicion de quinto 0: " << select0_s(5) << "\n";
 	cout << "Posicion de 0th 0: " << select0_s(0) << "\n";
 	
-	
 	// Permutacion 
 	int_vector<> _pi(n_factors);
 	int_vector<> _pi_inv(n_factors);
 	pi = _pi;
-	pi_inv = _pi_inv;
+	pi_inv = _pi_inv;	
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		pi[i] = factors_sort[i].second.second;
 		pi_inv[ factors_sort[i].second.second ] = i;
@@ -142,8 +141,62 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	// Construccion con datos en un archivo
 //	construct(fm_index, file, 1);
 	
+	// Preparacion de permutaciones X e Y
 	
+	cout << "Preparando arr X\n";
+	vector<unsigned int> arr_x(n_factors);
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		arr_x[i] = i;
+	}
+	FactorsIteratorReverseComparator comp_rev(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	stable_sort(arr_x.begin(), arr_x.end(), comp_rev);
+	int_vector<> _pre_x_inv(n_factors);
+	pre_x_inv = _pre_x_inv;
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		pre_x_inv[ arr_x[i] ] = i;
+	}
+	inv_perm_support<> _perm_x(&pre_x_inv);
+	perm_x = _perm_x;
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		pre_x_inv[ arr_x[i] ] = i;
+		cout << " arr_x[" << i << "]: " << arr_x[i] << " (perm_x[" << i << "]: " << perm_x[i] << ") \n";
+	}
+	cout << "-----\n";
 	
+	cout << "Preparando arr Y\n";
+	vector<unsigned int> arr_y(n_factors);
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		arr_y[i] = i;
+	}
+	FactorsIteratorComparator comp(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	stable_sort(arr_y.begin(), arr_y.end(), comp);
+	int_vector<> _pre_y(n_factors);
+	int_vector<> _pre_y_inv(n_factors);
+	pre_y = _pre_y;
+	pre_y_inv = _pre_y_inv;
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		pre_y[i] = arr_y[i];
+		pre_y_inv[ arr_y[i] ] = i;
+	}
+	inv_perm_support<> _perm_y(&pre_y_inv);
+	inv_perm_support<> _perm_y_inv(&pre_y);
+	perm_y = _perm_y;
+	perm_y_inv = _perm_y_inv;
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_y[" << i << "]: " << arr_y[i] << " (perm_y[" << i << "]: " << perm_y[i] << ", perm_y_inv[" << i << "]: " << perm_y_inv[i] << ")\n";
+	}
+	cout << "-----\n";
+	
+	cout << "Preparando WT\n";
+	int_vector<> _values_wt(n_factors);
+	values_wt = _values_wt;
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		values_wt[i] = perm_y_inv[ arr_x[ i ] ];
+		cout << " values_wt[" << i << "]: " << values_wt[i] << " \n";
+	}
+	
+//	wt_int<rrr_vector<63>> wt;
+	construct_im(wt, values_wt);
 	
 	
 	
@@ -156,7 +209,6 @@ FactorsIndex::~FactorsIndex(){
 }
 
 void FactorsIndex::find(const string &pattern){
-	
 	
 	cout << "Texto de ref: \"" << ref << "\"\n";
 	
@@ -188,10 +240,8 @@ void FactorsIndex::find(const string &pattern){
 			// Ahora la busqueda (recursiva) en el rmq (entre 0 y pos_ez)
 //			unsigned int pos_max = rmq(0, pos_ez);
 //			cout << "max pos Ez: " << pos_max << " (Ez: " << ez[pos_max] << ", factor: " << perm[pos_max] << ")\n";
-//			cout << "----- Search V1 -----\n";
-//			recursive_rmq(0, pos_ez, (occ_i + m - 1), rmq, ez, perm);
 			cout << "----- Search V2 -----\n";
-			recursive_rmq_v2(0, pos_ez, (occ_i + m));
+			recursive_rmq(0, pos_ez, (occ_i + m));
 			cout << "----- -----\n";
 			
 		}
@@ -315,7 +365,7 @@ void FactorsIndex::find(const string &pattern){
 	cout << "Probando acceso posicional\n";
 	unsigned int f = 5;
 	for( unsigned int i = 0; i < 10; ++i ){
-		char c = getChar( f, i, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+		char c = getChar( f, i);
 		if( c == 0){
 			break;
 		}
@@ -324,7 +374,7 @@ void FactorsIndex::find(const string &pattern){
 	cout << "-----\n";
 	f = 7;
 	for( unsigned int i = 0; i < 10; ++i ){
-		char c = getChar( f, i, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+		char c = getChar( f, i);
 		if( c == 0){
 			break;
 		}
@@ -333,7 +383,7 @@ void FactorsIndex::find(const string &pattern){
 	cout << "-----\n";
 	f = 3;
 	for( unsigned int i = 0; i < 10; ++i ){
-		char c = getChar( f, i, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+		char c = getChar( f, i);
 		if( c == 0){
 			break;
 		}
@@ -344,7 +394,7 @@ void FactorsIndex::find(const string &pattern){
 	cout << "Probando acceso posicional Reverso\n";
 	f = 3;
 	for( unsigned int i = 0; i < 10; ++i ){
-		char c = getCharRev( f-1, i, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+		char c = getCharRev( f-1, i);
 		if( c == 0){
 			break;
 		}
@@ -353,66 +403,19 @@ void FactorsIndex::find(const string &pattern){
 	cout << "-----\n";
 	f = 5;
 	for( unsigned int i = 0; i < 10; ++i ){
-		char c = getCharRev( f-1, i, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+		char c = getCharRev( f-1, i);
 		if( c == 0){
 			break;
 		}
 		cout << "factor_rev_" << f << "[" << i << "]: " << c << " \n";
 	}
 	cout << "-----\n";
-	cout << "factor_rev_" << f << "[" << 3 << "]: " << getCharRev( f-1, 3, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text) << " \n";
-	cout << "factor_rev_" << f << "[" << 5 << "]: " << getCharRev( f-1, 5, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text) << " \n";
-	cout << "factor_rev_" << f << "[" << 2 << "]: " << getCharRev( f-1, 2, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text) << " \n";
-	cout << "factor_rev_" << f << "[" << 0 << "]: " << getCharRev( f-1, 0, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text) << " \n";
+	cout << "factor_rev_" << f << "[" << 3 << "]: " << getCharRev( f-1, 3) << " \n";
+	cout << "factor_rev_" << f << "[" << 5 << "]: " << getCharRev( f-1, 5) << " \n";
+	cout << "factor_rev_" << f << "[" << 2 << "]: " << getCharRev( f-1, 2) << " \n";
+	cout << "factor_rev_" << f << "[" << 0 << "]: " << getCharRev( f-1, 0) << " \n";
 	cout << "-----\n";
 	
-	cout << "Preparando arr X\n";
-	vector<unsigned int> arr_x(n_factors);
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		arr_x[i] = i;
-	}
-	FactorsIteratorReverseComparator comp_rev(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
-	stable_sort(arr_x.begin(), arr_x.end(), comp_rev);
-	int_vector<> pre_x_inv(n_factors);
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		pre_x_inv[ arr_x[i] ] = i;
-	}
-	inv_perm_support<> perm_x(&pre_x_inv);
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		pre_x_inv[ arr_x[i] ] = i;
-		cout << " arr_x[" << i << "]: " << arr_x[i] << " (perm_x[" << i << "]: " << perm_x[i] << ") \n";
-	}
-	cout << "-----\n";
-	
-	cout << "Preparando arr Y\n";
-	vector<unsigned int> arr_y(n_factors);
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		arr_y[i] = i;
-	}
-	FactorsIteratorComparator comp(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
-	stable_sort(arr_y.begin(), arr_y.end(), comp);
-	int_vector<> pre_y(n_factors);
-	int_vector<> pre_y_inv(n_factors);
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		pre_y[i] = arr_y[i];
-		pre_y_inv[ arr_y[i] ] = i;
-	}
-	inv_perm_support<> perm_y_inv(&pre_y);
-	inv_perm_support<> perm_y(&pre_y_inv);
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_y[" << i << "]: " << arr_y[i] << " (perm_y[" << i << "]: " << perm_y[i] << ", perm_y_inv[" << i << "]: " << perm_y_inv[i] << ")\n";
-	}
-	cout << "-----\n";
-	
-	cout << "Preparando WT\n";
-	int_vector<> values_wt(n_factors);
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		values_wt[i] = perm_y_inv[ arr_x[ i ] ];
-		cout << " values_wt[" << i << "]: " << values_wt[i] << " \n";
-	}
-	
-	wt_int<rrr_vector<63>> wt;
-	construct_im(wt, values_wt);
 	
 //	cout << "Buscando en [1, 2] x [1, 5]:\n";
 //	auto res = wt.range_search_2d(1, 2, 1, 5);
@@ -434,35 +437,35 @@ void FactorsIndex::find(const string &pattern){
 	// El codigo de la busqueda de rangos deberia estar basado en el codigo de reference
 	
 	cout << "Prueba de patron \"A\"\n";
-	getRangeY("A", perm_y, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	getRangeY("A");
 	cout << "-----\n";
 	
 	cout << "Prueba de patron \"B\"\n";
-	getRangeY("B", perm_y, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	getRangeY("B");
 	cout << "-----\n";
 	
 	cout << "Prueba de patron \"BA\"\n";
-	getRangeY("BA", perm_y, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	getRangeY("BA");
 	cout << "-----\n";
 	
 	cout << "Prueba de patron \"BAL\"\n";
-	getRangeY("BAL", perm_y, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	getRangeY("BAL");
 	cout << "-----\n";
 	
 	cout << "Prueba de patron \"BALB\"\n";
-	getRangeY("BALB", perm_y, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	getRangeY("BALB");
 	cout << "-----\n";
 	
 	cout << "Prueba de patron \"Z\"\n";
-	getRangeY("Z", perm_y, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	getRangeY("Z");
 	cout << "-----\n";
 	
 	cout << "Prueba de patron \"0\"\n";
-	getRangeY("0", perm_y, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	getRangeY("0");
 	cout << "-----\n";
 	
 	cout << "Prueba de patron \"\"\n";
-	getRangeY("", perm_y, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	getRangeY("");
 	cout << "-----\n";
 	
 	
@@ -471,8 +474,8 @@ void FactorsIndex::find(const string &pattern){
 		string p1 = pattern.substr(0, i);
 		string p2 = pattern.substr(i, pattern.length() - i);
 		cout << "Corte de \"" << pattern << "\": (" << p1 << "| " << p2 << ")\n";
-		pair<unsigned int, unsigned int> r1 = getRangeX(p1.c_str(), perm_x, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
-		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str(), perm_y, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+		pair<unsigned int, unsigned int> r1 = getRangeX(p1.c_str());
+		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
 		
 		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
 			|| r2.second == (unsigned int)(-1) || r2.second < r1.first ){
@@ -491,44 +494,15 @@ void FactorsIndex::find(const string &pattern){
 	
 }
 
-
-void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit, rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > &rmq, int_vector<> &ez, inv_perm_support<> &perm){
+void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit){
 	cout << " -> recursive_rmq(" << ini << ", " << fin << ")\n";
 	
 	unsigned int pos_max = rmq(ini, fin);
-	
-	cout << " -> max pos Ez: " << pos_max << " (Ez: " << ez[pos_max] << ", factor: " << perm[pos_max] << ")\n";
-	if( ez[pos_max] < crit ){
-		cout << "Omitiendo\n";
-		return;
-	}
-	else{
-		cout << "Agregando\n";
-	}
-	
-	if( (pos_max > 0) && (ini < pos_max) ){
-		recursive_rmq(ini, pos_max-1, crit, rmq, ez, perm);
-	}
-	if( pos_max < fin ){
-		recursive_rmq(pos_max+1, fin, crit, rmq, ez, perm);
-	}
-}
-
-void FactorsIndex::recursive_rmq_v2(unsigned int ini, unsigned int fin, unsigned int crit){
-	cout << " -> recursive_rmq(" << ini << ", " << fin << ")\n";
-	
-	unsigned int pos_max = rmq(ini, fin);
-	cout << "1\n";
 	
 	unsigned int tu = select1_s(pos_max + 1) - pos_max;
-	cout << "2 (pos_max: " << pos_max << ")\n";
-	cout << "2 (perm[pos_max]: " << perm[pos_max] << ")\n";
 	unsigned int pu = select1_b(perm[pos_max] + 1);
-	cout << "3\n";
 	unsigned int lu = select1_b(perm[pos_max] + 2) - pu;
-	cout << "4\n";
 	
-//	cout << " -> max pos Ez: " << pos_max << " (Ez: " << ez[pos_max] << ", factor: " << perm[pos_max] << ")\n";
 	cout << " -> max pos Ez: " << pos_max << " (tu: " << tu << ", pu: " << pu << ", lu: " << lu << ")\n";
 	if( tu + lu < crit ){
 		cout << "Omitiendo\n";
@@ -539,26 +513,18 @@ void FactorsIndex::recursive_rmq_v2(unsigned int ini, unsigned int fin, unsigned
 	}
 	
 	if( (pos_max > 0) && (ini < pos_max) ){
-		recursive_rmq_v2(ini, pos_max-1, crit);
+		recursive_rmq(ini, pos_max-1, crit);
 	}
 	if( pos_max < fin ){
-		recursive_rmq_v2(pos_max+1, fin, crit);
+		recursive_rmq(pos_max+1, fin, crit);
 	}
 }
 
-char FactorsIndex::getChar(unsigned int factor, unsigned int pos, 
-			unsigned int n_factors, 
-			rrr_vector<127>::select_1_type *select1_s, 
-			rrr_vector<127>::select_1_type *select1_b, 
-			rrr_vector<127>::select_0_type *select0_b, 
-			inv_perm_support<> *perm, 
-			inv_perm_support<> *perm_inv, 
-			const char *ref_text, 
-			unsigned int full_size ){
+char FactorsIndex::getChar(unsigned int factor, unsigned int pos){
 	
 	// Segundo enfoque: cache de iteradores completos
 	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
-		mapa_iterators[factor] = FactorsIterator(factor, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
 	}
 	FactorsIterator it = mapa_iterators[factor];
 	if( pos >= it.length() ){
@@ -570,7 +536,7 @@ char FactorsIndex::getChar(unsigned int factor, unsigned int pos,
 	
 	// Primer enfoque: sin caches 
 	// (porque quiza haga un multiiterador con caches internos solo para los valores especificos necesarios)
-//	FactorsIterator it( factor, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size );
+//	FactorsIterator it( factor, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref, len_text );
 	char c = 0;
 	while( it.position() <= pos ){
 		c = it.next();
@@ -578,15 +544,7 @@ char FactorsIndex::getChar(unsigned int factor, unsigned int pos,
 	return c;
 }
 
-char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos, 
-			unsigned int n_factors, 
-			rrr_vector<127>::select_1_type *select1_s, 
-			rrr_vector<127>::select_1_type *select1_b, 
-			rrr_vector<127>::select_0_type *select0_b, 
-			inv_perm_support<> *perm, 
-			inv_perm_support<> *perm_inv, 
-			const char *ref_text, 
-			unsigned int full_size ){
+char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos){
 	
 	if( factor == (unsigned int)(-1) ){
 		return 0;
@@ -594,7 +552,7 @@ char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos,
 	
 	// Segundo enfoque: cache de iteradores completos
 	if( mapa_iterators_rev.find(factor) == mapa_iterators_rev.end() ){
-		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
 	}
 	FactorsIteratorReverse it = mapa_iterators_rev[factor];
 	if( pos >= it.length() ){
@@ -612,17 +570,7 @@ char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos,
 
 // Notar que, a diferencia de la busqueda en referencia, esta debe ser completa
 // Es decir, solo importa el rango que contiene al patron completo
-pair<unsigned int, unsigned int> FactorsIndex::getRangeY(
-			const char *pattern,
-			inv_perm_support<> &perm_y,
-			unsigned int n_factors, 
-			rrr_vector<127>::select_1_type *select1_s, 
-			rrr_vector<127>::select_1_type *select1_b, 
-			rrr_vector<127>::select_0_type *select0_b, 
-			inv_perm_support<> *perm, 
-			inv_perm_support<> *perm_inv, 
-			const char *ref_text, 
-			unsigned int full_size ){
+pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 	
 	unsigned int pat_len = strlen(pattern);
 	unsigned int izq = 0;
@@ -646,7 +594,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(
 			m = l + ((h-l)>>1);
 			fm = perm_y[m];
 //			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) < (unsigned char)(*(text + cur_pos)) ){
-			c = getChar(fm, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+			c = getChar(fm, cur_pos);
 			text_len = mapa_iterators[fm].length();
 			cout << "getRangeY - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
 			if( cur_pos > text_len || (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
@@ -660,7 +608,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(
 		}
 		izq = h;
 		fm = perm_y[izq];
-		c = getChar(fm, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+		c = getChar(fm, cur_pos);
 		text_len = mapa_iterators[fm].length();
 		if( (cur_pos < text_len) && (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
 			++izq;
@@ -675,7 +623,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(
 		while(l < h){
 			m = l + ((h-l)>>1);
 			fm = perm_y[m];
-			c = getChar(fm, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+			c = getChar(fm, cur_pos);
 			text_len = mapa_iterators[fm].length();
 //			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) <= (unsigned char)(*(text + cur_pos)) ){
 			cout << "getRangeY - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
@@ -690,7 +638,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(
 		}
 		der = h;
 		fm = perm_y[der];
-		c = getChar(fm, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+		c = getChar(fm, cur_pos);
 		text_len = mapa_iterators[fm].length();
 		if( (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
 			--der;
@@ -704,17 +652,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(
 	return pair<unsigned int, unsigned int>(izq, der);
 }
 
-pair<unsigned int, unsigned int> FactorsIndex::getRangeX(
-			const char *pattern,
-			inv_perm_support<> &perm_x,
-			unsigned int n_factors, 
-			rrr_vector<127>::select_1_type *select1_s, 
-			rrr_vector<127>::select_1_type *select1_b, 
-			rrr_vector<127>::select_0_type *select0_b, 
-			inv_perm_support<> *perm, 
-			inv_perm_support<> *perm_inv, 
-			const char *ref_text, 
-			unsigned int full_size ){
+pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 	
 	unsigned int pat_len = strlen(pattern);
 	unsigned int izq = 0;
@@ -738,7 +676,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(
 			m = l + ((h-l)>>1);
 			fm = perm_x[m];
 //			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) < (unsigned char)(*(text + cur_pos)) ){
-			c = getCharRev(fm-1, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+			c = getCharRev(fm-1, cur_pos);
 			text_len = mapa_iterators_rev[fm-1].length();
 			cout << "getRangeX - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
 			if( cur_pos > text_len || (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
@@ -752,7 +690,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(
 		}
 		izq = h;
 		fm = perm_x[izq];
-		c = getCharRev(fm-1, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+		c = getCharRev(fm-1, cur_pos);
 		text_len = mapa_iterators_rev[fm-1].length();
 		if( (cur_pos < text_len) && (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
 			++izq;
@@ -767,7 +705,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(
 		while(l < h){
 			m = l + ((h-l)>>1);
 			fm = perm_x[m];
-			c = getCharRev(fm-1, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+			c = getCharRev(fm-1, cur_pos);
 			text_len = mapa_iterators_rev[fm-1].length();
 //			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) <= (unsigned char)(*(text + cur_pos)) ){
 			cout << "getRangeX - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
@@ -782,7 +720,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(
 		}
 		der = h;
 		fm = perm_x[der];
-		c = getCharRev(fm-1, cur_pos, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size);
+		c = getCharRev(fm-1, cur_pos);
 		text_len = mapa_iterators_rev[fm-1].length();
 		if( (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
 			--der;
