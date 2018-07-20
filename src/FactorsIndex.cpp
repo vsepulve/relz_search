@@ -210,6 +210,71 @@ FactorsIndex::~FactorsIndex(){
 
 void FactorsIndex::find(const string &pattern){
 	
+	cout << "FactorsIndex::find - Start\n";
+	
+	// Primera parte: Busqueda en referencia (y refinamiento con recursive RMQ)
+	cout << "FactorsIndex::find - Section A, reference\n";
+	
+	size_t m = pattern.size();
+	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
+	cout << "FactorsIndex::find - # occs de \"" << pattern << "\": " << occs << "\n";
+	if( occs > 0 ){
+		auto locations = locate(fm_index, pattern.begin(), pattern.begin()+m);
+		sort(locations.begin(), locations.end());
+		for( unsigned int i = 0; i < occs; ++i ){
+			unsigned int occ_i = locations[i];
+			// cout << "occ[" << i << "]: " << occ_i << " (" << ref.substr(occ_i, m) << ")\n";
+			cout << "FactorsIndex::find - occ[" << i << "]: " << occ_i << " \n";
+			// Comprobar los factores que cuben esta ocurrencia (el string ref[occ_i, occ_i + m - 1])
+			unsigned int select = select0_s(occ_i + 1);
+			unsigned int pos_ez = select - 1 - occ_i;
+			cout << "FactorsIndex::find - select: " << select << " => pos_ez: " << pos_ez << "\n";
+			
+			// Ahora la busqueda (recursiva) en el rmq (entre 0 y pos_ez)
+			recursive_rmq(0, pos_ez, (occ_i + m), occ_i);
+			
+		}
+	}
+	
+	// Segunda parte: Busqueda de cada par de pattern en rangos X e Y
+	cout << "FactorsIndex::find - Section B, ranges\n";
+	
+	for(unsigned int i = 1; i < pattern.length(); ++i){
+		string p1 = pattern.substr(0, i);
+		string p2 = pattern.substr(i, pattern.length() - i);
+		cout << "FactorsIndex::find - Corte de \"" << pattern << "\": (" << p1 << "| " << p2 << ")\n";
+		pair<unsigned int, unsigned int> r1 = getRangeX(p1.c_str());
+		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
+		
+		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
+			|| r2.second == (unsigned int)(-1) || r2.second < r1.first ){
+			cout << "FactorsIndex::find - Rangos Invalidos, omitiendo...\n";
+			continue;
+		}
+		
+		cout << "FactorsIndex::find - Buscando en [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
+		for (auto point : res.second){
+			unsigned int f = perm_y[point.second];
+			cout << "FactorsIndex::find - (" << point.first << ", " << point.second << ") => factor " << f << "\n";
+			
+			unsigned int cur_perm = perm_inv[f];
+//			unsigned int tu = select1_s(cur_perm + 1) - cur_perm;
+			unsigned int pu = select1_b(perm[cur_perm] + 1);
+//			unsigned int lu = select1_b(perm[cur_perm] + 2) - pu;
+//			cout << " -> tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
+			cout << " -> Agregando " << (pu - p1.length()) << "\n";
+			
+		}
+		
+	}
+	cout << "FactorsIndex::find - End\n";
+	
+}
+
+
+void FactorsIndex::test(const string &pattern){
+	
 	cout << "Texto de ref: \"" << ref << "\"\n";
 	
 	cout << "Probando RMQ: \n";
@@ -241,7 +306,7 @@ void FactorsIndex::find(const string &pattern){
 //			unsigned int pos_max = rmq(0, pos_ez);
 //			cout << "max pos Ez: " << pos_max << " (Ez: " << ez[pos_max] << ", factor: " << perm[pos_max] << ")\n";
 			cout << "----- Search V2 -----\n";
-			recursive_rmq(0, pos_ez, (occ_i + m));
+			recursive_rmq(0, pos_ez, (occ_i + m), occ_i);
 			cout << "----- -----\n";
 			
 		}
@@ -486,7 +551,8 @@ void FactorsIndex::find(const string &pattern){
 		cout << "Buscando en [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
-			cout << "(" << point.first << ", " << point.second << ") => factor " << perm_y[point.second] << "\n";
+			unsigned int f = perm_y[point.second];
+			cout << "(" << point.first << ", " << point.second << ") => factor " << f << "\n";
 		}
 		
 	}
@@ -494,8 +560,8 @@ void FactorsIndex::find(const string &pattern){
 	
 }
 
-void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit){
-	cout << " -> recursive_rmq(" << ini << ", " << fin << ")\n";
+void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit, unsigned int occ_ref){
+	cout << "FactorsIndex::recursive_rmq - " << ini << ", " << fin << "\n";
 	
 	unsigned int pos_max = rmq(ini, fin);
 	
@@ -503,20 +569,20 @@ void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned in
 	unsigned int pu = select1_b(perm[pos_max] + 1);
 	unsigned int lu = select1_b(perm[pos_max] + 2) - pu;
 	
-	cout << " -> max pos Ez: " << pos_max << " (tu: " << tu << ", pu: " << pu << ", lu: " << lu << ")\n";
+	cout << "FactorsIndex::recursive_rmq - max pos Ez: " << pos_max << " (tu: " << tu << ", pu: " << pu << ", lu: " << lu << ")\n";
 	if( tu + lu < crit ){
 		cout << "Omitiendo\n";
 		return;
 	}
 	else{
-		cout << "Agregando\n";
+		cout << " -> Agregando " << (pu + (occ_ref - tu)) << "\n";
 	}
 	
 	if( (pos_max > 0) && (ini < pos_max) ){
-		recursive_rmq(ini, pos_max-1, crit);
+		recursive_rmq(ini, pos_max-1, crit, occ_ref);
 	}
 	if( pos_max < fin ){
-		recursive_rmq(pos_max+1, fin, crit);
+		recursive_rmq(pos_max+1, fin, crit, occ_ref);
 	}
 }
 

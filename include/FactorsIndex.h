@@ -64,7 +64,8 @@ private:
 	unordered_map<unsigned int, FactorsIterator> mapa_iterators;
 	unordered_map<unsigned int, FactorsIteratorReverse> mapa_iterators_rev;
 	
-	void recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit);
+	// Falta la estructura para agregar efectivamente los resultados, quiza un vector de posiciones
+	void recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit, unsigned int occ_ref);
 	
 	char getChar(unsigned int factor, unsigned int pos);
 	
@@ -81,6 +82,8 @@ public:
 	~FactorsIndex();
 	
 	void find(const string &pattern);
+	
+	void test(const string &pattern);
 	
 };
 
