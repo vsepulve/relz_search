@@ -467,6 +467,8 @@ int main() {
 //	construct(fm_index, file, 1);
 	
 	cout << "Texto de ref: \"" << ref << "\"\n";
+	// Notar que con extract SE PUEDE EXTRAER el texto, incluso caracter a caracter (aunque no tengo certeza del tiempo)
+	cout << "fm_index[0]: \"" << fm_index[0] << "\", extract(0): " << extract(fm_index, 0, 0) << ", extract(1): " << extract(fm_index, 1, 1) << ", extract(2): " << extract(fm_index, 2, 2) << ", \n";
 	
 //	string query = "LA";
 	string query = "BA";
