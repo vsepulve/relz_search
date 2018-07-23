@@ -62,13 +62,16 @@ int main(int argc, char* argv[]){
 	FactorsIndex index(factors, len_text, ref, len_ref);
 	cout << "-----     -----\n";
 	
-	index.find("AB");
-	cout << "-----     -----\n";
+//	index.find("AB");
+//	cout << "-----     -----\n";
+//	
+//	index.find("ABA");
+//	cout << "-----     -----\n";
+//	
+//	index.find("ALA");
+//	cout << "-----     -----\n";
 	
-	index.find("ABA");
-	cout << "-----     -----\n";
-	
-	index.find("ALA");
+	index.find("CATC");
 	cout << "-----     -----\n";
 	
 	
