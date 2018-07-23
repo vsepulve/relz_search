@@ -307,7 +307,7 @@ void ReferenceIndexBasic::find(const char *text, unsigned int size, unsigned int
 			}
 		}
 		unsigned int der = h;
-		if( (arr[der] + cur_pos < largo) 
+		if( (der > 0) && (arr[der] + cur_pos < largo) 
 			&& *(ref + arr[der] + cur_pos) > (unsigned char)(*(text + cur_pos)) ){
 			--der;
 		}

@@ -40,9 +40,7 @@ void CoderBlocksRelz::codeBlock(const char *text, unsigned int text_size, fstrea
 	
 	while(text_size > 0){
 //		cout<<"CoderBlocksRelz::codeBlock - referencia->find...\n";
-
 		referencia->find(text + compressed_text, text_size, pos_prefijo, largo_prefijo);
-		
 		// PRUEBA DE LARGO MAXIMO (100)
 //		referencia->find(text + compressed_text, (text_size<100)?text_size:100, pos_prefijo, largo_prefijo);
 		
