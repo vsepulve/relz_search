@@ -144,7 +144,7 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 	
 	unsigned int buffer_size = coder->codingBufferSize(data->block_size);
 	//Se crea este buffer en lugar de dejarlo interno en coder porque puede ser bastante grande
-	cout<<"Compressor::Thread ["<<data->id<<"] - Preparando buffer de tamaño "<<buffer_size<<"\n";
+//	cout<<"Compressor::Thread ["<<data->id<<"] - Preparando buffer de tamaño "<<buffer_size<<"\n";
 	char *full_buffer = new char[buffer_size];
 	
 	unsigned int block = 0;
@@ -170,7 +170,7 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 		
 		bytes_headers = 0;
 		bytes_data = 0;
-		cout<<"Compressor::Thread ["<<data->id<<"] - coder->codeBlock...\n";
+//		cout<<"Compressor::Thread ["<<data->id<<"] - coder->codeBlock...\n";
 		coder->codeBlock(text, text_size, &file_headers, &file_data, bytes_headers, bytes_data, full_buffer, external_factors);
 		
 		(*vector_bytes_headers)[block] = bytes_headers;
@@ -221,7 +221,7 @@ bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsig
 	}
 	
 //	cout<<"Compressor::realCompress - Texto de "<<text_length<<" chars\n";
-	cout<<"Compressor::realCompress - Texto: \""<<text<<"\" ("<<text_length<<")\n";
+//	cout<<"Compressor::realCompress - Texto: \""<<text<<"\" ("<<text_length<<")\n";
 	if( use_metadata ){
 		cout<<"Compressor::realCompress - lowcase_runs: "<<lowcase_runs->size()<<", nl_pos: "<<nl_pos->size()<<"\n";
 	}

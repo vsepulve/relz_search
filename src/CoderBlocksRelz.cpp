@@ -54,7 +54,7 @@ void CoderBlocksRelz::codeBlock(const char *text, unsigned int text_size, fstrea
 			max_pos = pos_prefijo;
 		}
 		
-		cout<<"factor\t"<<n_factores<<"\t"<<pos_prefijo<<"\t"<<largo_prefijo<<"\n";
+//		cout<<"factor\t"<<n_factores<<"\t"<<pos_prefijo<<"\t"<<largo_prefijo<<"\n";
 		
 		if( external_factors != NULL ){
 			external_factors->push_back( pair<unsigned int, unsigned int>(pos_prefijo, largo_prefijo) );

@@ -16,13 +16,12 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	
 	cout << "FactorsIndex - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
 	
-	cout << "Factors: \n";
+//	cout << "Factors: \n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
-//	vector<pair<unsigned int, unsigned int> > factors_sort;
 	vector<pair<unsigned int, pair<unsigned int, unsigned int> > > factors_sort;
 	unsigned cur_pos = 0;
 	for( pair<unsigned int, unsigned int> factor : factors ){
-		cout << "(" << factor.first << ", " << factor.second << ", " << cur_pos << ")\n";
+//		cout << "(" << factor.first << ", " << factor.second << ", " << cur_pos << ")\n";
 		factors_sort.push_back( 
 			pair<unsigned int, pair<unsigned int, unsigned int> >(
 				factor.first, pair<unsigned int, unsigned int>(factor.first + factor.second - 1, cur_pos++)
@@ -30,12 +29,10 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 			);
 	}
 	sort(factors_sort.begin(), factors_sort.end());
-	cout << "Factors Sorted: \n";
-	for( pair<unsigned int, pair<unsigned int, unsigned int> > factor : factors_sort ){
-		cout << "(" << factor.first << ", " << factor.second.first << ", " << factor.second.second << ")\n";
-	}
-	// z ahora es n_factors
-//	z = factors_sort.size();
+//	cout << "Factors Sorted: \n";
+//	for( pair<unsigned int, pair<unsigned int, unsigned int> > factor : factors_sort ){
+//		cout << "(" << factor.first << ", " << factor.second.first << ", " << factor.second.second << ")\n";
+//	}
 	
 	// Bit vector S
 	bit_vector _arr_s(len_ref + n_factors, 0);
@@ -54,27 +51,27 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 			--i;
 		}
 	}
-	cout << "Bit Array S: \n";
-	for( unsigned int i = 0; i < len_ref + n_factors; ++i ){
-		cout << "arr_s[" << i << "]: " << arr_s[i] << "\n";
-	}
+//	cout << "Bit Array S: \n";
+//	for( unsigned int i = 0; i < len_ref + n_factors; ++i ){
+//		cout << "arr_s[" << i << "]: " << arr_s[i] << "\n";
+//	}
 	
 	rrr_vector<127> _rrr_s(arr_s);
 	rrr_s = _rrr_s;
 	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
 	select1_s = _select1_s;
-	cout << "Posicion de primer 1: " << select1_s(1) << "\n";
-	cout << "Posicion de tercer 1: " << select1_s(3) << "\n";
-	cout << "Posicion de quinto 1: " << select1_s(5) << "\n";
+//	cout << "Posicion de primer 1: " << select1_s(1) << "\n";
+//	cout << "Posicion de tercer 1: " << select1_s(3) << "\n";
+//	cout << "Posicion de quinto 1: " << select1_s(5) << "\n";
 	
 	// Notar que la posicion del select DEBE empezar desde 1, no desde 0
 	// De este modo, hay que sumar 1 a las posiciones de la ref para buscar en S
 	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
 	select0_s = _select0_s;
-	cout << "Posicion de primer 0: " << select0_s(1) << "\n";
-	cout << "Posicion de tercer 0: " << select0_s(3) << "\n";
-	cout << "Posicion de quinto 0: " << select0_s(5) << "\n";
-	cout << "Posicion de 0th 0: " << select0_s(0) << "\n";
+//	cout << "Posicion de primer 0: " << select0_s(1) << "\n";
+//	cout << "Posicion de tercer 0: " << select0_s(3) << "\n";
+//	cout << "Posicion de quinto 0: " << select0_s(5) << "\n";
+//	cout << "Posicion de 0th 0: " << select0_s(0) << "\n";
 	
 	// Permutacion 
 	int_vector<> _pi(n_factors);
@@ -90,12 +87,10 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	perm_inv = _perm_inv;
 	perm = _perm;
 	
-	cout << "Probando perm[4]: " << perm[4] << "\n";
-	
-	cout << "Permutation: \n";
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << "pi[" << i << "]: " << pi[i] << ", perm[" << i << "]: " << perm[i] << ", perm_inv[" << i << "]: " << perm_inv[i] << "\n";
-	}
+//	cout << "Permutation: \n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << "pi[" << i << "]: " << pi[i] << ", perm[" << i << "]: " << perm[i] << ", perm_inv[" << i << "]: " << perm_inv[i] << "\n";
+//	}
 	
 	// Posiciones finales Ez
 //	vector<unsigned int> ez(8);
@@ -123,10 +118,10 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 		arr_b[ pos_text ] = 1;
 		pos_text += len;
 	}
-	cout << "Bit Vector B: \n";
-	for( unsigned int i = 0; i < len_text; ++i ){
-		cout << "B[" << i << "]: " << arr_b[i] << "\n";
-	}
+//	cout << "Bit Vector B: \n";
+//	for( unsigned int i = 0; i < len_text; ++i ){
+//		cout << "B[" << i << "]: " << arr_b[i] << "\n";
+//	}
 	rrr_vector<127> _rrr_b(arr_b);
 	rrr_b = _rrr_b;
 	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
@@ -160,13 +155,13 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		pre_x_inv[ arr_x[i] ] = i;
 //		cout << " arr_x[" << i << "]: " << arr_x[i] << " (perm_x[" << i << "]: " << perm_x[i] << ") \n";
-		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-		char c = 0;
-		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-			cout << c;
-		cout << "\n";
+//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+//		char c = 0;
+//		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+//			cout << c;
+//		cout << "\n";
 	}
-	cout << "-----\n";
+//	cout << "-----\n";
 	
 	cout << "Preparando arr Y\n";
 	vector<unsigned int> arr_y(n_factors);
@@ -189,20 +184,20 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	perm_y_inv = _perm_y_inv;
 	for( unsigned int i = 0; i < n_factors; ++i ){
 //		cout << " arr_y[" << i << "]: " << arr_y[i] << " (perm_y[" << i << "]: " << perm_y[i] << ", perm_y_inv[" << i << "]: " << perm_y_inv[i] << ")\n";
-		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
-		char c = 0;
-		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
-			cout << c;
-		cout << "\n";
+//		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
+//		char c = 0;
+//		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
+//			cout << c;
+//		cout << "\n";
 	}
-	cout << "-----\n";
+//	cout << "-----\n";
 	
 	cout << "Preparando WT\n";
 	int_vector<> _values_wt(n_factors);
 	values_wt = _values_wt;
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		values_wt[i] = perm_y_inv[ arr_x[ i ] ];
-		cout << " values_wt[" << i << "]: " << values_wt[i] << " \n";
+//		cout << " values_wt[" << i << "]: " << values_wt[i] << " \n";
 	}
 	
 //	wt_int<rrr_vector<63>> wt;
