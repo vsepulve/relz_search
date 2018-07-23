@@ -59,8 +59,10 @@ int main(int argc, char* argv[]){
 	
 	const char *ref = reference->getText();
 	
+	cout << "----- Construyendo Indice -----\n";
+	NanoTimer timer;
 	FactorsIndex index(factors, len_text, ref, len_ref);
-	cout << "-----     -----\n";
+	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
 	
 //	index.find("AB");
 //	cout << "-----     -----\n";
