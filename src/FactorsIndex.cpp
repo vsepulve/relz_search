@@ -159,7 +159,12 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	perm_x = _perm_x;
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		pre_x_inv[ arr_x[i] ] = i;
-		cout << " arr_x[" << i << "]: " << arr_x[i] << " (perm_x[" << i << "]: " << perm_x[i] << ") \n";
+//		cout << " arr_x[" << i << "]: " << arr_x[i] << " (perm_x[" << i << "]: " << perm_x[i] << ") \n";
+		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
 	}
 	cout << "-----\n";
 	
@@ -183,7 +188,12 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	perm_y = _perm_y;
 	perm_y_inv = _perm_y_inv;
 	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_y[" << i << "]: " << arr_y[i] << " (perm_y[" << i << "]: " << perm_y[i] << ", perm_y_inv[" << i << "]: " << perm_y_inv[i] << ")\n";
+//		cout << " arr_y[" << i << "]: " << arr_y[i] << " (perm_y[" << i << "]: " << perm_y[i] << ", perm_y_inv[" << i << "]: " << perm_y_inv[i] << ")\n";
+		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
 	}
 	cout << "-----\n";
 	
@@ -241,13 +251,17 @@ void FactorsIndex::find(const string &pattern){
 	
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		string p1 = pattern.substr(0, i);
+		string p1_rev = "";
+		for( unsigned int k = 0; k < p1.length(); ++k ){
+			p1_rev += p1[ p1.length() - 1 - k ];
+		}
 		string p2 = pattern.substr(i, pattern.length() - i);
-		cout << "FactorsIndex::find - Corte de \"" << pattern << "\": (" << p1 << "| " << p2 << ")\n";
-		pair<unsigned int, unsigned int> r1 = getRangeX(p1.c_str());
+		cout << "FactorsIndex::find - Corte de \"" << pattern << "\": (" << p1 << " -> " << p1_rev << " | " << p2 << ")\n";
+		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
 		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
 		
 		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
-			|| r2.second == (unsigned int)(-1) || r2.second < r1.first ){
+			|| r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 			cout << "FactorsIndex::find - Rangos Invalidos, omitiendo...\n";
 			continue;
 		}
