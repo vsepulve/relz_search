@@ -54,7 +54,7 @@ int main(int argc, char* argv[]){
 		buff_output[cur_pos] = 0;
 		cout << buff_output;
 	}
-	cout << "\n";
+	// cout << "\n";
 	reader.close();
 	
 	delete [] buff;
