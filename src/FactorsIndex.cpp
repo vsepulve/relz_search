@@ -251,17 +251,17 @@ void FactorsIndex::find(const string &pattern){
 			p1_rev += p1[ p1.length() - 1 - k ];
 		}
 		string p2 = pattern.substr(i, pattern.length() - i);
-		cout << "FactorsIndex::find - Corte de \"" << pattern << "\": (" << p1 << " -> " << p1_rev << " | " << p2 << ")\n";
+		cout << "FactorsIndex::find - Cuts from \"" << pattern << "\": (" << p1 << " -> " << p1_rev << " | " << p2 << ")\n";
 		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
 		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
 		
 		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
 			|| r2.second == (unsigned int)(-1) || r2.second < r2.first ){
-			cout << "FactorsIndex::find - Rangos Invalidos, omitiendo...\n";
+			cout << "FactorsIndex::find - Invalid ranges, omitting...\n";
 			continue;
 		}
 		
-		cout << "FactorsIndex::find - Buscando en [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+		cout << "FactorsIndex::find - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
 			unsigned int f = perm_y[point.second];
@@ -272,7 +272,7 @@ void FactorsIndex::find(const string &pattern){
 			unsigned int pu = select1_b(perm[cur_perm] + 1);
 //			unsigned int lu = select1_b(perm[cur_perm] + 2) - pu;
 //			cout << " -> tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
-			cout << " -> Agregando " << (pu - p1.length()) << "\n";
+			cout << " -> Adding " << (pu - p1.length()) << "\n";
 			
 		}
 		
@@ -547,17 +547,17 @@ void FactorsIndex::test(const string &pattern){
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		string p1 = pattern.substr(0, i);
 		string p2 = pattern.substr(i, pattern.length() - i);
-		cout << "Corte de \"" << pattern << "\": (" << p1 << "| " << p2 << ")\n";
+		cout << "Cuts from \"" << pattern << "\": (" << p1 << "| " << p2 << ")\n";
 		pair<unsigned int, unsigned int> r1 = getRangeX(p1.c_str());
 		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
 		
 		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
 			|| r2.second == (unsigned int)(-1) || r2.second < r1.first ){
-			cout << "Rangos Invalidos, omitiendo...\n";
+			cout << "Invalid ranges, omitting...\n";
 			continue;
 		}
 		
-		cout << "Buscando en [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+		cout << "Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
 			unsigned int f = perm_y[point.second];
@@ -580,11 +580,11 @@ void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned in
 	
 	cout << "FactorsIndex::recursive_rmq - max pos Ez: " << pos_max << " (tu: " << tu << ", pu: " << pu << ", lu: " << lu << ")\n";
 	if( tu + lu < crit ){
-		cout << "Omitiendo\n";
+		cout << "Omitting\n";
 		return;
 	}
 	else{
-		cout << " -> Agregando " << (pu + (occ_ref - tu)) << "\n";
+		cout << " -> Adding " << (pu + (occ_ref - tu)) << "\n";
 	}
 	
 	if( (pos_max > 0) && (ini < pos_max) ){
