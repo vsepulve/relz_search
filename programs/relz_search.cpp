@@ -30,14 +30,15 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-	if(argc != 4){
-		cout<<"\nModo de Uso: relz_search serialized_ref sequence_file output_relz\n";
+	if(argc != 5){
+		cout<<"\nModo de Uso: relz_search serialized_ref sequence_file output_relz queries_file\n";
 		return 0;
 	}
 	
 	const char *ref_file = argv[1];
 	const char *input = argv[2];
 	const char *output = argv[3];
+	const char *queries_file = argv[4];
 	
 	ReferenceIndex *reference = new ReferenceIndexBasic();
 	reference->load(ref_file);
@@ -65,11 +66,40 @@ int main(int argc, char* argv[]){
 	FactorsIndex index(factors, len_text, ref, len_ref);
 	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
 	
+	cout << "----- Query de Prueba -----\n";
 	index.find("CATC", results);
 	cout << "-----     -----\n";
 	results.clear();
 	
+	cout << "----- Cargando Queries desde \"" << queries_file << "\" -----\n";
+	vector<string> queries;
+	unsigned int max_line = 1000000;
+	char buff[max_line + 1];
+	fstream reader(queries_file, fstream::in);
+	while( reader.good() ){
+		reader.getline(buff, max_line);
+		unsigned int n_read = reader.gcount();
+		if( n_read < 1 ){
+			continue;
+		}
+		buff[n_read] = 0;
+		string query(buff);
+		cout << "Query[" << queries.size() << "]: \"" << query << "\"\n";
+		queries.push_back(query);
+	}
 	
+	cout << "----- Realizando Queres -----\n";
+	timer.reset();
+	unsigned long long total_occ = 0;
+	for( string query : queries ){
+		cout << "----- Query \"" << query << "\" -----\n";
+		index.find(query, results);
+		cout << "-----     -----\n";
+		total_occ += results.size();
+		results.clear();
+	}
+	cout << "----- Queries terminadas en " << timer.getMilisec() << " ms (" << queries.size() << " queries, " << total_occ << " occs) -----\n";
+	 
 	
 	
 	
