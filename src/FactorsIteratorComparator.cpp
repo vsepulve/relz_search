@@ -8,6 +8,7 @@ FactorsIteratorComparator::FactorsIteratorComparator(){
 	perm = NULL;
 	perm_inv = NULL;
 	ref_text = NULL;
+	fm_index = NULL;
 	full_size = 0;
 }
 
@@ -18,6 +19,7 @@ FactorsIteratorComparator::FactorsIteratorComparator(unsigned int _n_factors,
 		inv_perm_support<> *_perm, 
 		inv_perm_support<> *_perm_inv, 
 		const char *_ref_text, 
+		csa_wt<> *_fm_index, 
 		unsigned int _full_size ) {
 	n_factors = _n_factors;
 	select1_s = _select1_s;
@@ -26,6 +28,7 @@ FactorsIteratorComparator::FactorsIteratorComparator(unsigned int _n_factors,
 	perm = _perm;
 	perm_inv = _perm_inv;
 	ref_text = _ref_text;
+	fm_index = _fm_index;
 	full_size = _full_size;
 }
 
@@ -37,6 +40,7 @@ FactorsIteratorReverseComparator::FactorsIteratorReverseComparator(){
 	perm = NULL;
 	perm_inv = NULL;
 	ref_text = NULL;
+	fm_index = NULL;
 	full_size = 0;
 }
 
@@ -47,6 +51,7 @@ FactorsIteratorReverseComparator::FactorsIteratorReverseComparator(unsigned int 
 		inv_perm_support<> *_perm, 
 		inv_perm_support<> *_perm_inv, 
 		const char *_ref_text, 
+		csa_wt<> *_fm_index, 
 		unsigned int _full_size ) {
 	n_factors = _n_factors;
 	select1_s = _select1_s;
@@ -55,6 +60,7 @@ FactorsIteratorReverseComparator::FactorsIteratorReverseComparator(unsigned int 
 	perm = _perm;
 	perm_inv = _perm_inv;
 	ref_text = _ref_text;
+	fm_index = _fm_index;
 	full_size = _full_size;
 }
 

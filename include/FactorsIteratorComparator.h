@@ -8,8 +8,11 @@
 #include <algorithm>
 #include <vector>
 
+#include <sdsl/suffix_arrays.hpp>
 #include <sdsl/bit_vectors.hpp>
+#include <sdsl/rmq_support.hpp>
 #include <sdsl/inv_perm_support.hpp>
+#include <sdsl/wavelet_trees.hpp>
 
 #include "FactorsIterator.h"
 
@@ -25,6 +28,8 @@ private:
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
 	const char *ref_text;
+	// FM-Index en lugar del texto
+	csa_wt<> *fm_index;
 	unsigned int full_size;
 
 public:
@@ -37,11 +42,12 @@ public:
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
 			const char *_ref_text, 
+			csa_wt<> *_fm_index, 
 			unsigned int _full_size );
 	
 	inline bool operator()(const unsigned int a, const unsigned int b){
-		FactorsIterator it_a( a, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size );
-		FactorsIterator it_b( b, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size );
+		FactorsIterator it_a( a, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, fm_index, full_size );
+		FactorsIterator it_b( b, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, fm_index, full_size );
 		char ch_a, ch_b;
 		while( true ){
 			if( ! it_a.hasNext() ){
@@ -72,6 +78,8 @@ private:
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
 	const char *ref_text;
+	// FM-Index en lugar del texto
+	csa_wt<> *fm_index;
 	unsigned int full_size;
 
 public:
@@ -84,11 +92,12 @@ public:
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
 			const char *_ref_text, 
+			csa_wt<> *_fm_index, 
 			unsigned int _full_size );
 	
 	inline bool operator()(const unsigned int a, const unsigned int b){
-	FactorsIteratorReverse it_a( a - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size );
-	FactorsIteratorReverse it_b( b - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, full_size );
+	FactorsIteratorReverse it_a( a - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, fm_index, full_size );
+	FactorsIteratorReverse it_b( b - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, fm_index, full_size );
 	char ch_a, ch_b;
 	while( true ){
 		if( ! it_a.hasNext() ){

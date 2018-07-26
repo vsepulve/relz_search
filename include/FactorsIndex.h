@@ -24,7 +24,7 @@ class FactorsIndex {
 
 private: 
 	unsigned int len_text;
-	const char *ref;
+	const char *ref_text;
 	unsigned int len_ref;
 	unsigned int n_factors;
 	
@@ -78,7 +78,7 @@ private:
 	
 public: 
 	FactorsIndex();
-	FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, unsigned int _len_text, const char *_ref, unsigned int _len_ref);
+	FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref);
 	~FactorsIndex();
 	
 	void find(const string &pattern, vector<unsigned int> &results);

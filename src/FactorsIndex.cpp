@@ -2,15 +2,15 @@
 
 FactorsIndex::FactorsIndex(){
 	len_text = 0;
-	ref = NULL;
+	ref_text = NULL;
 	len_ref = 0;
 	n_factors = 0;
 }
 
-FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, unsigned int _len_text, const char *_ref, unsigned int _len_ref){
+FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref){
 	
 	len_text = _len_text;
-	ref = _ref;
+	ref_text = _ref_text;
 	len_ref = _len_ref;
 	n_factors = factors.size();
 	
@@ -130,11 +130,8 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	select0_b = _select0_b;
 	
 	// Construccion del FM Index (aunque use el SA original para la compresion, esto es para la busqueda)
-//	csa_wt<> fm_index;
 	// Construccion con datos en memoria, en un string
-	construct_im(fm_index, ref, 1);
-	// Construccion con datos en un archivo
-//	construct(fm_index, file, 1);
+	construct_im(fm_index, ref_text, 1);
 	
 	// Preparacion de permutaciones X e Y
 	
@@ -143,7 +140,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_x[i] = i;
 	}
-	FactorsIteratorReverseComparator comp_rev(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	FactorsIteratorReverseComparator comp_rev(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
 	stable_sort(arr_x.begin(), arr_x.end(), comp_rev);
 	int_vector<> _pre_x_inv(n_factors);
 	pre_x_inv = _pre_x_inv;
@@ -168,7 +165,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_y[i] = i;
 	}
-	FactorsIteratorComparator comp(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+	FactorsIteratorComparator comp(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
 	stable_sort(arr_y.begin(), arr_y.end(), comp);
 	int_vector<> _pre_y(n_factors);
 	int_vector<> _pre_y_inv(n_factors);
@@ -601,7 +598,7 @@ char FactorsIndex::getChar(unsigned int factor, unsigned int pos){
 	
 	// Segundo enfoque: cache de iteradores completos
 	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
-		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
 	}
 	FactorsIterator it = mapa_iterators[factor];
 	if( pos >= it.length() ){
@@ -611,9 +608,6 @@ char FactorsIndex::getChar(unsigned int factor, unsigned int pos){
 		it.reset();
 	}
 	
-	// Primer enfoque: sin caches 
-	// (porque quiza haga un multiiterador con caches internos solo para los valores especificos necesarios)
-//	FactorsIterator it( factor, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref, len_text );
 	char c = 0;
 	while( it.position() <= pos ){
 		c = it.next();
@@ -629,7 +623,7 @@ char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos){
 	
 	// Segundo enfoque: cache de iteradores completos
 	if( mapa_iterators_rev.find(factor) == mapa_iterators_rev.end() ){
-		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref, len_text);
+		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
 	}
 	FactorsIteratorReverse it = mapa_iterators_rev[factor];
 	if( pos >= it.length() ){
@@ -670,7 +664,6 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 		while(l < h){
 			m = l + ((h-l)>>1);
 			fm = perm_y[m];
-//			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) < (unsigned char)(*(text + cur_pos)) ){
 			c = getChar(fm, cur_pos);
 			text_len = mapa_iterators[fm].length();
 //			cout << "getRangeY - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
@@ -702,7 +695,6 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 			fm = perm_y[m];
 			c = getChar(fm, cur_pos);
 			text_len = mapa_iterators[fm].length();
-//			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) <= (unsigned char)(*(text + cur_pos)) ){
 //			cout << "getRangeY - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
 			if( cur_pos > text_len || (unsigned char)(c) <= (unsigned char)(pattern[cur_pos]) ){
 //				cout << "getRangeY - caso 1: l = " << (m+1) << "\n";
@@ -752,7 +744,6 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 		while(l < h){
 			m = l + ((h-l)>>1);
 			fm = perm_x[m];
-//			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) < (unsigned char)(*(text + cur_pos)) ){
 			c = getCharRev(fm-1, cur_pos);
 			text_len = mapa_iterators_rev[fm-1].length();
 //			cout << "getRangeX - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
@@ -784,7 +775,6 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 			fm = perm_x[m];
 			c = getCharRev(fm-1, cur_pos);
 			text_len = mapa_iterators_rev[fm-1].length();
-//			if( arr[m] + cur_pos > largo || *(ref + arr[m] + cur_pos) <= (unsigned char)(*(text + cur_pos)) ){
 //			cout << "getRangeX - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
 			if( cur_pos > text_len || (unsigned char)(c) <= (unsigned char)(pattern[cur_pos]) ){
 //				cout << "getRangeX - caso 1: l = " << (m+1) << "\n";
