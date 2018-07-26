@@ -8,8 +8,11 @@
 #include <algorithm>
 #include <vector>
 
+#include <sdsl/suffix_arrays.hpp>
 #include <sdsl/bit_vectors.hpp>
+#include <sdsl/rmq_support.hpp>
 #include <sdsl/inv_perm_support.hpp>
+#include <sdsl/wavelet_trees.hpp>
 
 using namespace sdsl;
 using namespace std;
@@ -26,6 +29,8 @@ private:
 	inv_perm_support<> *perm_inv;
 	// Texto de la referencia descomprimido
 	const char *ref_text;
+	// FM-Index en lugar del texto
+	csa_wt<> *fm_index;
 	// Largo de la coleccion completa comprimida
 	unsigned int full_size;
 	
@@ -58,6 +63,7 @@ public:
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
 			const char *_ref_text,
+			csa_wt<> *_fm_index,
 			unsigned int _full_size );
 	
 	void reset();
@@ -83,6 +89,8 @@ private:
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
 	const char *ref_text;
+	// FM-Index en lugar del texto
+	csa_wt<> *fm_index;
 	// Largo de la coleccion completa comprimida
 	unsigned int full_size;
 	
@@ -115,6 +123,7 @@ public:
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
 			const char *_ref_text,
+			csa_wt<> *_fm_index,
 			unsigned int _full_size );
 	
 	void reset();

@@ -33,6 +33,7 @@ FactorsIterator::FactorsIterator(){
 	perm = NULL;
 	perm_inv = NULL;
 	ref_text = NULL;
+	fm_index = NULL;
 	full_size = 0;
 	cur_pos = 0;
 	cur_f = 0;
@@ -48,6 +49,7 @@ FactorsIterator::FactorsIterator( unsigned int _start_f, unsigned int _n_factors
 		inv_perm_support<> *_perm, 
 		inv_perm_support<> *_perm_inv, 
 		const char *_ref_text,
+		csa_wt<> *_fm_index,
 		unsigned int _full_size ){
 	start_f = _start_f;
 	n_factors = _n_factors;
@@ -57,6 +59,7 @@ FactorsIterator::FactorsIterator( unsigned int _start_f, unsigned int _n_factors
 	perm = _perm;
 	perm_inv = _perm_inv;
 	ref_text = _ref_text;
+	fm_index = _fm_index;
 	full_size = _full_size;
 	cur_pos = 0;
 	cur_f = 0;
@@ -72,7 +75,13 @@ void FactorsIterator::reset(){
 
 char FactorsIterator::next(){
 //	cout << "FactorsIterator::next - cur_pos: " << cur_pos << ", cur_f_fin: " << cur_f_fin << ", cur_f: " << cur_f << " / " << n_factors << "\n";
-	char ret = ref_text[cur_pos];
+	char ret = 0;
+	if( ref_text != NULL ){
+		ret = ref_text[cur_pos];
+	}
+	else{
+		ret = extract(*fm_index, cur_pos, cur_pos)[0];
+	}
 	++cur_pos;
 	++text_pos;
 	if( (cur_pos > cur_f_fin) && (cur_f < n_factors-1) ){
@@ -133,6 +142,7 @@ FactorsIteratorReverse::FactorsIteratorReverse(){
 	perm = NULL;
 	perm_inv = NULL;
 	ref_text = NULL;
+	fm_index = NULL;
 	full_size = 0;
 	cur_pos = 0;
 	cur_f = 0;
@@ -148,6 +158,7 @@ FactorsIteratorReverse::FactorsIteratorReverse( unsigned int _start_f, unsigned 
 		inv_perm_support<> *_perm, 
 		inv_perm_support<> *_perm_inv, 
 		const char *_ref_text,
+		csa_wt<> *_fm_index,
 		unsigned int _full_size ){
 	start_f = _start_f;
 	n_factors = _n_factors;
@@ -157,6 +168,7 @@ FactorsIteratorReverse::FactorsIteratorReverse( unsigned int _start_f, unsigned 
 	perm = _perm;
 	perm_inv = _perm_inv;
 	ref_text = _ref_text;
+	fm_index = _fm_index;
 	full_size = _full_size;
 	cur_pos = 0;
 	cur_f = 0;
@@ -172,7 +184,13 @@ void FactorsIteratorReverse::reset(){
 
 char FactorsIteratorReverse::next(){
 //	cout << "FactorsIteratorReverse::next - cur_pos: " << cur_pos << ", cur_f_ini: " << cur_f_ini << ", cur_f: " << cur_f << " / " << n_factors << "\n";
-	char ret = ref_text[cur_pos];
+	char ret = 0;
+	if( ref_text != NULL ){
+		ret = ref_text[cur_pos];
+	}
+	else{
+		ret = extract(*fm_index, cur_pos, cur_pos)[0];
+	}
 	--cur_pos;
 	++text_pos;
 	if( (cur_pos < cur_f_ini || cur_pos == (unsigned int)(-1)) && (--cur_f != (unsigned int)(-1)) ){
