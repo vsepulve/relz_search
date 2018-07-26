@@ -213,7 +213,7 @@ FactorsIndex::~FactorsIndex(){
 	
 }
 
-void FactorsIndex::find(const string &pattern){
+void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
 	
 	cout << "FactorsIndex::find - Start\n";
 	
@@ -236,7 +236,7 @@ void FactorsIndex::find(const string &pattern){
 			cout << "FactorsIndex::find - select: " << select << " => pos_ez: " << pos_ez << "\n";
 			
 			// Ahora la busqueda (recursiva) en el rmq (entre 0 y pos_ez)
-			recursive_rmq(0, pos_ez, (occ_i + m), occ_i);
+			recursive_rmq(0, pos_ez, (occ_i + m), occ_i, results);
 			
 		}
 	}
@@ -273,6 +273,7 @@ void FactorsIndex::find(const string &pattern){
 //			unsigned int lu = select1_b(perm[cur_perm] + 2) - pu;
 //			cout << " -> tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 			cout << " -> Adding " << (pu - p1.length()) << "\n";
+			results.push_back(pu - p1.length());
 			
 		}
 		
@@ -281,8 +282,8 @@ void FactorsIndex::find(const string &pattern){
 	
 }
 
-
-void FactorsIndex::test(const string &pattern){
+/*
+void FactorsIndex::test(const string &pattern, vector<unsigned int> &results){
 	
 	cout << "Texto de ref: \"" << ref << "\"\n";
 	
@@ -315,7 +316,7 @@ void FactorsIndex::test(const string &pattern){
 //			unsigned int pos_max = rmq(0, pos_ez);
 //			cout << "max pos Ez: " << pos_max << " (Ez: " << ez[pos_max] << ", factor: " << perm[pos_max] << ")\n";
 			cout << "----- Search V2 -----\n";
-			recursive_rmq(0, pos_ez, (occ_i + m), occ_i);
+			recursive_rmq(0, pos_ez, (occ_i + m), occ_i, results);
 			cout << "----- -----\n";
 			
 		}
@@ -566,10 +567,10 @@ void FactorsIndex::test(const string &pattern){
 		
 	}
 	
-	
 }
+*/
 
-void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit, unsigned int occ_ref){
+void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int crit, unsigned int occ_ref, vector<unsigned int> &results){
 	cout << "FactorsIndex::recursive_rmq - " << ini << ", " << fin << "\n";
 	
 	unsigned int pos_max = rmq(ini, fin);
@@ -585,13 +586,14 @@ void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned in
 	}
 	else{
 		cout << " -> Adding " << (pu + (occ_ref - tu)) << "\n";
+		results.push_back(pu + (occ_ref - tu));
 	}
 	
 	if( (pos_max > 0) && (ini < pos_max) ){
-		recursive_rmq(ini, pos_max-1, crit, occ_ref);
+		recursive_rmq(ini, pos_max-1, crit, occ_ref, results);
 	}
 	if( pos_max < fin ){
-		recursive_rmq(pos_max+1, fin, crit, occ_ref);
+		recursive_rmq(pos_max+1, fin, crit, occ_ref, results);
 	}
 }
 

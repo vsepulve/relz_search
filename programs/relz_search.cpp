@@ -61,20 +61,13 @@ int main(int argc, char* argv[]){
 	
 	cout << "----- Construyendo Indice -----\n";
 	NanoTimer timer;
+	vector<unsigned int> results;
 	FactorsIndex index(factors, len_text, ref, len_ref);
 	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
 	
-//	index.find("AB");
-//	cout << "-----     -----\n";
-//	
-//	index.find("ABA");
-//	cout << "-----     -----\n";
-//	
-//	index.find("ALA");
-//	cout << "-----     -----\n";
-	
-	index.find("CATC");
+	index.find("CATC", results);
 	cout << "-----     -----\n";
+	results.clear();
 	
 	
 	
