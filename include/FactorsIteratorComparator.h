@@ -96,27 +96,28 @@ public:
 			unsigned int _full_size );
 	
 	inline bool operator()(const unsigned int a, const unsigned int b){
-	FactorsIteratorReverse it_a( a - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, fm_index, full_size );
-	FactorsIteratorReverse it_b( b - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, fm_index, full_size );
-	char ch_a, ch_b;
-	while( true ){
-		if( ! it_a.hasNext() ){
-			return true;
+		FactorsIteratorReverse it_a( a - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, fm_index, full_size );
+		FactorsIteratorReverse it_b( b - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, fm_index, full_size );
+//		cout << "Comp " << a << ", " << b << "\n";
+		char ch_a, ch_b;
+		while( true ){
+			if( ! it_a.hasNext() ){
+				return true;
+			}
+			if( ! it_b.hasNext() ){
+				return false;
+			}
+			ch_a = it_a.next();
+			ch_b = it_b.next();
+			if( ch_a < ch_b ){
+				return true;
+			}
+			if( ch_b < ch_a){
+				return false;
+			}
 		}
-		if( ! it_b.hasNext() ){
-			return false;
-		}
-		ch_a = it_a.next();
-		ch_b = it_b.next();
-		if( ch_a < ch_b ){
-			return true;
-		}
-		if( ch_b < ch_a){
-			return false;
-		}
+		return true;
 	}
-	return true;
-}
 };
 
 #endif //_FACTORS_ITERATOR_COMPARATOR_H
