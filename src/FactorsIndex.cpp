@@ -212,7 +212,7 @@ FactorsIndex::~FactorsIndex(){
 
 void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
 	
-	cout << "FactorsIndex::find - Start\n";
+//	cout << "FactorsIndex::find - Start\n";
 	
 	// Primera parte: Busqueda en referencia (y refinamiento con recursive RMQ)
 //	cout << "FactorsIndex::find - Section A, reference\n";
@@ -275,7 +275,7 @@ void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
 		}
 		
 	}
-	cout << "FactorsIndex::find - End\n";
+//	cout << "FactorsIndex::find - End\n";
 	
 }
 
