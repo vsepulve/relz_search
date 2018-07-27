@@ -16,6 +16,7 @@
 
 #include "FactorsIterator.h"
 #include "FactorsIteratorComparator.h"
+#include "NanoTimer.h"
 
 using namespace sdsl;
 using namespace std;
@@ -78,7 +79,7 @@ private:
 	
 public: 
 	FactorsIndex();
-	FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref);
+	FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool omitir_text = false);
 	~FactorsIndex();
 	
 	void find(const string &pattern, vector<unsigned int> &results);

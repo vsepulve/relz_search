@@ -7,16 +7,17 @@ FactorsIndex::FactorsIndex(){
 	n_factors = 0;
 }
 
-FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref){
+FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool omitir_text){
 	
 	len_text = _len_text;
 	ref_text = _ref_text;
 	len_ref = _len_ref;
 	n_factors = factors.size();
+	NanoTimer timer;
 	
 	cout << "FactorsIndex - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
 	
-//	cout << "Factors: \n";
+	cout << "FactorsIndex - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
 	vector<pair<unsigned int, pair<unsigned int, unsigned int> > > factors_sort;
 	unsigned cur_pos = 0;
@@ -29,12 +30,15 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 			);
 	}
 	sort(factors_sort.begin(), factors_sort.end());
+	cout << "FactorsIndex - Factors Sorted prepared in " << timer.getMilisec() << "\n";
+	timer.reset();
 //	cout << "Factors Sorted: \n";
 //	for( pair<unsigned int, pair<unsigned int, unsigned int> > factor : factors_sort ){
 //		cout << "(" << factor.first << ", " << factor.second.first << ", " << factor.second.second << ")\n";
 //	}
 	
 	// Bit vector S
+	cout << "FactorsIndex - Preparing Vector S\n";
 	bit_vector _arr_s(len_ref + n_factors, 0);
 	arr_s = _arr_s;
 	unsigned cur_ref = 0;
@@ -51,6 +55,8 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 			--i;
 		}
 	}
+	cout << "FactorsIndex - Vector S prepared in " << timer.getMilisec() << "\n";
+	timer.reset();
 //	cout << "Bit Array S: \n";
 //	for( unsigned int i = 0; i < len_ref + n_factors; ++i ){
 //		cout << "arr_s[" << i << "]: " << arr_s[i] << "\n";
@@ -60,20 +66,14 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	rrr_s = _rrr_s;
 	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
 	select1_s = _select1_s;
-//	cout << "Posicion de primer 1: " << select1_s(1) << "\n";
-//	cout << "Posicion de tercer 1: " << select1_s(3) << "\n";
-//	cout << "Posicion de quinto 1: " << select1_s(5) << "\n";
 	
 	// Notar que la posicion del select DEBE empezar desde 1, no desde 0
 	// De este modo, hay que sumar 1 a las posiciones de la ref para buscar en S
 	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
 	select0_s = _select0_s;
-//	cout << "Posicion de primer 0: " << select0_s(1) << "\n";
-//	cout << "Posicion de tercer 0: " << select0_s(3) << "\n";
-//	cout << "Posicion de quinto 0: " << select0_s(5) << "\n";
-//	cout << "Posicion de 0th 0: " << select0_s(0) << "\n";
 	
 	// Permutacion 
+	cout << "FactorsIndex - Preparing Permutation PI\n";
 	int_vector<> _pi(n_factors);
 	int_vector<> _pi_inv(n_factors);
 	pi = _pi;
@@ -86,6 +86,8 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	inv_perm_support<> _perm(&pi_inv);
 	perm_inv = _perm_inv;
 	perm = _perm;
+	cout << "FactorsIndex - PI prepared in " << timer.getMilisec() << "\n";
+	timer.reset();
 	
 //	cout << "Permutation: \n";
 //	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -104,11 +106,12 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	rmq = _rmq;
 	// rmq_maximum_sct<> rmq(&ez);
 	
-	cout << "Probando RMQ: \n";
-	unsigned int r_pos = rmq(0, 5);
-	cout << "RMQ(0, 5): " << r_pos << "\n";
+//	cout << "Probando RMQ: \n";
+//	unsigned int r_pos = rmq(0, 5);
+//	cout << "RMQ(0, 5): " << r_pos << "\n";
 	
 	// Bit vector B (inicio de las frases en texto)
+	cout << "FactorsIndex - Preparing Vector B\n";
 	bit_vector _arr_b(len_text, 0);
 	arr_b = _arr_b;
 	unsigned int pos_text = 0;
@@ -118,6 +121,8 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 		arr_b[ pos_text ] = 1;
 		pos_text += len;
 	}
+	cout << "FactorsIndex - Vector B prepared in " << timer.getMilisec() << "\n";
+	timer.reset();
 //	cout << "Bit Vector B: \n";
 //	for( unsigned int i = 0; i < len_text; ++i ){
 //		cout << "B[" << i << "]: " << arr_b[i] << "\n";
@@ -131,17 +136,26 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	
 	// Construccion del FM Index (aunque use el SA original para la compresion, esto es para la busqueda)
 	// Construccion con datos en memoria, en un string
+	cout << "FactorsIndex - Preparing fm_index\n";
 	construct_im(fm_index, ref_text, 1);
+	cout << "FactorsIndex - fm_index prepared in " << timer.getMilisec() << "\n";
+	timer.reset();
+	
+	if( omitir_text ){
+		ref_text = NULL;
+	}
 	
 	// Preparacion de permutaciones X e Y
 	
-	cout << "Preparando arr X\n";
+	cout << "FactorsIndex - Preparing arr X\n";
 	vector<unsigned int> arr_x(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_x[i] = i;
 	}
 	FactorsIteratorReverseComparator comp_rev(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
+	cout << "FactorsIndex - stable_sort...\n";
 	stable_sort(arr_x.begin(), arr_x.end(), comp_rev);
+	cout << "FactorsIndex - Ok\n";
 	int_vector<> _pre_x_inv(n_factors);
 	pre_x_inv = _pre_x_inv;
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -160,7 +174,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	}
 //	cout << "-----\n";
 	
-	cout << "Preparando arr Y\n";
+	cout << "FactorsIndex - Preparing arr Y\n";
 	vector<unsigned int> arr_y(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_y[i] = i;
@@ -188,8 +202,10 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 //		cout << "\n";
 	}
 //	cout << "-----\n";
+	cout << "FactorsIndex - X & Y prepared in " << timer.getMilisec() << "\n";
+	timer.reset();
 	
-	cout << "Preparando WT\n";
+	cout << "FactorsIndex - Preparing WT\n";
 	int_vector<> _values_wt(n_factors);
 	values_wt = _values_wt;
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -199,8 +215,8 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	
 //	wt_int<rrr_vector<63>> wt;
 	construct_im(wt, values_wt);
-	
-	
+	cout << "FactorsIndex - WT prepared in " << timer.getMilisec() << "\n";
+	timer.reset();
 	
 	cout << "FactorsIndex - End\n";
 	
