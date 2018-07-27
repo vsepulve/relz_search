@@ -66,10 +66,10 @@ int main(int argc, char* argv[]){
 	FactorsIndex index(factors, len_text, ref, len_ref);
 	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
 	
-	cout << "----- Query de Prueba -----\n";
-	index.find("CATC", results);
-	cout << "-----     -----\n";
-	results.clear();
+//	cout << "----- Query de Prueba -----\n";
+//	index.find("CATC", results);
+//	cout << "-----     -----\n";
+//	results.clear();
 	
 	cout << "----- Cargando Queries desde \"" << queries_file << "\" -----\n";
 	vector<string> queries;
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]){
 		}
 		buff[n_read] = 0;
 		string query(buff);
-		cout << "Query[" << queries.size() << "]: \"" << query << "\"\n";
+//		cout << "Query[" << queries.size() << "]: \"" << query << "\"\n";
 		queries.push_back(query);
 	}
 	
@@ -92,9 +92,9 @@ int main(int argc, char* argv[]){
 	timer.reset();
 	unsigned long long total_occ = 0;
 	for( string query : queries ){
-		cout << "----- Query \"" << query << "\" -----\n";
+//		cout << "----- Query \"" << query << "\" -----\n";
 		index.find(query, results);
-		cout << "-----     -----\n";
+//		cout << "-----     -----\n";
 		total_occ += results.size();
 		results.clear();
 	}
