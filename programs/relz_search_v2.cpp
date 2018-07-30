@@ -55,15 +55,19 @@ int main(int argc, char* argv[]){
 	vector<pair<unsigned int, unsigned int> > factors;
 	compressor.compress(input, 1, 1000000, 0, &factors);
 	
-	unsigned int len_ref = reference->getLength();
+	// Recargo el texto de la entrada, solo para acelerar la construccion
+	unsigned long long real_len_text = 0;
+	char *text = filter->readText(input, real_len_text);
 	unsigned int len_text = compressor.getTextSize();
+	cout << "Texto Cargado de " << len_text << " / " << real_len_text << " chars\n";
 	
 	const char *ref = reference->getText();
+	unsigned int len_ref = reference->getLength();
 	
 	cout << "----- Construyendo Indice -----\n";
 	NanoTimer timer;
 	vector<unsigned int> results;
-	FactorsIndex index(factors, len_text, ref, len_ref, true);
+	FactorsIndex index(factors, text, len_text, ref, len_ref, true);
 	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
 	
 	cout << "----- Query de Prueba -----\n";
