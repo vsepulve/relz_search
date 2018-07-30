@@ -7,7 +7,7 @@ FactorsIndex::FactorsIndex(){
 	n_factors = 0;
 }
 
-FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool omitir_text){
+FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool omitir_text){
 	
 	len_text = _len_text;
 	ref_text = _ref_text;
@@ -20,14 +20,18 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	cout << "FactorsIndex - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
 	vector<pair<unsigned int, pair<unsigned int, unsigned int> > > factors_sort;
-	unsigned cur_pos = 0;
+	vector<unsigned int> factors_start;
+	unsigned int cur_start = 0;
+	unsigned int cur_pos = 0;
 	for( pair<unsigned int, unsigned int> factor : factors ){
-//		cout << "(" << factor.first << ", " << factor.second << ", " << cur_pos << ")\n";
+//		cout << "(" << factor.first << ", " << factor.second << ", " << cur_pos << ") - cur_start: " << cur_start << "\n";
 		factors_sort.push_back( 
 			pair<unsigned int, pair<unsigned int, unsigned int> >(
 				factor.first, pair<unsigned int, unsigned int>(factor.first + factor.second - 1, cur_pos++)
 				)
 			);
+		factors_start.push_back(cur_start);
+		cur_start += factor.second;
 	}
 	sort(factors_sort.begin(), factors_sort.end());
 	cout << "FactorsIndex - Factors Sorted prepared in " << timer.getMilisec() << "\n";
@@ -152,7 +156,8 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_x[i] = i;
 	}
-	FactorsIteratorReverseComparator comp_rev(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
+//	FactorsIteratorReverseComparator comp_rev(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
+	FactorsFastIteratorReverseComparator comp_rev(&factors_start, full_text, len_text);
 	cout << "FactorsIndex - stable_sort...\n";
 	stable_sort(arr_x.begin(), arr_x.end(), comp_rev);
 	cout << "FactorsIndex - Ok\n";
@@ -179,7 +184,8 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_y[i] = i;
 	}
-	FactorsIteratorComparator comp(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
+//	FactorsIteratorComparator comp(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
+	FactorsFastIteratorComparator comp(&factors_start, full_text, len_text);
 	stable_sort(arr_y.begin(), arr_y.end(), comp);
 	int_vector<> _pre_y(n_factors);
 	int_vector<> _pre_y_inv(n_factors);
@@ -217,6 +223,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, u
 	construct_im(wt, values_wt);
 	cout << "FactorsIndex - WT prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
+	
 	
 	cout << "FactorsIndex - End\n";
 	
