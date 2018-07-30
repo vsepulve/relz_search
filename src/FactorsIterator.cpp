@@ -128,7 +128,8 @@ void FactorsIteratorReverse::loadFactor(unsigned int f, bool reset){
 	if(reset){
 		// Notar que este texto INCLUYE al factor actual
 		// El llamador obviamente pide el prefijo de f inverso como (f-1)
-		text_length = pu + lu;
+//		text_length = pu + lu;
+		text_length = lu;
 		text_pos = 0;
 	}
 }
@@ -193,16 +194,17 @@ char FactorsIteratorReverse::next(){
 	}
 	--cur_pos;
 	++text_pos;
-	if( (cur_pos < cur_f_ini || cur_pos == (unsigned int)(-1)) && (--cur_f != (unsigned int)(-1)) ){
-		loadFactor(cur_f);
-	}
+//	if( (cur_pos < cur_f_ini || cur_pos == (unsigned int)(-1)) && (--cur_f != (unsigned int)(-1)) ){
+//		loadFactor(cur_f);
+//	}
 	return ret;
 }
 
 bool FactorsIteratorReverse::hasNext(){
 //	cout << "FactorsIteratorReverse::hasNext - " << cur_f << " != " << (unsigned int)(-1) << " (cur_pos: " << cur_pos << ")\n";
 //	if( cur_f != (unsigned int)(-1) ){
-	if( cur_f >= 0 && cur_f < n_factors ){
+//	if( cur_f >= 0 && cur_f < n_factors ){
+	if( text_pos < text_length ){
 		return true;
 	}
 	return false;
