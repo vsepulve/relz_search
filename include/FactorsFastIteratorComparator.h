@@ -28,7 +28,7 @@ public:
 		unsigned int start_b = factors_starts->at(b);
 		unsigned int len_a = full_size - start_a;
 		unsigned int len_b = full_size - start_b;
-		for(unsigned int i = 0; i < (len_a < len_b)?len_a:len_b; ++i){
+		for(unsigned int i = 0; i < ((len_a < len_b)?len_a:len_b); ++i){
 			if( full_text[ start_a + i ] < full_text[ start_b + i ] ){
 				return true;
 			}
@@ -60,9 +60,9 @@ public:
 		}
 		unsigned int start_a = factors_starts->at(a) - 1;
 		unsigned int start_b = factors_starts->at(b) - 1;
-		unsigned int len_a = factors_starts->at(a-1) - factors_starts->at(a);
-		unsigned int len_b = factors_starts->at(b-1) - factors_starts->at(b);
-		for(unsigned int i = 0; i < (len_a < len_b)?len_a:len_b; ++i){
+		unsigned int len_a = factors_starts->at(a) - factors_starts->at(a-1);
+		unsigned int len_b = factors_starts->at(b) - factors_starts->at(b-1);
+		for(unsigned int i = 0; i < ((len_a < len_b)?len_a:len_b); ++i){
 			if( full_text[ start_a - i ] < full_text[ start_b - i ] ){
 				return true;
 			}
