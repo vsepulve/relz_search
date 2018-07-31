@@ -75,6 +75,12 @@ int main(int argc, char* argv[]){
 //	cout << "-----     -----\n";
 //	results.clear();
 	
+//	cout << "----- Query de Prueba -----\n";
+//	index.find("BA", results);
+//	cout << "-----     -----\n";
+//	results.clear();
+
+	
 	cout << "----- Cargando Queries desde \"" << queries_file << "\" -----\n";
 	vector<string> queries;
 	unsigned int max_line = 1000000;
@@ -103,7 +109,7 @@ int main(int argc, char* argv[]){
 		results.clear();
 	}
 	cout << "----- Queries terminadas en " << timer.getMilisec() << " ms (" << queries.size() << " queries, " << total_occ << " occs) -----\n";
-	 
+	
 	
 	
 	
