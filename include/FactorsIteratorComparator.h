@@ -96,9 +96,15 @@ public:
 			unsigned int _full_size );
 	
 	inline bool operator()(const unsigned int a, const unsigned int b){
+		if( a == 0){
+			return true;
+		}
+		if( b == 0 ){
+			return false;
+		}
+/*		cout << "Comp " << a << ", " << b << "\n";*/
 		FactorsIteratorReverse it_a( a - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, fm_index, full_size );
 		FactorsIteratorReverse it_b( b - 1, n_factors, select1_s, select1_b, select0_b, perm, perm_inv, ref_text, fm_index, full_size );
-//		cout << "Comp " << a << ", " << b << "\n";
 		char ch_a, ch_b;
 		while( true ){
 			if( ! it_a.hasNext() ){

@@ -58,6 +58,7 @@ public:
 		if( b == 0){
 			return false;
 		}
+/*		cout << "Comp " << a << ", " << b << "\n";*/
 		unsigned int start_a = factors_starts->at(a) - 1;
 		unsigned int start_b = factors_starts->at(b) - 1;
 		unsigned int len_a = factors_starts->at(a) - factors_starts->at(a-1);
