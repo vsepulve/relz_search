@@ -39,6 +39,8 @@ FactorsIterator::FactorsIterator(){
 	cur_f = 0;
 	cur_f_ini = 0;
 	cur_f_fin = 0;
+	text_length = 0;
+	text_pos = 0;
 	reset();
 }
 
@@ -113,6 +115,7 @@ void FactorsIteratorReverse::loadFactor(unsigned int f, bool reset){
 //	cout << "FactorsIteratorReverse::loadFactor - Cargando factor " << f << "\n";
 	cur_f = f;
 	if( cur_f == (unsigned int)(-1) || cur_f >= n_factors){
+//		cout << "FactorsIteratorReverse::loadFactor - Factor invalido\n";
 		return;
 	}
 	// Convertir el factor posicional creciente a la posicion EN la permutacion (con perm_inv)
@@ -120,7 +123,7 @@ void FactorsIteratorReverse::loadFactor(unsigned int f, bool reset){
 	unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
 	unsigned int pu = select1_b->operator()( (*perm)[cur_perm] + 1);
 	unsigned int lu = select1_b->operator()( (*perm)[cur_perm] + 2) - pu;
-//	cout << "FactorsIteratorReverse::loadFactor - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
+//	cout << "FactorsIteratorReverse::loadFactor - cur_perm: " << cur_perm << ", tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 	cur_f_ini = tu;
 	cur_f_fin = tu + lu - 1;
 	cur_pos = cur_f_fin;
@@ -149,6 +152,8 @@ FactorsIteratorReverse::FactorsIteratorReverse(){
 	cur_f = 0;
 	cur_f_ini = 0;
 	cur_f_fin = 0;
+	text_length = 0;
+	text_pos = 0;
 	reset();
 }
 
@@ -201,7 +206,7 @@ char FactorsIteratorReverse::next(){
 }
 
 bool FactorsIteratorReverse::hasNext(){
-//	cout << "FactorsIteratorReverse::hasNext - " << cur_f << " != " << (unsigned int)(-1) << " (cur_pos: " << cur_pos << ")\n";
+//	cout << "FactorsIteratorReverse::hasNext - " << text_pos << " < " << text_length << " ? \n";
 //	if( cur_f != (unsigned int)(-1) ){
 //	if( cur_f >= 0 && cur_f < n_factors ){
 	if( text_pos < text_length ){
