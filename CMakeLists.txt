@@ -42,7 +42,7 @@ target_link_libraries(relz_search_v2 relz pthread sdsl divsufsort divsufsort64)
 target_link_libraries(clean_text)
 target_link_libraries(generate_queries)
 target_link_libraries(generate_data relz pthread sdsl divsufsort divsufsort64)
-target_link_libraries(test_karp_rabin)
+target_link_libraries(test_karp_rabin relz pthread sdsl divsufsort divsufsort64)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "/usr/" CACHE PATH "default install path" FORCE )
