@@ -29,8 +29,7 @@ unsigned long long KarpRabin::ullpow2_rec(unsigned int bits, unsigned int y){
 	}
 	else{
 //		cout << "KarpRabin::ullpow2_rec (" << (bits * y) << " => " << (y/2) << " | " << (y/2 + (y & 0x1)) << ")\n";
-		return ( ullpow2_rec(bits, y/2) * ullpow2_rec(bits, y/2 + (y & 0x1)) ) % kr_mod;
-//		return ( ullpow2_rec(bits, y>>1) * ullpow2_rec(bits, (y>>1) + (y & 0x1)) ) % kr_mod;
+		return ( ullpow2_rec(bits, y>>1) * ullpow2_rec(bits, (y>>1) + (y & 0x1)) ) % kr_mod;
 	}
 }
 

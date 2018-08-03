@@ -23,16 +23,16 @@ int main() {
 //	unsigned int mod = 787;
 //	unsigned int bits = 2;
 //	unsigned int mod = 223;
-	unsigned int base = 1<<bits;
 	KarpRabin karp_rabin(bits, mod);
 	
-	for( unsigned int i = 0; i < 100; ++i ){
-		cout << "ullpow(" << base << ", " << i << "): " << karp_rabin.ullpow(base, i) << " / " << karp_rabin.ullpow2_rec(bits, i) << "\n";
-		if( karp_rabin.ullpow(base, i) != karp_rabin.ullpow2_rec(bits, i) ){
-			cout << "Error!\n";
-			return 0;
-		}
-	}
+//	unsigned int base = 1<<bits;
+//	for( unsigned int i = 0; i < 100; ++i ){
+//		cout << "ullpow(" << base << ", " << i << "): " << karp_rabin.ullpow(base, i) << " / " << karp_rabin.ullpow2_rec(bits, i) << "\n";
+//		if( karp_rabin.ullpow(base, i) != karp_rabin.ullpow2_rec(bits, i) ){
+//			cout << "Error!\n";
+//			return 0;
+//		}
+//	}
 	
 	string s;
 	

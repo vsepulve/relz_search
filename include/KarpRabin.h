@@ -17,13 +17,13 @@ protected:
 	unsigned int voc_bits;
 	unsigned int kr_mod;
 	
-public: 
-	
 	// Direct version (*x, y times)
 	unsigned long long ullpow(unsigned long long x, unsigned int y);
 	
 	// Base 2 bits version, recursive to avoid overflow
 	unsigned long long ullpow2_rec(unsigned int bits, unsigned int y);
+	
+public: 
 	
 	KarpRabin();
 	KarpRabin(unsigned int _voc_bits, unsigned int _kr_mod);
