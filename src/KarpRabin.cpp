@@ -44,6 +44,15 @@ unsigned long long KarpRabin::hash(const string &str){
 	}
 	return ret;
 }
+unsigned long long KarpRabin::hash(const char *str, unsigned long long str_len){
+	unsigned long long ret = 0;
+	for(unsigned int i = 0, k = str_len-1; i < str_len; i++, k--) {
+//		ret = ret + (str[i] * ullpow(1<<voc_bits, k)) % kr_mod;
+		ret = ret + (str[i] * ullpow2_rec(voc_bits, k)) % kr_mod;
+		ret = ret % kr_mod;
+	}
+	return ret;
+}
 
 // Evaluate the hash of the concatenation in constant time
 unsigned long long KarpRabin::concat(unsigned long long kr1, unsigned long long kr2, unsigned int len2){

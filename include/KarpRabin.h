@@ -32,6 +32,9 @@ public:
 	// Evaluate the full hash in str.length() operations
 	unsigned long long hash(const string &str);
 	
+	// Evaluate the full hash in str.length() operations
+	unsigned long long hash(const char *str, unsigned long long str_len);
+	
 	// Evaluate the hash of the concatenation in constant time
 	unsigned long long concat(unsigned long long kr1, unsigned long long kr2, unsigned int len2);
 	
