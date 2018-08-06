@@ -247,6 +247,9 @@ void FactorsIndexV3::find(const string &pattern, vector<unsigned int> &results){
 			unsigned int select = select0_s(occ_i + 1);
 			unsigned int pos_ez = select - 1 - occ_i;
 			// Now the recursive search in rmq (0 - pos_ez)
+			if( occ_i >= select ){
+				continue;
+			}
 			recursive_rmq(0, pos_ez, (occ_i + m), occ_i, results);
 		}
 	}

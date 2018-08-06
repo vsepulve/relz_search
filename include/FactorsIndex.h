@@ -29,6 +29,7 @@ private:
 	const char *ref_text;
 	unsigned int len_ref;
 	unsigned int n_factors;
+	bool omit_text;
 	
 	bit_vector arr_s;
 	csa_wt<> fm_index;
@@ -80,7 +81,7 @@ private:
 	
 public: 
 	FactorsIndex();
-	FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool omitir_text = false);
+	FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool _omit_text = false);
 	~FactorsIndex();
 	
 	void find(const string &pattern, vector<unsigned int> &results);

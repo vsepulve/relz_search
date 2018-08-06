@@ -5,14 +5,17 @@ FactorsIndex::FactorsIndex(){
 	ref_text = NULL;
 	len_ref = 0;
 	n_factors = 0;
+	omit_text = false;
 }
 
-FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool omitir_text){
+FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool _omit_text){
 	
 	len_text = _len_text;
 	ref_text = _ref_text;
 	len_ref = _len_ref;
 	n_factors = factors.size();
+	omit_text = _omit_text;
+	
 	NanoTimer timer;
 	
 	cout << "FactorsIndex - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
@@ -125,9 +128,9 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	cout << "FactorsIndex - fm_index prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-	if( omitir_text ){
-		ref_text = NULL;
-	}
+//	if( omit_text ){
+//		ref_text = NULL;
+//	}
 	
 	// Preparacion de permutaciones X e Y
 	cout << "FactorsIndex - Preparing arr X\n";
@@ -209,14 +212,17 @@ FactorsIndex::~FactorsIndex(){
 
 void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
 
-//	cout << "FactorsIndex::find - Start\n";
+//	cout << "FactorsIndex::find - Start (\"" << pattern << "\")\n";
 	
 //	cout << "FactorsIndex::find - Section A, reference\n";
 	
 	size_t m = pattern.size();
+//	cout << "FactorsIndex::find - 1\n";
 	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
+//	cout << "FactorsIndex::find - 2\n";
 	if( occs > 0 ){
 		auto locations = locate(fm_index, pattern.begin(), pattern.begin()+m);
+//		cout << "FactorsIndex::find - 3\n";
 		sort(locations.begin(), locations.end());
 		for( unsigned int i = 0; i < occs; ++i ){
 			unsigned int occ_i = locations[i];
@@ -224,7 +230,12 @@ void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
 			unsigned int select = select0_s(occ_i + 1);
 			unsigned int pos_ez = select - 1 - occ_i;
 			// Now the recursive search in rmq (0 - pos_ez)
+//			cout << "FactorsIndex::find - 4 (occ_i: " << occ_i << ", select: " << select << ", pos_ez: " << pos_ez << ")\n";
+			if( occ_i >= select ){
+				continue;
+			}
 			recursive_rmq(0, pos_ez, (occ_i + m), occ_i, results);
+//			cout << "FactorsIndex::find - 5\n";
 		}
 	}
 	
@@ -270,9 +281,13 @@ void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned in
 	
 	unsigned int pos_max = rmq(ini, fin);
 	
+//	cout << "FactorsIndex::recursive_rmq - 1\n";
 	unsigned int tu = select1_s(pos_max + 1) - pos_max;
+//	cout << "FactorsIndex::recursive_rmq - 2\n";
 	unsigned int pu = select1_b(perm[pos_max] + 1);
+//	cout << "FactorsIndex::recursive_rmq - 3\n";
 	unsigned int lu = select1_b(perm[pos_max] + 2) - pu;
+//	cout << "FactorsIndex::recursive_rmq - 4\n";
 	
 	if( tu + lu < min_pos ){
 		return;
@@ -294,7 +309,7 @@ char FactorsIndex::getChar(unsigned int factor, unsigned int pos){
 	
 	// Iterators cache
 	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
-		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
+		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
 	}
 	FactorsIterator it = mapa_iterators[factor];
 	if( pos >= it.length() ){
@@ -319,7 +334,7 @@ char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos){
 	
 	// Iterators cache
 	if( mapa_iterators_rev.find(factor) == mapa_iterators_rev.end() ){
-		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
+		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
 	}
 	FactorsIteratorReverse it = mapa_iterators_rev[factor];
 	if( pos >= it.length() ){
