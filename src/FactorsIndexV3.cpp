@@ -272,7 +272,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		// Si no los cargo, los GUARDO en el archivo
 		fstream writer(kr_frases_file, fstream::trunc | fstream::out);
 		for(unsigned int i = 0; i < factors_start.size(); ++i){
-			sprintf(buff, "%d\t%llu\n", i, factors_start[i]);
+			sprintf(buff, "%d\t%llu\n", i, arr_kr_s[i]);
 			writer << buff;
 		}
 		writer.close();
