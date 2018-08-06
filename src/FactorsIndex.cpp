@@ -231,13 +231,18 @@ void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
 //	cout << "FactorsIndex::find - Section B, ranges\n";
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		string p1 = pattern.substr(0, i);
+//		cout << "FactorsIndex::find - p1: \"" << p1 << "\"\n";
 		string p1_rev = "";
 		for( unsigned int k = 0; k < p1.length(); ++k ){
 			p1_rev += p1[ p1.length() - 1 - k ];
 		}
+//		cout << "FactorsIndex::find - p1_rev: \"" << p1_rev << "\"\n";
 		string p2 = pattern.substr(i, pattern.length() - i);
+//		cout << "FactorsIndex::find - p2: \"" << p2 << "\"\n";
 		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
+//		cout << "FactorsIndex::find - r1 ok\n";
 		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
+//		cout << "FactorsIndex::find - r2 ok\n";
 		
 		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
 			|| r2.second == (unsigned int)(-1) || r2.second < r2.first ){
@@ -400,7 +405,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 		fm = perm_y[der];
 		c = getChar(fm, cur_pos);
 		text_len = mapa_iterators[fm].length();
-		if( (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
+		if( (der > 0) && (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
 			--der;
 		}
 //		cout << "getRangeY - der: " << der << "\n";
@@ -480,7 +485,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 		fm = perm_x[der];
 		c = getCharRev(fm-1, cur_pos);
 		text_len = mapa_iterators_rev[fm-1].length();
-		if( (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
+		if( (der > 0) && (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
 			--der;
 		}
 //		cout << "getRangeX - der: " << der << "\n";
