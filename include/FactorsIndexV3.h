@@ -58,6 +58,7 @@ private:
 	
 	KarpRabin *karp_rabin;
 	vector<unsigned long long> arr_kr_ref;
+	vector<unsigned long long> arr_kr_s;
 	
 	// Solo para pruebas
 	int_vector<> ez;
@@ -86,7 +87,7 @@ private:
 	
 public: 
 	FactorsIndexV3();
-	FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin);
+	FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *kr_frases_file, bool load_kr_frases = false);
 	~FactorsIndexV3();
 	
 	void find(const string &pattern, vector<unsigned int> &results);

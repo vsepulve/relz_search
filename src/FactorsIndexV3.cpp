@@ -8,7 +8,7 @@ FactorsIndexV3::FactorsIndexV3(){
 	karp_rabin = NULL;
 }
 
-FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin){
+FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *kr_frases_file, bool load_kr_frases){
 	
 	len_text = _len_text;
 	ref_text = _ref_text;
@@ -203,6 +203,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	
 	BitsUtils bits_utils;
 	unsigned int log_n = bits_utils.n_bits(len_ref);
+	cout << "FactorsIndexV3 - Adding hash for Reference prefixes\n";
 	cout << "log_n: " << log_n << " de " << len_ref << "\n";
 	arr_kr_ref.push_back( karp_rabin->hash(ref_text, log_n) );
 	unsigned int processed_text = log_n;
@@ -214,12 +215,69 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		unsigned long long kr1 = arr_kr_ref.back();
 		unsigned long long kr2 = karp_rabin->hash(ref_text + processed_text, word_len);
 		unsigned long long kr_total = karp_rabin->concat(kr1, kr2, word_len);
-		unsigned long long kr_test = karp_rabin->hash(ref_text, processed_text + word_len);
-		cout << "Agregando " << kr_total << " / " << kr_test << " (kr1: " << kr1 << ", " << kr2 << ", word_len: " << word_len << ")\n";
+//		unsigned long long kr_test = karp_rabin->hash(ref_text, processed_text + word_len);
+//		cout << "Agregando " << kr_total << " / " << kr_test << " (kr1: " << kr1 << ", " << kr2 << ", word_len: " << word_len << ")\n";
 		arr_kr_ref.push_back(kr_total);
 		processed_text += word_len;
+//		if( arr_kr_ref.size() >= 10 ){
+//			break;
+//		}
 	}
 	
+	// Notar que el arreglo almacena los has de los PREFIJOS de cada frase
+	// factors_start almacena la posicion de inicio de cada frase (=> los caracteres ANTERIORES forman el prefijo)
+	// Por eso agrego un 0 para la primera frase (prefijo nulo)
+	cout << "FactorsIndexV3 - Adding hash for Frases prefixes\n";
+//	kr_frases_file, bool load_kr_frases
+	unsigned int max_line = 1000000;
+	char buff[max_line + 1];
+	if(load_kr_frases){
+		fstream reader(kr_frases_file, fstream::in);
+		unsigned int pos = 0;
+		unsigned int cur_pos = 0;
+		unsigned long long kr = 0;
+		while( reader.good() ){
+			reader.getline(buff, max_line);
+			unsigned int n_read = reader.gcount();
+			if( n_read < 1 ){
+				continue;
+			}
+			
+			string line(buff);
+			stringstream toks(line);
+			
+			toks >> pos;
+			toks >> kr;
+			
+			if( pos == cur_pos ){
+				cout << "Agregando " << kr << " en pos " << pos << "\n";
+				arr_kr_s.push_back(kr);
+			}
+			
+			++cur_pos;
+		}
+		
+		reader.close();
+	}
+	else{
+		arr_kr_s.push_back(0);
+		for(unsigned int i = 1; i < factors_start.size(); ++i){
+			unsigned int word_len = factors_start[i] - factors_start[i-1];
+			unsigned long long kr1 = arr_kr_s.back();
+			unsigned long long kr2 = karp_rabin->hash(full_text + factors_start[i-1], word_len);
+			unsigned long long kr_total = karp_rabin->concat(kr1, kr2, word_len);
+			arr_kr_s.push_back(kr_total);
+		}
+		
+		// Si no los cargo, los GUARDO en el archivo
+		fstream writer(kr_frases_file, fstream::trunc | fstream::out);
+		for(unsigned int i = 0; i < factors_start.size(); ++i){
+			sprintf(buff, "%d\t%llu\n", i, factors_start[i]);
+			writer << buff;
+		}
+		writer.close();
+		
+	}
 	
 	
 	cout << "FactorsIndexV3 - End\n";
