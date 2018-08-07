@@ -30,8 +30,10 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-	if(argc != 7){
-		cout<<"\nModo de Uso: relz_search serialized_ref sequence_file output_relz queries_file kr_frases_file load_kr_frases\n";
+//	if(argc != 7){
+//		cout<<"\nModo de Uso: relz_search serialized_ref sequence_file output_relz queries_file kr_frases_file load_kr_frases\n";
+	if(argc != 5){
+		cout<<"\nModo de Uso: relz_search serialized_ref sequence_file output_relz queries_file\n";
 		return 0;
 	}
 	
@@ -39,8 +41,6 @@ int main(int argc, char* argv[]){
 	const char *input = argv[2];
 	const char *output = argv[3];
 	const char *queries_file = argv[4];
-	const char *kr_frases_file = argv[5];
-	bool load_kr_frases = (atoi(argv[6]) == 1);
 	
 	ReferenceIndex *reference = new ReferenceIndexBasic();
 	reference->load(ref_file);
@@ -72,7 +72,8 @@ int main(int argc, char* argv[]){
 	unsigned int mod = 787;
 	KarpRabin karp_rabin(bits, mod);
 	vector<unsigned int> results;
-	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin, kr_frases_file, load_kr_frases);
+//	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin, kr_frases_file, load_kr_frases);
+	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin);
 	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
 	
 	cout << "----- Query de Prueba -----\n";
