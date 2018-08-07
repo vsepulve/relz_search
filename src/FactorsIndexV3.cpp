@@ -8,7 +8,9 @@ FactorsIndexV3::FactorsIndexV3(){
 	karp_rabin = NULL;
 }
 
-FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *kr_frases_file, bool load_kr_frases){
+//FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *kr_frases_file, bool load_kr_frases){
+
+FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin){
 	
 	len_text = _len_text;
 	ref_text = _ref_text;
@@ -145,14 +147,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	}
 	inv_perm_support<> _perm_x(&pre_x_inv);
 	perm_x = _perm_x;
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
 	
 	cout << "FactorsIndexV3 - Preparing arr Y\n";
 	vector<unsigned int> arr_y(n_factors);
@@ -174,14 +176,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	inv_perm_support<> _perm_y_inv(&pre_y);
 	perm_y = _perm_y;
 	perm_y_inv = _perm_y_inv;
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
 	cout << "FactorsIndexV3 - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -228,56 +230,28 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	// factors_start almacena la posicion de inicio de cada frase (=> los caracteres ANTERIORES forman el prefijo)
 	// Por eso agrego un 0 para la primera frase (prefijo nulo)
 	cout << "FactorsIndexV3 - Adding hash for Frases prefixes\n";
-//	kr_frases_file, bool load_kr_frases
-	unsigned int max_line = 1000000;
-	char buff[max_line + 1];
-	if(load_kr_frases){
-		fstream reader(kr_frases_file, fstream::in);
-		unsigned int pos = 0;
-		unsigned int cur_pos = 0;
-		unsigned long long kr = 0;
-		while( reader.good() ){
-			reader.getline(buff, max_line);
-			unsigned int n_read = reader.gcount();
-			if( n_read < 1 ){
-				continue;
-			}
-			
-			string line(buff);
-			stringstream toks(line);
-			
-			toks >> pos;
-			toks >> kr;
-			
-			if( pos == cur_pos ){
-				cout << "Agregando " << kr << " en pos " << pos << "\n";
-				arr_kr_s.push_back(kr);
-			}
-			
-			++cur_pos;
-		}
-		
-		reader.close();
+	arr_kr_s.push_back(0);
+	for(unsigned int i = 1; i < factors_start.size(); ++i){
+		unsigned int word_len = factors_start[i] - factors_start[i-1];
+		unsigned long long kr1 = arr_kr_s.back();
+		unsigned long long kr2 = karp_rabin->hash(full_text + factors_start[i-1], word_len);
+		unsigned long long kr_total = karp_rabin->concat(kr1, kr2, word_len);
+		arr_kr_s.push_back(kr_total);
 	}
-	else{
-		arr_kr_s.push_back(0);
-		for(unsigned int i = 1; i < factors_start.size(); ++i){
-			unsigned int word_len = factors_start[i] - factors_start[i-1];
-			unsigned long long kr1 = arr_kr_s.back();
-			unsigned long long kr2 = karp_rabin->hash(full_text + factors_start[i-1], word_len);
-			unsigned long long kr_total = karp_rabin->concat(kr1, kr2, word_len);
-			arr_kr_s.push_back(kr_total);
-		}
-		
-		// Si no los cargo, los GUARDO en el archivo
-		fstream writer(kr_frases_file, fstream::trunc | fstream::out);
-		for(unsigned int i = 0; i < factors_start.size(); ++i){
-			sprintf(buff, "%d\t%llu\n", i, arr_kr_s[i]);
-			writer << buff;
-		}
-		writer.close();
-		
-	}
+	
+	cout << "FactorsIndexV3 - KarpRobin prepared in " << timer.getMilisec() << "\n";
+	timer.reset();
+	
+	
+	cout << "FactorsIndexV3 - Preparing Trees\n";
+	
+	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
+	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
+	tree_y.build(full_text, len_text, factors_start, arr_y, false, karp_rabin);
+	tree_y.print();
+	
+	cout << "FactorsIndexV3 - Trees prepared in " << timer.getMilisec() << "\n";
+	timer.reset();
 	
 	
 	cout << "FactorsIndexV3 - End\n";
@@ -484,7 +458,7 @@ pair<unsigned int, unsigned int> FactorsIndexV3::getRangeY(const char *pattern){
 		fm = perm_y[der];
 		c = getChar(fm, cur_pos);
 		text_len = mapa_iterators[fm].length();
-		if( (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
+		if( (der > 0) && (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
 			--der;
 		}
 //		cout << "getRangeY - der: " << der << "\n";
@@ -564,7 +538,7 @@ pair<unsigned int, unsigned int> FactorsIndexV3::getRangeX(const char *pattern){
 		fm = perm_x[der];
 		c = getCharRev(fm-1, cur_pos);
 		text_len = mapa_iterators_rev[fm-1].length();
-		if( (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
+		if( (der > 0) && (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
 			--der;
 		}
 //		cout << "getRangeX - der: " << der << "\n";
