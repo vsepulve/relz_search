@@ -69,6 +69,7 @@ int main(int argc, char* argv[]){
 	vector<unsigned int> results;
 	FactorsIndex index(factors, text, len_text, ref, len_ref);
 	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
+	index.printSize();
 	
 //	cout << "----- Query de Prueba -----\n";
 //	index.find("CATC", results);
