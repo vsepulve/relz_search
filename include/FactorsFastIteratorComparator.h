@@ -36,7 +36,7 @@ public:
 				return false;
 			}
 		}
-		return (len_a <= len_b);
+		return (len_a < len_b);
 	}
 };
 
@@ -71,7 +71,7 @@ public:
 				return false;
 			}
 		}
-		return (len_a <= len_b);
+		return (len_a < len_b);
 	}
 };
 
