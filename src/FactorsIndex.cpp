@@ -150,14 +150,14 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	}
 	inv_perm_support<> _perm_x(&pre_x_inv);
 	perm_x = _perm_x;
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
 	
 	cout << "FactorsIndex - Preparing arr Y\n";
 	vector<unsigned int> arr_y(n_factors);
@@ -179,14 +179,14 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	inv_perm_support<> _perm_y_inv(&pre_y);
 	perm_y = _perm_y;
 	perm_y_inv = _perm_y_inv;
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
 	cout << "FactorsIndex - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -521,8 +521,8 @@ void FactorsIndex::printSize(){
 	}
 //	
 //	bit_vector arr_s;
-	total_bytes += size_in_bytes(arr_s);
-	cout << "FactorsIndex::printSize - arr_s: " << (size_in_bytes(arr_s)/(1024*1024)) << " MB\n";
+//	total_bytes += size_in_bytes(arr_s);
+//	cout << "FactorsIndex::printSize - arr_s: " << (size_in_bytes(arr_s)/(1024*1024)) << " MB\n";
 	
 //	csa_wt<> fm_index;
 	total_bytes += size_in_bytes(fm_index);
@@ -549,9 +549,9 @@ void FactorsIndex::printSize(){
 	total_bytes += size_in_bytes(perm);
 	cout << "FactorsIndex::printSize - perm: " << (size_in_bytes(perm)/(1024*1024)) << " MB\n";
 //	
-//	bit_vector arr_b;
-	total_bytes += size_in_bytes(arr_b);
-	cout << "FactorsIndex::printSize - arr_b: " << (size_in_bytes(arr_b)/(1024*1024)) << " MB\n";
+////	bit_vector arr_b;
+//	total_bytes += size_in_bytes(arr_b);
+//	cout << "FactorsIndex::printSize - arr_b: " << (size_in_bytes(arr_b)/(1024*1024)) << " MB\n";
 	
 //	rrr_vector<127> rrr_b;
 	total_bytes += size_in_bytes(rrr_b);

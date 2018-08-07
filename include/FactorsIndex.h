@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <assert.h>
 
 #include <algorithm>
 #include <vector>
@@ -31,7 +32,6 @@ private:
 	unsigned int n_factors;
 	bool omit_text;
 	
-	bit_vector arr_s;
 	csa_wt<> fm_index;
 	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
 	
@@ -45,7 +45,6 @@ private:
 	inv_perm_support<> perm_inv;
 	inv_perm_support<> perm;
 	
-	bit_vector arr_b;
 	rrr_vector<127> rrr_b;
 	
 	inv_perm_support<> perm_x;
@@ -55,6 +54,8 @@ private:
 	wt_int<rrr_vector<63>> wt;
 	
 	// Solo para pruebas
+	bit_vector arr_s;
+	bit_vector arr_b;
 	int_vector<> ez;
 	int_vector<> pi;
 	int_vector<> pi_inv;
