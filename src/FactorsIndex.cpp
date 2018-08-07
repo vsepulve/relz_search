@@ -512,3 +512,88 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 	return pair<unsigned int, unsigned int>(izq, der);
 }
 
+void FactorsIndex::printSize(){
+	unsigned long long total_bytes = 0;
+	
+	// texto descomprimido
+	if( ! omit_text ){
+		total_bytes += len_ref;
+	}
+//	
+//	bit_vector arr_s;
+	total_bytes += size_in_bytes(arr_s);
+	cout << "FactorsIndex::printSize - arr_s: " << (size_in_bytes(arr_s)/(1024*1024)) << " MB\n";
+	
+//	csa_wt<> fm_index;
+	total_bytes += size_in_bytes(fm_index);
+	cout << "FactorsIndex::printSize - fm_index: " << (size_in_bytes(fm_index)/(1024*1024)) << " MB\n";
+	
+//	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
+	total_bytes += size_in_bytes(rmq);
+	cout << "FactorsIndex::printSize - rmq: " << (size_in_bytes(rmq)/(1024*1024)) << " MB\n";
+//	
+//	rrr_vector<127> rrr_s;
+	total_bytes += size_in_bytes(rrr_s);
+	cout << "FactorsIndex::printSize - rrr_s: " << (size_in_bytes(rrr_s)/(1024*1024)) << " MB\n";
+//	
+//	rrr_vector<127>::select_1_type select1_s;
+//	rrr_vector<127>::select_0_type select0_s;
+//	rrr_vector<127>::select_1_type select1_b;
+//	rrr_vector<127>::select_0_type select0_b;
+//	
+//	inv_perm_support<> perm_inv;
+	total_bytes += size_in_bytes(perm_inv);
+	cout << "FactorsIndex::printSize - perm_inv: " << (size_in_bytes(perm_inv)/(1024*1024)) << " MB\n";
+	
+//	inv_perm_support<> perm;
+	total_bytes += size_in_bytes(perm);
+	cout << "FactorsIndex::printSize - perm: " << (size_in_bytes(perm)/(1024*1024)) << " MB\n";
+//	
+//	bit_vector arr_b;
+	total_bytes += size_in_bytes(arr_b);
+	cout << "FactorsIndex::printSize - arr_b: " << (size_in_bytes(arr_b)/(1024*1024)) << " MB\n";
+	
+//	rrr_vector<127> rrr_b;
+	total_bytes += size_in_bytes(rrr_b);
+	cout << "FactorsIndex::printSize - rrr_b: " << (size_in_bytes(rrr_b)/(1024*1024)) << " MB\n";
+//	
+//	inv_perm_support<> perm_x;
+	total_bytes += size_in_bytes(perm_x);
+	cout << "FactorsIndex::printSize - perm_x: " << (size_in_bytes(perm_x)/(1024*1024)) << " MB\n";
+	
+//	inv_perm_support<> perm_y;
+	total_bytes += size_in_bytes(perm_y);
+	cout << "FactorsIndex::printSize - perm_y: " << (size_in_bytes(perm_y)/(1024*1024)) << " MB\n";
+	
+//	inv_perm_support<> perm_y_inv;
+	total_bytes += size_in_bytes(perm_y_inv);
+	cout << "FactorsIndex::printSize - perm_y_inv: " << (size_in_bytes(perm_y_inv)/(1024*1024)) << " MB\n";
+//	
+//	wt_int<rrr_vector<63>> wt;
+	total_bytes += size_in_bytes(wt);
+	cout << "FactorsIndex::printSize - wt: " << (size_in_bytes(wt)/(1024*1024)) << " MB\n";
+	
+	cout << "FactorsIndex::printSize - Total " << total_bytes << " (" << (total_bytes/(1024*1024)) << " MB)\n";
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

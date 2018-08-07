@@ -86,6 +86,8 @@ public:
 	
 	void find(const string &pattern, vector<unsigned int> &results);
 	
+	void printSize();
+	
 };
 
 #endif //_FACTORS_INDEX_H
