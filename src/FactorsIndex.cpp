@@ -114,10 +114,13 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	cout << "FactorsIndex - Vector B prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 
-	rrr_vector<127> _rrr_b(arr_b);
+//	rrr_vector<127> _rrr_b(arr_b);
+	sd_vector<> _rrr_b(arr_b);
 	rrr_b = _rrr_b;
-	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
-	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
+//	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
+//	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
+	sd_vector<>::select_1_type _select1_b(&rrr_b);
+	sd_vector<>::select_0_type _select0_b(&rrr_b);
 	select1_b = _select1_b;
 	select0_b = _select0_b;
 	
@@ -150,14 +153,14 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	}
 	inv_perm_support<> _perm_x(&pre_x_inv);
 	perm_x = _perm_x;
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-		char c = 0;
-		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-			cout << c;
-		cout << "\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+//		char c = 0;
+//		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+//			cout << c;
+//		cout << "\n";
+//	}
+//	cout << "-----\n";
 	
 	cout << "FactorsIndex - Preparing arr Y\n";
 	vector<unsigned int> arr_y(n_factors);
@@ -179,14 +182,14 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	inv_perm_support<> _perm_y_inv(&pre_y);
 	perm_y = _perm_y;
 	perm_y_inv = _perm_y_inv;
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
-		char c = 0;
-		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
-			cout << c;
-		cout << "\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
+//		char c = 0;
+//		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
+//			cout << c;
+//		cout << "\n";
+//	}
+//	cout << "-----\n";
 	cout << "FactorsIndex - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	

@@ -46,8 +46,8 @@ FactorsIterator::FactorsIterator(){
 
 FactorsIterator::FactorsIterator( unsigned int _start_f, unsigned int _n_factors, 
 		rrr_vector<127>::select_1_type *_select1_s, 
-		rrr_vector<127>::select_1_type *_select1_b, 
-		rrr_vector<127>::select_0_type *_select0_b, 
+		sd_vector<>::select_1_type *_select1_b, 
+		sd_vector<>::select_0_type *_select0_b, 
 		inv_perm_support<> *_perm, 
 		inv_perm_support<> *_perm_inv, 
 		const char *_ref_text,
@@ -159,8 +159,8 @@ FactorsIteratorReverse::FactorsIteratorReverse(){
 
 FactorsIteratorReverse::FactorsIteratorReverse( unsigned int _start_f, unsigned int _n_factors, 
 		rrr_vector<127>::select_1_type *_select1_s, 
-		rrr_vector<127>::select_1_type *_select1_b, 
-		rrr_vector<127>::select_0_type *_select0_b, 
+		sd_vector<>::select_1_type *_select1_b, 
+		sd_vector<>::select_0_type *_select0_b, 
 		inv_perm_support<> *_perm, 
 		inv_perm_support<> *_perm_inv, 
 		const char *_ref_text,

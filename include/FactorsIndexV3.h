@@ -34,22 +34,24 @@ private:
 	unsigned int len_ref;
 	unsigned int n_factors;
 	
-	bit_vector arr_s;
 	csa_wt<> fm_index;
 	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
 	
 	rrr_vector<127> rrr_s;
-	
 	rrr_vector<127>::select_1_type select1_s;
 	rrr_vector<127>::select_0_type select0_s;
-	rrr_vector<127>::select_1_type select1_b;
-	rrr_vector<127>::select_0_type select0_b;
+	
+	sd_vector<> rrr_b;
+	sd_vector<>::select_1_type select1_b;
+	sd_vector<>::select_0_type select0_b;
+	
+//	rrr_vector<127> rrr_b;
+//	rrr_vector<127>::select_1_type select1_b;
+//	rrr_vector<127>::select_0_type select0_b;
 	
 	inv_perm_support<> perm_inv;
 	inv_perm_support<> perm;
 	
-	bit_vector arr_b;
-	rrr_vector<127> rrr_b;
 	
 	inv_perm_support<> perm_x;
 	inv_perm_support<> perm_y;
@@ -63,6 +65,8 @@ private:
 	HashTrie tree_y;
 	
 	// Solo para pruebas
+	bit_vector arr_s;
+	bit_vector arr_b;
 	int_vector<> ez;
 	int_vector<> pi;
 	int_vector<> pi_inv;
