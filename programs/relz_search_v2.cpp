@@ -102,7 +102,7 @@ int main(int argc, char* argv[]){
 		total_occ += results.size();
 		results.clear();
 	}
-	cout << "----- Queries terminadas en " << timer.getMilisec() << " ms (" << queries.size() << " queries, " << total_occ << " occs) -----\n";
+	cout << "----- Queries terminadas en " << timer.getMilisec() << " ms (" << (timer.getMilisec() / total_occ) << " ms/occ, " << queries.size() << " queries, " << total_occ << " occs) -----\n";
 	 
 	
 	
