@@ -27,7 +27,7 @@ class FactorsIndex {
 
 private: 
 	unsigned int len_text;
-	const char *ref_text;
+	char *ref_text;
 	unsigned int len_ref;
 	unsigned int n_factors;
 	bool omit_text;
@@ -55,6 +55,12 @@ private:
 	inv_perm_support<> perm_y_inv;
 	
 	wt_int<rrr_vector<63>> wt;
+	
+	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
+	bool acelerar_rmq;
+	vector<unsigned int> arr_tu;
+	vector<unsigned int> arr_pu;
+	vector<unsigned int> arr_lu;
 	
 	// Solo para pruebas
 	bit_vector arr_s;
@@ -90,12 +96,28 @@ public:
 	
 	void find(const string &pattern, vector<unsigned int> &results);
 	
+	void findTimes(const string &pattern, vector<unsigned int> &results);
+	
 	void printSize();
 	
 	void save(const string &file_base);
 	
 	void load(const string &file_base);
 	
+	unsigned long long querytime_p1;
+	unsigned long long querytime_p2;
+	unsigned long long querytime_p3;
+	unsigned long long querytime_p4;
+	
+	
+	
 };
+
+
+
+
+
+
+
 
 #endif //_FACTORS_INDEX_H

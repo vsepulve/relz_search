@@ -6,15 +6,24 @@ FactorsIndex::FactorsIndex(){
 	len_ref = 0;
 	n_factors = 0;
 	omit_text = false;
+	acelerar_rmq = false;
 }
 
 FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool _omit_text){
 	
 	len_text = _len_text;
-	ref_text = _ref_text;
 	len_ref = _len_ref;
 	n_factors = factors.size();
 	omit_text = _omit_text;
+	if( omit_text ){
+		ref_text = (char*)_ref_text;
+	}
+	else{
+		ref_text = new char[_len_ref + 1];
+		memcpy(ref_text, _ref_text, _len_ref);
+		ref_text[_len_ref] = 0;
+	}
+	acelerar_rmq = false;
 	
 	NanoTimer timer;
 	
@@ -127,7 +136,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	// Construccion del FM Index (aunque use el SA original para la compresion, esto es para la busqueda)
 	// Construccion con datos en memoria, en un string
 	cout << "FactorsIndex - Preparing fm_index\n";
-	construct_im(fm_index, ref_text, 1);
+	construct_im(fm_index, _ref_text, 1);
 	cout << "FactorsIndex - fm_index prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -204,12 +213,92 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	cout << "FactorsIndex - WT prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
+	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
+	acelerar_rmq = true;
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		unsigned int tu = select1_s(i + 1) - i;
+		unsigned int pu = select1_b(perm[i] + 1);
+		unsigned int lu = select1_b(perm[i] + 2) - pu;
+		arr_tu.push_back(tu);
+		arr_pu.push_back(pu);
+		arr_lu.push_back(lu);
+	}
 	
 	cout << "FactorsIndex - End\n";
 	
 }
 
 FactorsIndex::~FactorsIndex(){
+	if( ! omit_text && ref_text != NULL ){
+		delete [] ref_text;
+		ref_text = NULL;
+	}
+}
+
+void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &results){
+
+//	cout << "FactorsIndex::findTimes - Start (\"" << pattern << "\")\n";
+	NanoTimer timer;
+	
+//	cout << "FactorsIndex::findTimes - Section A, reference\n";
+	
+	size_t m = pattern.size();
+	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
+	vector<int_vector<64>> arr_locations;
+	if( occs > 0 ){
+		arr_locations.push_back(locate(fm_index, pattern.begin(), pattern.begin()+m));
+		sort(arr_locations.back().begin(), arr_locations.back().end());
+	}
+	querytime_p1 += timer.getNanosec();
+	timer.reset();
+	
+	for( int_vector<64> locations : arr_locations ){
+		for( unsigned int i = 0; i < occs; ++i ){
+			unsigned int occ_i = locations[i];
+			// Comprobar los factores que cuben esta ocurrencia (el string ref[occ_i, occ_i + m - 1])
+			unsigned int select = select0_s(occ_i + 1);
+			unsigned int pos_ez = select - 1 - occ_i;
+			// Now the recursive search in rmq (0 - pos_ez)
+			if( occ_i >= select ){
+				continue;
+			}
+			recursive_rmq(0, pos_ez, (occ_i + m), occ_i, results);
+		}
+	}
+	querytime_p2 += timer.getNanosec();
+	
+//	cout << "FactorsIndex::findTimes - Section B, ranges\n";
+	for(unsigned int i = 1; i < pattern.length(); ++i){
+		timer.reset();
+		string p1 = pattern.substr(0, i);
+		string p1_rev = "";
+		for( unsigned int k = 0; k < p1.length(); ++k ){
+			p1_rev += p1[ p1.length() - 1 - k ];
+		}
+		string p2 = pattern.substr(i, pattern.length() - i);
+		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
+		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
+		querytime_p3 += timer.getNanosec();
+		timer.reset();
+		
+		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
+			|| r2.second == (unsigned int)(-1) || r2.second < r2.first ){
+//			cout << "FactorsIndex::findTimes - Invalid ranges, omitting...\n";
+			continue;
+		}
+		
+//		cout << "FactorsIndex::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
+		for (auto point : res.second){
+			unsigned int f = perm_y[point.second];
+			unsigned int cur_perm = perm_inv[f];
+			unsigned int pu = select1_b(perm[cur_perm] + 1);
+			results.push_back(pu - p1.length());
+		}
+		
+		querytime_p4 += timer.getNanosec();
+	}
+//	cout << "FactorsIndex::findTimes - End\n";
 	
 }
 
@@ -284,13 +373,16 @@ void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned in
 	
 	unsigned int pos_max = rmq(ini, fin);
 	
-//	cout << "FactorsIndex::recursive_rmq - 1\n";
-	unsigned int tu = select1_s(pos_max + 1) - pos_max;
-//	cout << "FactorsIndex::recursive_rmq - 2\n";
-	unsigned int pu = select1_b(perm[pos_max] + 1);
-//	cout << "FactorsIndex::recursive_rmq - 3\n";
-	unsigned int lu = select1_b(perm[pos_max] + 2) - pu;
-//	cout << "FactorsIndex::recursive_rmq - 4\n";
+//	cout << "FactorsIndex::recursive_rmq - Computing factor\n";
+//	unsigned int tu = select1_s(pos_max + 1) - pos_max;
+//	unsigned int pu = select1_b(perm[pos_max] + 1);
+//	unsigned int lu = select1_b(perm[pos_max] + 2) - pu;
+	// Prueba de aceleracion
+	assert(pos_max < n_factors);
+	unsigned int tu = arr_tu[pos_max];
+	unsigned int pu = arr_pu[pos_max];
+	unsigned int lu = arr_lu[pos_max];
+//	cout << "FactorsIndex::recursive_rmq - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 	
 	if( tu + lu < min_pos ){
 		return;
@@ -457,7 +549,9 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 //		cout << "getRangeX - l: " << l << ", h: " << h << "\n";
 		while(l < h){
 			m = l + ((h-l)>>1);
+//			cout << "getRangeX - l: perm_x[" << m << "]...\n";
 			fm = perm_x[m];
+//			cout << "getRangeX - l: getCharRev(" << (fm-1) << ", " << cur_pos << ")\n";
 			c = getCharRev(fm-1, cur_pos);
 			text_len = mapa_iterators_rev[fm-1].length();
 //			cout << "getRangeX - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
@@ -470,6 +564,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 				h = m;
 			}
 		}
+//		cout << "getRangeX - end h: " << h << "\n";
 		izq = h;
 		fm = perm_x[izq];
 		c = getCharRev(fm-1, cur_pos);
@@ -522,6 +617,12 @@ void FactorsIndex::printSize(){
 	if( ! omit_text ){
 		total_bytes += len_ref;
 		cout << "FactorsIndex::printSize - Reference Text: " << (len_ref/(1024*1024)) << " MB\n";
+	}
+	
+	if( acelerar_rmq ){
+		// 3 integers => 12 bytes per factor
+		total_bytes += n_factors * 12;
+		cout << "FactorsIndex::printSize - Factors: " << (n_factors*12/(1024*1024)) << " MB\n";
 	}
 	
 //	csa_wt<> fm_index;
@@ -658,20 +759,25 @@ void FactorsIndex::load(const string &file_base){
 	reader.read((char*)&len_ref, sizeof(int));
 	// Reference Text
 	if( ! omit_text ){
+		ref_text = new char[len_ref + 1];
 		reader.read((char*)ref_text, len_ref);
+		ref_text[len_ref] = 0;
 	}
 	// Close Base
 	reader.close();
 	
 	// fm_index
+	cout << "FactorsIndex::load - fm_index\n";
 	string fm_index_file = file_base + ".fm";
 	load_from_file(fm_index, fm_index_file);
 	
 	// rmq
+	cout << "FactorsIndex::load - rmq\n";
 	string rmq_file = file_base + ".rmq";
 	load_from_file(rmq, rmq_file);
 	
 	// rrr_s
+	cout << "FactorsIndex::load - rrr_s\n";
 	string rrr_s_file = file_base + ".arrs";
 	load_from_file(rrr_s, rrr_s_file);
 	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
@@ -680,6 +786,7 @@ void FactorsIndex::load(const string &file_base){
 	select0_s = _select0_s;
 	
 	// rrr_b
+	cout << "FactorsIndex::load - rrr_b\n";
 	string rrr_b_file = file_base + ".arrb";
 	load_from_file(rrr_b, rrr_b_file);
 	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
@@ -690,6 +797,7 @@ void FactorsIndex::load(const string &file_base){
 	select0_b = _select0_b;
 	
 	// perm
+	cout << "FactorsIndex::load - perm\n";
 	string pi_file = file_base + ".pi";
 	load_from_file(perm, pi_file);
 	
@@ -710,6 +818,7 @@ void FactorsIndex::load(const string &file_base){
 	load_from_file(perm_y_inv, y1_file);
 	
 	// wt
+	cout << "FactorsIndex::load - wt\n";
 	string wt_file = file_base + ".wt";
 	load_from_file(wt, wt_file);
 	
