@@ -71,6 +71,14 @@ int main(int argc, char* argv[]){
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index.printSize();
 	
+//	cout << "----- Testing save -----\n";
+//	index.save("test/index");
+//	
+//	cout << "----- Testing load -----\n";
+//	FactorsIndex index2;
+//	index2.load("test/index");
+//	index2.printSize();
+//	
 //	cout << "----- Test Query -----\n";
 //	index.find("CATC", results);
 //	cout << "-----     -----\n";
@@ -80,7 +88,6 @@ int main(int argc, char* argv[]){
 //	index.find("BA", results);
 //	cout << "-----     -----\n";
 //	results.clear();
-
 	
 	cout << "----- Loading Queries from \"" << queries_file << "\" -----\n";
 	vector<string> queries;
@@ -102,14 +109,26 @@ int main(int argc, char* argv[]){
 	cout << "----- Searching Queres -----\n";
 	timer.reset();
 	unsigned long long total_occ = 0;
+	index.querytime_p1 = 0;
+	index.querytime_p2 = 0;
+	index.querytime_p3 = 0;
+	index.querytime_p4 = 0;
 	for( string query : queries ){
 //		cout << "----- Query \"" << query << "\" -----\n";
-		index.find(query, results);
+//		index.find(query, results);
+		index.findTimes(query, results);
 //		cout << "-----     -----\n";
 		total_occ += results.size();
 		results.clear();
 	}
 	cout << "----- Queries finished in " << timer.getMilisec() << " ms (" << (timer.getMilisec() / total_occ) << " ms/occ, " << queries.size() << " queries, " << total_occ << " occs) -----\n";
+	
+	unsigned long long total_nano = index.querytime_p1 + index.querytime_p2 + index.querytime_p3 + index.querytime_p4;
+	cout << "Nanosec fm_index: " << index.querytime_p1 << " (" << ((long double)index.querytime_p1/total_nano)*100 << " \%)\n";
+	cout << "Nanosec recursive_rmq: " << index.querytime_p2 << " (" << ((long double)index.querytime_p2/total_nano)*100 << " \%)\n";
+	cout << "Nanosec getRange: " << index.querytime_p3 << " (" << ((long double)index.querytime_p3/total_nano)*100 << " \%)\n";
+	cout << "Nanosec wt: " << index.querytime_p4 << " (" << ((long double)index.querytime_p4/total_nano)*100 << " \%)\n";
+	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
 	
 	
 	delete reference;
