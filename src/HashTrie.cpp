@@ -115,6 +115,10 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 		while( max_comp > 0 ){
 			min_text_len = max_comp;
 			++cur_pos;
+			if( cur_pos == factors_start.size() ){
+				max_comp = 0;
+				break;
+			}
 			cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
 			cur_text_len = len_text - cur_text_start - processed_len;
 			max_comp = getMaxComp(full_text + min_text_start, min_text_len, full_text + cur_text_start, cur_text_len);
