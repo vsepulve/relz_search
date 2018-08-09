@@ -52,12 +52,17 @@ private:
 	inv_perm_support<> perm_inv;
 	inv_perm_support<> perm;
 	
-	
 	inv_perm_support<> perm_x;
 	inv_perm_support<> perm_y;
 	inv_perm_support<> perm_y_inv;
 	
 	wt_int<rrr_vector<63>> wt;
+	
+	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
+	bool acelerar_rmq;
+	vector<unsigned int> arr_tu;
+	vector<unsigned int> arr_pu;
+	vector<unsigned int> arr_lu;
 	
 	KarpRabin *karp_rabin;
 	vector<unsigned long long> arr_kr_ref;
@@ -98,6 +103,12 @@ public:
 	~FactorsIndexV3();
 	
 	void find(const string &pattern, vector<unsigned int> &results);
+	void findTimes(const string &pattern, vector<unsigned int> &results);
+	
+	unsigned long long querytime_p1;
+	unsigned long long querytime_p2;
+	unsigned long long querytime_p3;
+	unsigned long long querytime_p4;
 	
 };
 
