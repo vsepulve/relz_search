@@ -41,13 +41,13 @@ private:
 	rrr_vector<127>::select_1_type select1_s;
 	rrr_vector<127>::select_0_type select0_s;
 	
-	sd_vector<> rrr_b;
-	sd_vector<>::select_1_type select1_b;
-	sd_vector<>::select_0_type select0_b;
+//	sd_vector<> rrr_b;
+//	sd_vector<>::select_1_type select1_b;
+//	sd_vector<>::select_0_type select0_b;
 	
-//	rrr_vector<127> rrr_b;
-//	rrr_vector<127>::select_1_type select1_b;
-//	rrr_vector<127>::select_0_type select0_b;
+	rrr_vector<127> rrr_b;
+	rrr_vector<127>::select_1_type select1_b;
+	rrr_vector<127>::select_0_type select0_b;
 	
 	inv_perm_support<> perm_inv;
 	inv_perm_support<> perm;
