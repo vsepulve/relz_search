@@ -270,8 +270,8 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
 	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
-//	tree_y.build(full_text, len_text, factors_start, arr_y, false, karp_rabin);
-//	tree_y.print();
+	tree_y.build(full_text, len_text, factors_start, arr_y, false, karp_rabin);
+	tree_y.print();
 	
 	cout << "FactorsIndexV3 - Trees prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
