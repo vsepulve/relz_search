@@ -31,7 +31,7 @@ using namespace std;
 int main(int argc, char* argv[]){
 
 	if(argc != 5){
-		cout<<"\nModo de Uso: relz_search serialized_ref sequence_file output_relz queries_file\n";
+		cout<<"\nUsage: relz_search serialized_ref sequence_file output_relz queries_file\n";
 		return 0;
 	}
 	
@@ -59,30 +59,30 @@ int main(int argc, char* argv[]){
 	unsigned long long real_len_text = 0;
 	char *text = filter->readText(input, real_len_text);
 	unsigned int len_text = compressor.getTextSize();
-	cout << "Texto Cargado de " << len_text << " / " << real_len_text << " chars\n";
+	cout << "Full text loaded of " << len_text << " / " << real_len_text << " chars\n";
 	
 	const char *ref = reference->getText();
 	unsigned int len_ref = reference->getLength();
 	
-	cout << "----- Construyendo Indice -----\n";
+	cout << "----- Building index -----\n";
 	NanoTimer timer;
 	vector<unsigned int> results;
 	FactorsIndex index(factors, text, len_text, ref, len_ref);
-	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
+	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index.printSize();
 	
-//	cout << "----- Query de Prueba -----\n";
+//	cout << "----- Test Query -----\n";
 //	index.find("CATC", results);
 //	cout << "-----     -----\n";
 //	results.clear();
 	
-//	cout << "----- Query de Prueba -----\n";
+//	cout << "----- Test Query -----\n";
 //	index.find("BA", results);
 //	cout << "-----     -----\n";
 //	results.clear();
 
 	
-	cout << "----- Cargando Queries desde \"" << queries_file << "\" -----\n";
+	cout << "----- Loading Queries from \"" << queries_file << "\" -----\n";
 	vector<string> queries;
 	unsigned int max_line = 1000000;
 	char buff[max_line + 1];
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]){
 		queries.push_back(query);
 	}
 	
-	cout << "----- Realizando Queres -----\n";
+	cout << "----- Searching Queres -----\n";
 	timer.reset();
 	unsigned long long total_occ = 0;
 	for( string query : queries ){
@@ -109,9 +109,7 @@ int main(int argc, char* argv[]){
 		total_occ += results.size();
 		results.clear();
 	}
-	cout << "----- Queries terminadas en " << timer.getMilisec() << " ms (" << (timer.getMilisec() / total_occ) << " ms/occ, " << queries.size() << " queries, " << total_occ << " occs) -----\n";
-	
-	
+	cout << "----- Queries finished in " << timer.getMilisec() << " ms (" << (timer.getMilisec() / total_occ) << " ms/occ, " << queries.size() << " queries, " << total_occ << " occs) -----\n";
 	
 	
 	delete reference;
