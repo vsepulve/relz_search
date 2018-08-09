@@ -521,11 +521,8 @@ void FactorsIndex::printSize(){
 	// texto descomprimido
 	if( ! omit_text ){
 		total_bytes += len_ref;
+		cout << "FactorsIndex::printSize - Reference Text: " << (len_ref/(1024*1024)) << " MB\n";
 	}
-//	
-//	bit_vector arr_s;
-//	total_bytes += size_in_bytes(arr_s);
-//	cout << "FactorsIndex::printSize - arr_s: " << (size_in_bytes(arr_s)/(1024*1024)) << " MB\n";
 	
 //	csa_wt<> fm_index;
 	total_bytes += size_in_bytes(fm_index);
@@ -534,15 +531,10 @@ void FactorsIndex::printSize(){
 //	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
 	total_bytes += size_in_bytes(rmq);
 	cout << "FactorsIndex::printSize - rmq: " << (size_in_bytes(rmq)/(1024*1024)) << " MB\n";
-//	
+	
 //	rrr_vector<127> rrr_s;
 	total_bytes += size_in_bytes(rrr_s);
 	cout << "FactorsIndex::printSize - rrr_s: " << (size_in_bytes(rrr_s)/(1024*1024)) << " MB\n";
-//	
-//	rrr_vector<127>::select_1_type select1_s;
-//	rrr_vector<127>::select_0_type select0_s;
-//	rrr_vector<127>::select_1_type select1_b;
-//	rrr_vector<127>::select_0_type select0_b;
 //	
 //	inv_perm_support<> perm_inv;
 	total_bytes += size_in_bytes(perm_inv);
@@ -551,10 +543,6 @@ void FactorsIndex::printSize(){
 //	inv_perm_support<> perm;
 	total_bytes += size_in_bytes(perm);
 	cout << "FactorsIndex::printSize - perm: " << (size_in_bytes(perm)/(1024*1024)) << " MB\n";
-//	
-////	bit_vector arr_b;
-//	total_bytes += size_in_bytes(arr_b);
-//	cout << "FactorsIndex::printSize - arr_b: " << (size_in_bytes(arr_b)/(1024*1024)) << " MB\n";
 	
 //	rrr_vector<127> rrr_b;
 	total_bytes += size_in_bytes(rrr_b);
@@ -578,9 +566,157 @@ void FactorsIndex::printSize(){
 	
 	cout << "FactorsIndex::printSize - Total " << total_bytes << " (" << (total_bytes/(1024*1024)) << " MB)\n";
 	
+}
+
+void FactorsIndex::save(const string &file_base){
+	cout << "FactorsIndex::save - Start (base \"" << file_base << "\")\n";
 	
+	// Base
+	string index_basic_file = file_base + ".base";
+	fstream writer(index_basic_file, fstream::out | fstream::trunc);
+	// Version of the index
+	unsigned char version = 1;
+	writer.write((char*)&version, 1);
+	// len_text
+	writer.write((char*)&len_text, sizeof(int));
+	// n_factors
+	writer.write((char*)&n_factors, sizeof(int));
+	// omit_text
+	writer.write((char*)&omit_text, 1);
+	// len_ref
+	writer.write((char*)&len_ref, sizeof(int));
+	// Reference Text
+	if( ! omit_text ){
+		writer.write((char*)ref_text, len_ref);
+	}
+	// Close Base
+	writer.close();
+	
+	// fm_index
+	string fm_index_file = file_base + ".fm";
+	store_to_file(fm_index, fm_index_file);
+	
+	// rmq
+	string rmq_file = file_base + ".rmq";
+	store_to_file(rmq, rmq_file);
+	
+	// rrr_s
+	string rrr_s_file = file_base + ".arrs";
+	store_to_file(rrr_s, rrr_s_file);
+	
+	// rrr_b
+	string rrr_b_file = file_base + ".arrb";
+	store_to_file(rrr_b, rrr_b_file);
+	
+	// perm
+	string pi_file = file_base + ".pi";
+	store_to_file(perm, pi_file);
+	
+	// perm_inv
+	string pi1_file = file_base + ".pi1";
+	store_to_file(perm_inv, pi1_file);
+	
+	// perm_x
+	string x_file = file_base + ".x";
+	store_to_file(perm_x, x_file);
+	
+	// perm_y
+	string y_file = file_base + ".y";
+	store_to_file(perm_y, y_file);
+	
+	// perm_y_inv
+	string y1_file = file_base + ".y1";
+	store_to_file(perm_y_inv, y1_file);
+	
+	// wt
+	string wt_file = file_base + ".wt";
+	store_to_file(wt, wt_file);
+	
+	cout << "FactorsIndex::save - End\n";
+}
+
+void FactorsIndex::load(const string &file_base){
+	cout << "FactorsIndex::load - Start (base \"" << file_base << "\")\n";
+	
+	// Base
+	string index_basic_file = file_base + ".base";
+	fstream reader(index_basic_file, fstream::in);
+	// Version of the index
+	unsigned char version = 0;
+	reader.read((char*)&version, 1);
+	if( version != 1 ){
+		cout << "FactorsIndex::load - Wrong Version\n";
+		return;
+	}
+	// len_text
+	reader.read((char*)&len_text, sizeof(int));
+	// n_factors
+	reader.read((char*)&n_factors, sizeof(int));
+	// omit_text
+	reader.read((char*)&omit_text, 1);
+	// len_ref
+	reader.read((char*)&len_ref, sizeof(int));
+	// Reference Text
+	if( ! omit_text ){
+		reader.read((char*)ref_text, len_ref);
+	}
+	// Close Base
+	reader.close();
+	
+	// fm_index
+	string fm_index_file = file_base + ".fm";
+	load_from_file(fm_index, fm_index_file);
+	
+	// rmq
+	string rmq_file = file_base + ".rmq";
+	load_from_file(rmq, rmq_file);
+	
+	// rrr_s
+	string rrr_s_file = file_base + ".arrs";
+	load_from_file(rrr_s, rrr_s_file);
+	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
+	select1_s = _select1_s;
+	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
+	select0_s = _select0_s;
+	
+	// rrr_b
+	string rrr_b_file = file_base + ".arrb";
+	load_from_file(rrr_b, rrr_b_file);
+	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
+	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
+//	sd_vector<>::select_1_type _select1_b(&rrr_b);
+//	sd_vector<>::select_0_type _select0_b(&rrr_b);
+	select1_b = _select1_b;
+	select0_b = _select0_b;
+	
+	// perm
+	string pi_file = file_base + ".pi";
+	load_from_file(perm, pi_file);
+	
+	// perm_inv
+	string pi1_file = file_base + ".pi1";
+	load_from_file(perm_inv, pi1_file);
+	
+	// perm_x
+	string x_file = file_base + ".x";
+	load_from_file(perm_x, x_file);
+	
+	// perm_y
+	string y_file = file_base + ".y";
+	load_from_file(perm_y, y_file);
+	
+	// perm_y_inv
+	string y1_file = file_base + ".y1";
+	load_from_file(perm_y_inv, y1_file);
+	
+	// wt
+	string wt_file = file_base + ".wt";
+	load_from_file(wt, wt_file);
+	
+	cout << "FactorsIndex::load - End\n";
 	
 }
+
 
 
 

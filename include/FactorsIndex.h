@@ -47,8 +47,8 @@ private:
 	rrr_vector<127>::select_1_type select1_b;
 	rrr_vector<127>::select_0_type select0_b;
 	
-	inv_perm_support<> perm_inv;
 	inv_perm_support<> perm;
+	inv_perm_support<> perm_inv;
 	
 	inv_perm_support<> perm_x;
 	inv_perm_support<> perm_y;
@@ -81,7 +81,7 @@ private:
 	pair<unsigned int, unsigned int> getRangeY(const char *pattern);
 			
 	pair<unsigned int, unsigned int> getRangeX(const char *pattern);
-			
+	
 	
 public: 
 	FactorsIndex();
@@ -91,6 +91,10 @@ public:
 	void find(const string &pattern, vector<unsigned int> &results);
 	
 	void printSize();
+	
+	void save(const string &file_base);
+	
+	void load(const string &file_base);
 	
 };
 
