@@ -67,7 +67,7 @@ unsigned long long KarpRabin::hash(const string &str){
 }
 unsigned long long KarpRabin::hash(const char *str, unsigned long long str_len){
 	
-	string s(str, str_len);
+//	string s(str, str_len);
 //	cout << "KarpRabin::hash - Start (" << s << ")\n";
 	
 	unsigned long long ret = 0;
