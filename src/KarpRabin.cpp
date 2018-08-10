@@ -66,6 +66,10 @@ unsigned long long KarpRabin::hash(const string &str){
 	return ret;
 }
 unsigned long long KarpRabin::hash(const char *str, unsigned long long str_len){
+	
+	string s(str, str_len);
+//	cout << "KarpRabin::hash - Start (" << s << ")\n";
+	
 	unsigned long long ret = 0;
 	for(unsigned int i = 0, k = str_len-1; i < str_len; i++, k--) {
 //		ret = ret + (str[i] * ullpow(1<<voc_bits, k)) % kr_mod;
@@ -73,6 +77,9 @@ unsigned long long KarpRabin::hash(const char *str, unsigned long long str_len){
 		ret = ret + ((unsigned long long)(str[i]) * ullpow2_table(voc_bits, k)) % kr_mod;
 		ret = ret % kr_mod;
 	}
+	
+//	cout << "KarpRabin::hash - End (" << ret << ")\n";
+	
 	return ret;
 }
 
