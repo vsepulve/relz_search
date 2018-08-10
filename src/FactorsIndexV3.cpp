@@ -253,6 +253,11 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		unsigned long long kr1 = arr_kr_s.back();
 		unsigned long long kr2 = karp_rabin->hash(full_text + factors_start[i-1], word_len);
 		unsigned long long kr_total = karp_rabin->concat(kr1, kr2, word_len);
+		
+//		string s(full_text, factors_start[i]);
+//		cout << "FactorsIndexV3 - Adding hash de \"" << s << "\" " << kr_total << " / " << karp_rabin->hash(s) << "\n";
+		
+		
 		arr_kr_s.push_back(kr_total);
 	}
 	// Agrego tambien el hash de la coleccion completa como un factor ficticio con id = n_factors
@@ -267,18 +272,36 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	timer.reset();
 	
 	cout << "FactorsIndexV3 - Testing KarpRabinFactorsSuffixes\n";
+//	cout << "FactorsIndexV3 - Hash(A): " << karp_rabin->hash("A") << "\n";
+//	cout << "FactorsIndexV3 - Hash(AL): " << karp_rabin->hash("AL") << "\n";
+//	cout << "FactorsIndexV3 - Hash(ALA): " << karp_rabin->hash("ALA") << "\n";
+//	cout << "FactorsIndexV3 - Hash(ALAS): " << karp_rabin->hash("ALAS") << "\n";
+//	cout << "FactorsIndexV3 - Hash(ALASL): " << karp_rabin->hash("ALASL") << "\n";
+//	cout << "FactorsIndexV3 - Hash(ALASLA): " << karp_rabin->hash("ALASLA") << "\n";
+//	cout << "FactorsIndexV3 - Hash(ALASLAL): " << karp_rabin->hash("ALASLAL") << "\n";
+//	cout << "FactorsIndexV3 - Hash(ALASLALA): " << karp_rabin->hash("ALASLALA") << "\n";
+//	cout << "FactorsIndexV3 - Hash(ALASLALAB): " << karp_rabin->hash("ALASLALAB") << "\n";
+//	
+//	cout << "FactorsIndexV3 - Hash(BA): " << karp_rabin->hash("BA") << "\n";
+//	cout << "FactorsIndexV3 - Hash(BALA): " << karp_rabin->hash("BALA") << "\n";
+//	cout << "FactorsIndexV3 - Hash(BALAS): " << karp_rabin->hash("BALAS") << "\n";
+//	cout << "FactorsIndexV3 - Hash(BALASLA): " << karp_rabin->hash("BALASLA") << "\n";
+//	cout << "FactorsIndexV3 - Hash(BALASLALABA): " << karp_rabin->hash("BALASLALABA") << "\n";
+//	cout << "FactorsIndexV3 - Hash(BALASLALABAS): " << karp_rabin->hash("BALASLALABAS") << "\n";
+	
 	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &perm_inv, &arr_tu, &arr_pu, &arr_lu);
 	
-	kr_factors->hash(1, 3, 8);
-	const char *test_str = "ALASL";
+	kr_factors->hash(1, 3, 9);
+	const char *test_str = "ALASLALAB";
 	cout << "FactorsIndexV3 - Testing KarpRabinFactorsSuffixes, hash: " << karp_rabin->hash(test_str, strlen(test_str)) << "\n";
+	
 	
 	
 	cout << "FactorsIndexV3 - Preparing Trees\n";
 	
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
 	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
-	tree_y.build(full_text, len_text, factors_start, arr_y, false, karp_rabin);
+	tree_y.build(full_text, len_text, factors_start, arr_y, false, karp_rabin, kr_factors);
 	tree_y.print();
 	
 	cout << "FactorsIndexV3 - Trees prepared in " << timer.getMilisec() << "\n";
