@@ -53,6 +53,9 @@ public:
 	// Evaluate the hash of the concatenation in constant time
 	unsigned long long concat(unsigned long long kr1, unsigned long long kr2, unsigned int len2);
 	
+	// Evaluate the hash of the subtract in constant time
+	unsigned long long subtract_prefix(unsigned long long kr12, unsigned long long kr2, unsigned int len2);
+	
 };
 
 

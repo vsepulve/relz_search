@@ -83,6 +83,14 @@ unsigned long long KarpRabin::concat(unsigned long long kr1, unsigned long long 
 	return (kr2 + (kr1 * ullpow2_table(voc_bits, len2)) % kr_mod) % kr_mod;
 }
 
+// Evaluate the hash of the subtract in constant time
+unsigned long long KarpRabin::subtract_prefix(unsigned long long kr12, unsigned long long kr1, unsigned int len2){
+//	cout << "KarpRabin::subtract - B^" << len2 << ": " << ullpow2_table(voc_bits, len2) << "\n";
+//	cout << "KarpRabin::subtract - kr1 (" << kr1 << ") * B^" << len2 << ": " << ((kr1 * ullpow2_table(voc_bits, len2)) % kr_mod) << "\n";
+//	cout << "KarpRabin::subtract - kr12 - kr1 * B^" << len2 << ": " << (kr12 + kr_mod - ((kr1 * ullpow2_table(voc_bits, len2)) % kr_mod)) % kr_mod << "\n";
+	return (kr12 + kr_mod - ((kr1 * ullpow2_table(voc_bits, len2)) % kr_mod)) % kr_mod;
+}
+
 unsigned int KarpRabin::nextFactor(unsigned int start, vector<unsigned int> &factors_start){
 	
 //	cout << "KarpRabin::nextFactor - Start (" << start << ")\n";
