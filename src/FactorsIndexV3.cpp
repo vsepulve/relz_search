@@ -266,6 +266,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - KarpRobin prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
+	cout << "FactorsIndexV3 - Testing KarpRabinFactorsSuffixes\n";
+	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &perm_inv, &arr_tu, &arr_pu, &arr_lu);
+	
+	kr_factors->hash(1, 3, 8);
+	const char *test_str = "ALASL";
+	cout << "FactorsIndexV3 - Testing KarpRabinFactorsSuffixes, hash: " << karp_rabin->hash(test_str, strlen(test_str)) << "\n";
+	
+	
 	cout << "FactorsIndexV3 - Preparing Trees\n";
 	
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo

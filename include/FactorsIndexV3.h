@@ -22,6 +22,7 @@
 #include "BitsUtils.h"
 #include "KarpRabin.h"
 #include "HashTrie.h"
+#include "KarpRabinFactorsSuffixes.h"
 
 using namespace sdsl;
 using namespace std;
@@ -68,6 +69,7 @@ private:
 	vector<unsigned long long> arr_kr_ref;
 	vector<unsigned long long> arr_kr_s;
 	HashTrie tree_y;
+	KarpRabinFactorsSuffixes *kr_factors;
 	
 	// Solo para pruebas
 	bit_vector arr_s;
