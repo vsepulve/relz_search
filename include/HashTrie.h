@@ -16,6 +16,7 @@
 #include <memory>
 
 #include "KarpRabin.h"
+#include "KarpRabinFactorsSuffixes.h"
 
 using namespace std;
 
@@ -26,11 +27,11 @@ class HashTrieNode{
 public: 
 
 	// Datos descomprimidos del nodo
-	unsigned long long hash;
+//	unsigned long long hash;
 	unsigned int len;
 	unsigned int min;
 	unsigned int max;
-	unsigned int factor;
+//	unsigned int factor;
 	
 	// Estructura para los hijos
 //	map<unsigned long long, HashTrieNode> childs;
@@ -41,7 +42,7 @@ public:
 	HashTrieNode();
 	~HashTrieNode();
 	
-	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, bool _factor_only, KarpRabin *_karp_rabin, unsigned int min, unsigned int max, unsigned int processed_len);
+	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, bool _factor_only, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int min, unsigned int max, unsigned int processed_len);
 	
 	void print(unsigned int level);
 	
@@ -51,16 +52,17 @@ class HashTrie{
 
 private: 
 	KarpRabin *karp_rabin;
+	KarpRabinFactorsSuffixes *kr_factors;
 	HashTrieNode root;
 	bool factor_only;
 	
 public: 
 	
 	HashTrie();
-	HashTrie(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, bool _factor_only, KarpRabin *_karp_rabin);
+	HashTrie(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, bool _factor_only, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	virtual ~HashTrie();
 	
-	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, bool _factor_only, KarpRabin *_karp_rabin);
+	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, bool _factor_only, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	
 	void print();
 	
