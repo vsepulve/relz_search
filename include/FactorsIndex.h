@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <unordered_map>
 
 #include <sdsl/suffix_arrays.hpp>
 #include <sdsl/bit_vectors.hpp>
@@ -19,6 +20,7 @@
 #include "FactorsIteratorComparator.h"
 #include "FactorsFastIteratorComparator.h"
 #include "NanoTimer.h"
+#include "KarpRabin.h"
 
 using namespace sdsl;
 using namespace std;
@@ -62,6 +64,13 @@ private:
 	vector<unsigned int> arr_pu;
 	vector<unsigned int> arr_lu;
 	
+	// Cache de rangos precalculados
+	// Solo valido para alfabeto limitado (adn)
+	static const unsigned int max_pre_ranges = 8;
+	unordered_map<unsigned long long, pair<unsigned int, unsigned int>> pre_ranges_x;
+	unordered_map<unsigned long long, pair<unsigned int, unsigned int>> pre_ranges_y;
+	KarpRabin *karp_rabin;
+	
 	// Solo para pruebas
 	bit_vector arr_s;
 	bit_vector arr_b;
@@ -84,9 +93,9 @@ private:
 	
 	char getCharRev(unsigned int factor, unsigned int pos);
 			
-	pair<unsigned int, unsigned int> getRangeY(const char *pattern);
+	pair<unsigned int, unsigned int> getRangeY(const char *pattern, bool use_hash = false);
 			
-	pair<unsigned int, unsigned int> getRangeX(const char *pattern);
+	pair<unsigned int, unsigned int> getRangeX(const char *pattern, bool use_hash = false);
 	
 	
 public: 
