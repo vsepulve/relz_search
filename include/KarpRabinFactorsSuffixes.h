@@ -52,6 +52,14 @@ public:
 	// REturns the hash from the start of factor_ini (positional) of length length
 	unsigned long long hash(unsigned int factor_ini, unsigned int length);
 	
+	// Returns the hash from a suffix from a factor (positional), offset and length
+	// Fast version, only valid for offset and length < karp_rabin->getTableSize()
+	unsigned long long hashFast(unsigned int factor_ini, unsigned int offset, unsigned int length);
+	
+	// REturns the hash from the start of factor_ini (positional) of length length
+	// Fast version, only valid for offset and length < karp_rabin->getTableSize()
+	unsigned long long hashFast(unsigned int factor_ini, unsigned int length);
+	
 };
 
 
