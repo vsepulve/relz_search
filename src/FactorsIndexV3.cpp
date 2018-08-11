@@ -23,6 +23,8 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	NanoTimer timer;
 	
 	cout << "FactorsIndexV3 - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
+	cout << "FactorsIndexV3 - Ref: " << ref_text << "\n";
+	cout << "FactorsIndexV3 - Text: " << full_text << "\n";
 	
 	cout << "FactorsIndexV3 - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
@@ -153,14 +155,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	}
 	inv_perm_support<> _perm_x(&pre_x_inv);
 	perm_x = _perm_x;
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
 	
 	cout << "FactorsIndexV3 - Preparing arr Y\n";
 	vector<unsigned int> arr_y(n_factors);
@@ -182,14 +184,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	inv_perm_support<> _perm_y_inv(&pre_y);
 	perm_y = _perm_y;
 	perm_y_inv = _perm_y_inv;
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
 	cout << "FactorsIndexV3 - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
