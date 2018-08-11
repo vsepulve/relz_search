@@ -313,6 +313,8 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	tree_y.build(full_text, len_text, factors_start, arr_y, false, karp_rabin, kr_factors);
 	tree_y.print();
 	
+	tree_y.getRange("ALABAR");
+	
 	cout << "FactorsIndexV3 - Trees prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
