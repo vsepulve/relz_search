@@ -69,7 +69,8 @@ int main(int argc, char* argv[]){
 	cout << "----- Construyendo Indice -----\n";
 	NanoTimer timer;
 	unsigned int bits = 8;
-	unsigned int mod = 787;
+//	unsigned int mod = 787;
+	unsigned int mod = 15485863;
 	KarpRabin karp_rabin(bits, mod);
 	vector<unsigned int> results;
 //	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin, kr_frases_file, load_kr_frases);
