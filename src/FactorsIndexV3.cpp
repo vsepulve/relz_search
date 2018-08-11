@@ -189,7 +189,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		char c = 0;
 		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
 			cout << c;
-		cout << "\n";
+		cout << " (" << (len_text - factors_start[perm_y[i]]) << ")\n";
 	}
 	cout << "-----\n";
 	cout << "FactorsIndexV3 - X & Y prepared in " << timer.getMilisec() << "\n";
@@ -274,6 +274,10 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	timer.reset();
 	
 	cout << "FactorsIndexV3 - Testing KarpRabinFactorsSuffixes\n";
+	cout << "FactorsIndexV3 - Hash(BAB): " << karp_rabin->hash("BAB") << "\n";
+	cout << "FactorsIndexV3 - Hash(BABALASLA): " << karp_rabin->hash("BABALASLA") << "\n";
+	cout << "FactorsIndexV3 - Hash(BABALASLALAB): " << karp_rabin->hash("BABALASLALAB") << "\n";
+	
 //	cout << "FactorsIndexV3 - Hash(A): " << karp_rabin->hash("A") << "\n";
 //	cout << "FactorsIndexV3 - Hash(AL): " << karp_rabin->hash("AL") << "\n";
 //	cout << "FactorsIndexV3 - Hash(ALA): " << karp_rabin->hash("ALA") << "\n";
@@ -294,6 +298,9 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &perm_inv, &arr_tu, &arr_pu, &arr_lu);
 	
 	kr_factors->hash(1, 3, 9);
+	cout << "-----\n";
+	kr_factors->hashFast(1, 3, 9);
+	cout << "-----\n";
 	const char *test_str = "ALASLALAB";
 	cout << "FactorsIndexV3 - Testing KarpRabinFactorsSuffixes, hash: " << karp_rabin->hash(test_str, strlen(test_str)) << "\n";
 	
