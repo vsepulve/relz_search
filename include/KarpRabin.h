@@ -56,6 +56,10 @@ public:
 	// Evaluate the hash of the subtract in constant time
 	unsigned long long subtract_prefix(unsigned long long kr12, unsigned long long kr1, unsigned int len2);
 	
+	unsigned int getTableSize(){
+		return table_size;
+	}
+	
 };
 
 
