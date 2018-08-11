@@ -68,6 +68,8 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 	unsigned int min_text_start = factors_start[ arr_y[min_pos] ] + processed_len;
 	unsigned int min_text_len = len_text - min_text_start;
 	
+	set<unsigned int> lengths;
+	
 	while( min_pos <= max ){
 		
 //		cout << "Preparing cur_pos = " << (min_pos + 1) << "\n";
@@ -95,7 +97,7 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 			
 		}
 	
-		cout << "Preparing string s (min_text_start: " << min_text_start << " / " << len_text << ", len: " << min_text_len << ")\n";
+		cout << "HashTrieNode::build - Preparing string s (min_text_start: " << min_text_start << " / " << len_text << ", len: " << min_text_len << ")\n";
 		// El string es olo par ael mensaje de debug
 		string s(full_text + min_text_start, min_text_len);
 //		string s(full_text + min_text_start, (min_text_len<10)?min_text_len:10);
@@ -108,7 +110,7 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 		unsigned long long hash = kr_factors->hash(arr_y[min_pos], processed_len, min_text_len);
 //		cout << "Adding range [" << min_pos << ", " << cur_pos << "), len " << min_text_len << ", \"" << s << "\", hash: " << hash << " / " << karp_rabin->hash(s) << "\n";
 //		cout << "Adding range [" << min_pos << ", " << cur_pos << "), len " << min_text_len << ", hash: " << hash << " / " << karp_rabin->hash(s) << "\n";
-		cout << "Adding range [" << min_pos << ", " << cur_pos << "), len " << min_text_len << ", hash: " << hash << "\n";
+		cout << "HashTrieNode::build - Adding range [" << min_pos << ", " << cur_pos << "), len " << min_text_len << ", hash: " << hash << "\n";
 		// Preparar el hijo, ejecutar la llamda sobre esa instancia
 		childs[hash] = std::make_shared<HashTrieNode>();
 //		HashTrieNode child;
@@ -118,6 +120,7 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 		childs[hash]->max = cur_pos-1;
 //		childs[hash]->factor = arr_y[min_pos];
 //		childs[hash] = child;
+		lengths.insert(min_text_len);
 		
 		childs[hash]->build(full_text, len_text, factors_start, arr_y, factor_only, karp_rabin, kr_factors, min_pos, cur_pos-1, processed_len + min_text_len);
 		
@@ -128,6 +131,12 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 //		cout << "Ok \n";
 	
 	}
+	
+	cout << "HashTrieNode::build - Adding childs " << lengths.size() << " lentghs\n";
+	for( unsigned int len : lengths ){
+		childs_lenghts.push_back(len);
+	}
+	
 	
 }
 
@@ -145,6 +154,49 @@ void HashTrieNode::print(unsigned int level){
 		it.second->print(level+1);
 	}
 }
+
+pair<unsigned int, unsigned int> HashTrie::getRange(const string &pattern){
+//	return pair<unsigned int, unsigned int>(0, 0);
+	return root.getRange(pattern.c_str(), pattern.length(), karp_rabin, kr_factors);
+}
+
+pair<unsigned int, unsigned int> HashTrieNode::getRange(const char *pattern, unsigned int pat_len, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors){
+	
+	cout << "HashTrieNode::getRange - Start (\"" << pattern << "\", " << pat_len << ")\n";
+	
+	map<unsigned int, unsigned long long> hash_pat;
+	unsigned long long hash = 0;
+	unsigned int child_len = 0;
+	
+	for( auto it_child : childs ){
+		child_len = it_child.second->len;
+		cout << "HashTrieNode::getRange - hijo de len " << child_len << " -> [" << it_child.second->min << ", " << it_child.second->max << "]\n";
+		if( child_len < pat_len ){
+			cout << "HashTrieNode::getRange - Caso Simple\n";
+			auto it_hash = hash_pat.find(child_len);
+			if( it_hash == hash_pat.end() ){
+				hash = karp_rabin->hash(pattern, child_len);
+				hash_pat[child_len] = hash;
+			}
+			else{
+				hash = it_hash->second;
+			}
+			if( hash == it_child.first ){
+				cout << "HashTrieNode::getRange - Hijo encontrado\n";
+				return it_child.second->getRange(pattern + child_len, pat_len - child_len, karp_rabin, kr_factors);
+			}
+		}
+		else{
+			cout << "HashTrieNode::getRange - Caso complejo\n";
+		}
+		
+	}
+	
+	return pair<unsigned int, unsigned int>(0, 0);
+}
+
+
+
 
 
 

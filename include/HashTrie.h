@@ -13,6 +13,7 @@
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <set>
 #include <memory>
 
 #include "KarpRabin.h"
@@ -36,6 +37,7 @@ public:
 	// Estructura para los hijos
 //	map<unsigned long long, HashTrieNode> childs;
 	unordered_map<unsigned int, shared_ptr<HashTrieNode>> childs;
+	vector<unsigned int> childs_lenghts;
 	
 	unsigned int getMaxComp(const char *str_1, unsigned int len_1, const char *str_2, unsigned int len_2);
 	
@@ -46,6 +48,7 @@ public:
 	
 	void print(unsigned int level);
 	
+	pair<unsigned int, unsigned int> getRange(const char *pattern, unsigned int pat_len, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors);
 };
 
 class HashTrie{
@@ -63,6 +66,9 @@ public:
 	virtual ~HashTrie();
 	
 	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, bool _factor_only, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
+	
+	// Notar que este metodo despues debe usar la estructura de hash de prefijos del patron completo para acelerar sus hash
+	pair<unsigned int, unsigned int> getRange(const string &pattern);
 	
 	void print();
 	
