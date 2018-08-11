@@ -23,8 +23,8 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	NanoTimer timer;
 	
 	cout << "FactorsIndexV3 - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
-	cout << "FactorsIndexV3 - Ref: " << ref_text << "\n";
-	cout << "FactorsIndexV3 - Text: " << full_text << "\n";
+//	cout << "FactorsIndexV3 - Ref: " << ref_text << "\n";
+//	cout << "FactorsIndexV3 - Text: " << full_text << "\n";
 	
 	cout << "FactorsIndexV3 - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
@@ -310,10 +310,26 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
 	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
-	tree_y.build(full_text, len_text, factors_start, arr_y, false, karp_rabin, kr_factors);
+	tree_y.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors);
 	tree_y.print();
 	
 	tree_y.getRange("ALABAR");
+	cout << "----\n";
+	tree_y.getRange("ALABLLL");
+	cout << "----\n";
+	tree_y.getRange("SAL");
+	cout << "----\n";
+	tree_y.getRange("DAAABARDAS");
+	cout << "----\n";
+	tree_y.getRange("SLA");
+	cout << "----\n";
+	tree_y.getRange("S");
+	cout << "----\n";
+	
+	
+	cout << "FactorsIndexV3 - Building Tree X\n";
+	tree_x.build(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors);
+	tree_x.print();
 	
 	cout << "FactorsIndexV3 - Trees prepared in " << timer.getMilisec() << "\n";
 	timer.reset();

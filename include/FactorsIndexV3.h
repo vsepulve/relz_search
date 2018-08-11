@@ -69,6 +69,7 @@ private:
 	vector<unsigned long long> arr_kr_ref;
 	vector<unsigned long long> arr_kr_s;
 	HashTrie tree_y;
+	HashTrieRev tree_x;
 	KarpRabinFactorsSuffixes *kr_factors;
 	
 	// Solo para pruebas
