@@ -32,7 +32,8 @@ public:
 	unsigned int len;
 	unsigned int min;
 	unsigned int max;
-//	unsigned int factor;
+	// Posicion del factor de referencia en la coleccion (no en el arreglo lexicografico)
+	unsigned int min_factor_pos;
 	
 	// Estructura para los hijos
 //	map<unsigned long long, HashTrieNode> childs;
@@ -48,7 +49,7 @@ public:
 	
 	void print(unsigned int level);
 	
-	pair<unsigned int, unsigned int> getRange(const char *pattern, unsigned int pat_len, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors);
+	pair<unsigned int, unsigned int> getRange(const char *pattern, unsigned int pat_len, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors);
 };
 
 class HashTrie{

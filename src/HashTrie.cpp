@@ -118,7 +118,7 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 		childs[hash]->len = min_text_len;
 		childs[hash]->min = min_pos;
 		childs[hash]->max = cur_pos-1;
-//		childs[hash]->factor = arr_y[min_pos];
+		childs[hash]->min_factor_pos = arr_y[min_pos];
 //		childs[hash] = child;
 		lengths.insert(min_text_len);
 		
@@ -157,15 +157,15 @@ void HashTrieNode::print(unsigned int level){
 
 pair<unsigned int, unsigned int> HashTrie::getRange(const string &pattern){
 //	return pair<unsigned int, unsigned int>(0, 0);
-	return root.getRange(pattern.c_str(), pattern.length(), karp_rabin, kr_factors);
+	return root.getRange(pattern.c_str(), pattern.length(), 0, karp_rabin, kr_factors);
 }
 
-pair<unsigned int, unsigned int> HashTrieNode::getRange(const char *pattern, unsigned int pat_len, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors){
+pair<unsigned int, unsigned int> HashTrieNode::getRange(const char *pattern, unsigned int pat_len, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors){
 	
-	cout << "HashTrieNode::getRange - Start (\"" << pattern << "\", " << pat_len << ")\n";
+	cout << "HashTrieNode::getRange - Start (\"" << pattern << "\", " << pat_len << ", processed: " << processed << ")\n";
 	
-	map<unsigned int, unsigned long long> hash_pat;
-	unsigned long long hash = 0;
+	map<unsigned int, unsigned long long> hash_pat_map;
+	unsigned long long hash_pat = 0;
 	unsigned int child_len = 0;
 	
 	for( auto it_child : childs ){
@@ -173,25 +173,31 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(const char *pattern, uns
 		cout << "HashTrieNode::getRange - hijo de len " << child_len << " -> [" << it_child.second->min << ", " << it_child.second->max << "]\n";
 		if( child_len < pat_len ){
 			cout << "HashTrieNode::getRange - Caso Simple\n";
-			auto it_hash = hash_pat.find(child_len);
-			if( it_hash == hash_pat.end() ){
-				hash = karp_rabin->hash(pattern, child_len);
-				hash_pat[child_len] = hash;
+			auto it_hash = hash_pat_map.find(child_len);
+			if( it_hash == hash_pat_map.end() ){
+				hash_pat = karp_rabin->hash(pattern, child_len);
+				hash_pat_map[child_len] = hash_pat;
 			}
 			else{
-				hash = it_hash->second;
+				hash_pat = it_hash->second;
 			}
-			if( hash == it_child.first ){
+			if( hash_pat == it_child.first ){
 				cout << "HashTrieNode::getRange - Hijo encontrado\n";
-				return it_child.second->getRange(pattern + child_len, pat_len - child_len, karp_rabin, kr_factors);
+				return it_child.second->getRange(pattern + child_len, pat_len - child_len, processed + child_len, karp_rabin, kr_factors);
 			}
 		}
 		else{
 			cout << "HashTrieNode::getRange - Caso complejo\n";
+			// Si este nodo contiene el texto que queda del patron, este es el rango
+			unsigned long long hash = kr_factors->hash(it_child.second->min_factor_pos, processed, pat_len);
+			hash_pat = karp_rabin->hash(pattern, pat_len);
+			if( hash == hash_pat ){
+				cout << "HashTrieNode::getRange - Respuesta encontrada\n";
+				return pair<unsigned int, unsigned int>(it_child.second->min, it_child.second->max);
+			}
 		}
-		
 	}
-	
+	cout << "HashTrieNode::getRange - Patron NO encontrado\n";
 	return pair<unsigned int, unsigned int>(0, 0);
 }
 
