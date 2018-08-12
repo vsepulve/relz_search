@@ -52,6 +52,8 @@ public:
 	
 	pair<unsigned int, unsigned int> getRange(const char *pattern, unsigned int pat_len, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors);
 	
+	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, const string &pattern);
+	
 	void save(fstream &writer);
 	
 	void load(fstream &reader);
@@ -77,6 +79,8 @@ public:
 	
 	// Notar que este metodo despues debe usar la estructura de hash de prefijos del patron completo para acelerar sus hash
 	pair<unsigned int, unsigned int> getRange(const string &pattern);
+	
+	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, const string &pattern);
 	
 	void print();
 	
@@ -122,6 +126,8 @@ public:
 	
 	pair<unsigned int, unsigned int> getRange(const char *pattern, unsigned int pat_len, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors);
 	
+	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, const string &pattern_rev);
+	
 	void save(fstream &writer);
 	
 	void load(fstream &reader);
@@ -147,6 +153,8 @@ public:
 	
 	// Notar que este metodo despues debe usar la estructura de hash de prefijos del patron completo para acelerar sus hash
 	pair<unsigned int, unsigned int> getRange(const string &pattern);
+	
+	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, const string &pattern_rev);
 	
 	void print();
 	
