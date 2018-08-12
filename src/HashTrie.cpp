@@ -293,7 +293,7 @@ void HashTrieNode::load(fstream &reader){
 }
 
 void HashTrie::save(const string &file){
-	cout << "HashTrie::save - Start\n";
+	cout << "HashTrie::save - Start (" << file << ")\n";
 	fstream writer(file, fstream::out | fstream::trunc);
 	root.save(writer);
 	writer.close();
@@ -301,9 +301,9 @@ void HashTrie::save(const string &file){
 }
 
 void HashTrie::load(const string &file){
-	cout << "HashTrie::load - Start\n";
+	cout << "HashTrie::load - Start (" << file << ")\n";
 	fstream reader(file, fstream::in);
-	root.save(reader);
+	root.load(reader);
 	reader.close();
 	cout << "HashTrie::load - End\n";
 }
@@ -629,7 +629,7 @@ void HashTrieRevNode::load(fstream &reader){
 }
 
 void HashTrieRev::save(const string &file){
-	cout << "HashTrieRev::save - Start\n";
+	cout << "HashTrieRev::save - Start (" << file << ")\n";
 	fstream writer(file, fstream::out | fstream::trunc);
 	root.save(writer);
 	writer.close();
@@ -637,9 +637,9 @@ void HashTrieRev::save(const string &file){
 }
 
 void HashTrieRev::load(const string &file){
-	cout << "HashTrieRev::load - Start\n";
+	cout << "HashTrieRev::load - Start (" << file << ")\n";
 	fstream reader(file, fstream::in);
-	root.save(reader);
+	root.load(reader);
 	reader.close();
 	cout << "HashTrieRev::load - End\n";
 }
