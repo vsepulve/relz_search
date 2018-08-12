@@ -57,15 +57,15 @@ unsigned int HashTrieNode::getMaxComp(const char *str_1, unsigned int len_1, con
 
 void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int min, unsigned int max, unsigned int processed_len){
 	if( min == max ){
-		cout << "HashTrieNode::build - Leaf\n";
+//		cout << "HashTrieNode::build - Leaf\n";
 		return;
 	}
 	if( full_text == NULL || processed_len == len_text ){
-		cout << "HashTrieNode::build - Null text\n";
+//		cout << "HashTrieNode::build - Null text\n";
 		return;
 	}
 	
-	cout << "HashTrieNode::build - Start (full text of " << len_text << ", range[" << min << ", " << max << "], processed_len: " << processed_len << ")\n";
+//	cout << "HashTrieNode::build - Start (full text of " << len_text << ", range[" << min << ", " << max << "], processed_len: " << processed_len << ")\n";
 	
 	unsigned int min_pos = min;
 	unsigned int min_text_start = factors_start[ arr_y[min_pos] ] + processed_len;
@@ -76,7 +76,7 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 	
 	while( min_pos <= max ){
 		
-		cout << "Preparing cur_pos = " << (min_pos + 1) << "\n";
+//		cout << "HashTrieNode::build - Preparing cur_pos = " << (min_pos + 1) << "\n";
 		unsigned int cur_pos = min_pos + 1;
 		unsigned int cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
 		unsigned int cur_text_len = len_text - cur_text_start;
@@ -99,7 +99,7 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 			
 		}
 	
-		cout << "HashTrieNode::build - Preparing string s (min_text_start: " << min_text_start << " / " << len_text << ", len: " << min_text_len << ")\n";
+//		cout << "HashTrieNode::build - Preparing string s (min_text_start: " << min_text_start << " / " << len_text << ", len: " << min_text_len << ")\n";
 		
 		// El string es olo para el mensaje de debug
 //		string s(full_text + min_text_start, min_text_len);
@@ -108,10 +108,10 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 		// Notar que aqui necesito la posicion del factor en la coleccion, no en el arreglo Y
 		hash = kr_factors->hash(arr_y[min_pos], processed_len, min_text_len);
 //		cout << "HashTrieNode::build - Adding range [" << min_pos << ", " << cur_pos << "), len " << min_text_len << ", hash: " << hash << " / " << karp_rabin->hash(s) << "\n";
-		cout << "HashTrieNode::build - Adding range [" << min_pos << ", " << cur_pos << "), len " << min_text_len << ", hash: " << hash << "\n";
+//		cout << "HashTrieNode::build - Adding range [" << min_pos << ", " << cur_pos << "), len " << min_text_len << ", hash: " << hash << "\n";
 		// Preparar el hijo, ejecutar la llamda sobre esa instancia
 		if( min_text_len == 0 ){
-			cout << "HashTrieNode::build - Omiting child of len 0\n";
+//			cout << "HashTrieNode::build - Omiting child of len 0\n";
 		}
 		else{
 			childs[hash] = std::make_shared<HashTrieNode>();
@@ -123,18 +123,18 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 			childs[hash]->build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos-1, processed_len + min_text_len);
 		}
 		
-		cout << "HashTrieNode::build - Preparing min_pos = " << cur_pos << " / " << arr_y.size() << "\n";
+//		cout << "HashTrieNode::build - Preparing min_pos = " << cur_pos << " / " << arr_y.size() << "\n";
 		min_pos = cur_pos;
 		if(min_pos >= arr_y.size()){
 			break;
 		}
 		min_text_start = factors_start[ arr_y[min_pos] ] + processed_len;
 		min_text_len = len_text - min_text_start;
-		cout << "HashTrieNode::build - min_text_start: " << min_text_start << ", min_text_len: " << min_text_len << "\n";
+//		cout << "HashTrieNode::build - min_text_start: " << min_text_start << ", min_text_len: " << min_text_len << "\n";
 	
 	}
 	
-	cout << "HashTrieNode::build - Adding childs " << lengths.size() << " lentghs\n";
+//	cout << "HashTrieNode::build - Adding childs " << lengths.size() << " lentghs\n";
 	for( unsigned int len : lengths ){
 		childs_lenghts.push_back(len);
 	}
