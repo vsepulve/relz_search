@@ -317,6 +317,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - Tree Y finished\n";
 	tree_y.print();
 	tree_y.save(index_y);
+	tree_y.prepareChilds();
 	
 //	tree_y.getRange("ALABAR");
 //	cout << "----\n";
@@ -336,6 +337,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - Tree X finished\n";
 	tree_x.print();
 	tree_x.save(index_x);
+	tree_x.prepareChilds();
 	
 	cout << "FactorsIndexV3 - Trees prepared in " << timer.getMilisec() << "\n";
 	timer.reset();

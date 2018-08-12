@@ -84,9 +84,12 @@ int main(int argc, char* argv[]){
 	HashTrie arbol_y(&karp_rabin, kr_factors);
 	arbol_y.load(index_y);
 	arbol_y.print();
+	arbol_y.prepareChilds();
+	
 	HashTrieRev arbol_x(&karp_rabin, kr_factors);
 	arbol_x.load(index_x);
 	arbol_x.print();
+	arbol_x.prepareChilds();
 	
 //	cout << "----- Query de Prueba -----\n";
 //	index.find("CATC", results);
