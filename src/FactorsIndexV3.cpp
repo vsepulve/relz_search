@@ -311,6 +311,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
 	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
 	tree_y.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors);
+	cout << "FactorsIndexV3 - Tree Y finished\n";
 	tree_y.print();
 	
 	tree_y.getRange("ALABAR");
@@ -329,6 +330,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	
 	cout << "FactorsIndexV3 - Building Tree X\n";
 	tree_x.build(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors);
+	cout << "FactorsIndexV3 - Tree X finished\n";
 	tree_x.print();
 	
 	cout << "FactorsIndexV3 - Trees prepared in " << timer.getMilisec() << "\n";
