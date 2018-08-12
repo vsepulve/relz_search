@@ -73,23 +73,23 @@ int main(int argc, char* argv[]){
 	KarpRabin karp_rabin(bits, mod);
 	vector<unsigned int> results;
 	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin, input);
-	KarpRabinFactorsSuffixes *kr_factors = index.getKRFactors();
+//	KarpRabinFactorsSuffixes *kr_factors = index.getKRFactors();
 	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
 	
-	cout << "----- Probando Carga de Arboles\n";
-	string index_y(input, strlen(input));
-	index_y += ".index.y";
-	string index_x(input, strlen(input));
-	index_x += ".index.x";
-	HashTrie arbol_y(&karp_rabin, kr_factors);
-	arbol_y.load(index_y);
-	arbol_y.print();
-	arbol_y.prepareChilds();
+//	cout << "----- Probando Carga de Arboles\n";
+//	string index_y(input, strlen(input));
+//	index_y += ".index.y";
+//	string index_x(input, strlen(input));
+//	index_x += ".index.x";
+//	HashTrie arbol_y;
+//	arbol_y.load(&karp_rabin, kr_factors, index_y);
+//	arbol_y.print();
+//	arbol_y.prepareChilds();
 	
-	HashTrieRev arbol_x(&karp_rabin, kr_factors);
-	arbol_x.load(index_x);
-	arbol_x.print();
-	arbol_x.prepareChilds();
+//	HashTrieRev arbol_x;
+//	arbol_x.load(&karp_rabin, kr_factors, index_x);
+//	arbol_x.print();
+//	arbol_x.prepareChilds();
 	
 //	cout << "----- Query de Prueba -----\n";
 //	index.find("CATC", results);
