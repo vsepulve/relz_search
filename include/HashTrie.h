@@ -26,7 +26,6 @@ class HashTrieNode{
 public: 
 
 	// Datos descomprimidos del nodo
-//	unsigned long long hash;
 	unsigned int len;
 	unsigned int min;
 	unsigned int max;
@@ -34,9 +33,8 @@ public:
 	unsigned int min_factor_pos;
 	
 	// Estructura para los hijos
-//	map<unsigned long long, HashTrieNode> childs;
-	unordered_map<unsigned int, shared_ptr<HashTrieNode>> childs;
 	vector<unsigned int> childs_lenghts;
+	unordered_map<unsigned int, shared_ptr<HashTrieNode>> childs;
 	
 	unsigned int getMaxComp(const char *str_1, unsigned int len_1, const char *str_2, unsigned int len_2);
 	
@@ -48,6 +46,11 @@ public:
 	void print(unsigned int level);
 	
 	pair<unsigned int, unsigned int> getRange(const char *pattern, unsigned int pat_len, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors);
+	
+	void save(fstream &writer);
+	
+	void load(fstream &reader);
+	
 };
 
 class HashTrie{
@@ -60,6 +63,7 @@ private:
 public: 
 	
 	HashTrie();
+	HashTrie(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	HashTrie(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	virtual ~HashTrie();
 	
@@ -70,6 +74,10 @@ public:
 	
 	void print();
 	
+	void save(const string &file);
+	
+	void load(const string &file);
+	
 };
 
 class HashTrieRevNode{
@@ -77,7 +85,6 @@ class HashTrieRevNode{
 public: 
 
 	// Datos descomprimidos del nodo
-//	unsigned long long hash;
 	unsigned int len;
 	unsigned int min;
 	unsigned int max;
@@ -85,9 +92,8 @@ public:
 	unsigned int min_factor_pos;
 	
 	// Estructura para los hijos
-//	map<unsigned long long, HashTrieRevNode> childs;
-	unordered_map<unsigned int, shared_ptr<HashTrieRevNode>> childs;
 	vector<unsigned int> childs_lenghts;
+	unordered_map<unsigned int, shared_ptr<HashTrieRevNode>> childs;
 	
 	unsigned int getMaxComp(const char *str_1, unsigned int len_1, const char *str_2, unsigned int len_2);
 	
@@ -99,6 +105,11 @@ public:
 	void print(unsigned int level);
 	
 	pair<unsigned int, unsigned int> getRange(const char *pattern, unsigned int pat_len, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors);
+	
+	void save(fstream &writer);
+	
+	void load(fstream &reader);
+	
 };
 
 class HashTrieRev{
@@ -111,6 +122,7 @@ private:
 public: 
 	
 	HashTrieRev();
+	HashTrieRev(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	HashTrieRev(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_x, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	virtual ~HashTrieRev();
 	
@@ -120,6 +132,10 @@ public:
 	pair<unsigned int, unsigned int> getRange(const string &pattern);
 	
 	void print();
+	
+	void save(const string &file);
+	
+	void load(const string &file);
 	
 };
 
