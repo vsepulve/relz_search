@@ -70,7 +70,6 @@ private:
 public: 
 	
 	HashTrie();
-	HashTrie(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	HashTrie(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	virtual ~HashTrie();
 	
@@ -83,7 +82,7 @@ public:
 	
 	void save(const string &file);
 	
-	void load(const string &file);
+	void load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file);
 	
 	void prepareChilds();
 	
@@ -99,6 +98,10 @@ public:
 	unsigned int max;
 	// Posicion del factor de referencia en la coleccion (no en el arreglo lexicografico)
 	unsigned int min_factor_pos;
+	
+	// Por ahora agrego el texto para los hash de prefijo
+	// Notar que la idea seria acelerar esto con datos del factor y los prefijos de la referncia
+	string text;
 	
 	// Estructura para los hijos
 	vector<unsigned int> childs_lenghts;
@@ -137,7 +140,6 @@ private:
 public: 
 	
 	HashTrieRev();
-	HashTrieRev(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	HashTrieRev(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_x, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	virtual ~HashTrieRev();
 	
@@ -150,7 +152,7 @@ public:
 	
 	void save(const string &file);
 	
-	void load(const string &file);
+	void load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file);
 	
 	void prepareChilds();
 	
