@@ -313,7 +313,25 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
 	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
-	tree_y.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors);
+	// Tambien, si hay un archivo para tree_y almacenado, lo cargo en lugar de construirlo
+	bool load_y = false;
+	fstream reader(index_y, fstream::in);
+	if( reader.good() ){
+		reader.seekg(0, reader.end);
+		unsigned long long file_size = reader.tellg();
+		reader.close();
+		if( file_size > 4 ){
+			load_y = true;
+		}
+	}
+	if( load_y ){
+		cout << "FactorsIndexV3 - Loading Tree Y\n";
+		tree_y.load(karp_rabin, kr_factors, index_y);
+	}
+	else{
+		cout << "FactorsIndexV3 - Building Tree Y\n";
+		tree_y.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors);
+	}
 	cout << "FactorsIndexV3 - Tree Y finished\n";
 	tree_y.print();
 	tree_y.save(index_y);
@@ -327,17 +345,31 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 //	cout << "----\n";
 //	tree_y.getRange("DAAABARDAS");
 //	cout << "----\n";
+//	tree_y.getRange("DAAAB");
+//	cout << "----\n";
 //	tree_y.getRange("SLA");
 //	cout << "----\n";
 //	tree_y.getRange("S");
 //	cout << "----\n";
 	
 	cout << "FactorsIndexV3 - Building Tree X\n";
+	timer.reset();
 	tree_x.build(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors);
-	cout << "FactorsIndexV3 - Tree X finished\n";
+	cout << "FactorsIndexV3 - Tree X finished in (" << timer.getMilisec() << " ms)\n";
 	tree_x.print();
 	tree_x.save(index_x);
 	tree_x.prepareChilds();
+	
+//	tree_x.getRange("ABA");
+//	cout << "----\n";
+//	tree_x.getRange("ABALD");
+//	cout << "----\n";
+//	tree_x.getRange("ADRA");
+//	cout << "----\n";
+//	tree_x.getRange("S");
+//	cout << "----\n";
+//	tree_x.getRange("SA");
+//	cout << "----\n";
 	
 	cout << "FactorsIndexV3 - Trees prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
