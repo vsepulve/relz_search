@@ -65,6 +65,7 @@ unsigned long long KarpRabin::hash(const string &str){
 	}
 	return ret;
 }
+
 unsigned long long KarpRabin::hash(const char *str, unsigned long long str_len){
 	
 //	string s(str, str_len);
@@ -82,6 +83,50 @@ unsigned long long KarpRabin::hash(const char *str, unsigned long long str_len){
 	
 	return ret;
 }
+
+void KarpRabin::hashPrefixes(const string &pattern, vector<unsigned long long> &kr_vector){
+//	cout << "KarpRabin::hashPrefixes - Start (" << pattern << ", " << pattern.size() << ")\n";
+	size_t pat_len = pattern.length();
+	kr_vector.resize(pat_len);
+	unsigned long long last = 0;
+	for(unsigned int i = 0; i < pat_len; ++i){
+//		unsigned long long this_hash = (unsigned long long)(pattern[i]) % kr_mod;
+//		kr_vector[i] = concat(last, this_hash, 1);
+		kr_vector[i] = concat(last, (unsigned long long)(pattern[i]), 1);
+		last = kr_vector[i];
+	}
+	
+//	cout << "KarpRabin::hashPrefixes - Prefixes\n";
+//	for(unsigned int i = 0; i < pat_len; ++i){
+//		cout << "KarpRabin::hashPrefixes - " << pattern.substr(0, i+1) << " (" << kr_vector[i] << " / " << hash(pattern.substr(0, i+1)) << ")\n";
+//	}
+}
+
+void KarpRabin::hashPrefixesRev(const string &pattern, vector<unsigned long long> &kr_rev_vector){
+//	cout << "KarpRabin::hashPrefixesRev - Start (" << pattern << ", " << pattern.size() << ")\n";
+	size_t pat_len = pattern.length();
+	kr_rev_vector.resize(pat_len + 1);
+	unsigned long long last = 0;
+	kr_rev_vector[0] = 0;
+	for(unsigned int i = 0; i < pat_len; ++i){
+//		cout << "KarpRabin::hashPrefixesRev - Tomando pattern[" << (pat_len - 1 - i) << "]\n";
+//		cout << "KarpRabin::hashPrefixesRev - Adding " << pattern[(pat_len - 1 - i)] << "\n";
+//		kr_rev_vector[i] = concat(last, (unsigned long long)(pattern[(pat_len - 1 - i)]), 1);
+		kr_rev_vector[i+1] = concat((unsigned long long)(pattern[i]), last, i);
+		last = kr_rev_vector[i+1];
+	}
+	
+//	cout << "KarpRabin::hashPrefixesRev - Prefixes\n";
+//	for(unsigned int i = 0; i <= pat_len; ++i){
+//		string s;
+//		for(unsigned int j = 0; j < i; ++j){
+//			s += pattern[pattern.length() - 1 - j];
+//			s += pattern[i - j - 1];
+//		}
+//		cout << "KarpRabin::hashPrefixesRev - " << s << " (" << kr_rev_vector[i] << " / " << hash(s) << ")\n";
+//	}
+}
+
 
 // Evaluate the hash of the concatenation in constant time
 unsigned long long KarpRabin::concat(unsigned long long kr1, unsigned long long kr2, unsigned int len2){

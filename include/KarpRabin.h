@@ -60,6 +60,10 @@ public:
 		return table_size;
 	}
 	
+	void hashPrefixes(const string &pattern, vector<unsigned long long> &kr_vector);
+	
+	void hashPrefixesRev(const string &pattern, vector<unsigned long long> &kr_rev_vector);
+	
 };
 
 
