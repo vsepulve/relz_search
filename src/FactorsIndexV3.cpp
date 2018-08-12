@@ -11,7 +11,7 @@ FactorsIndexV3::FactorsIndexV3(){
 
 //FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *kr_frases_file, bool load_kr_frases){
 
-FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin){
+FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *index_base_file){
 	
 	len_text = _len_text;
 	ref_text = _ref_text;
@@ -305,33 +305,37 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - Testing KarpRabinFactorsSuffixes, hash: " << karp_rabin->hash(test_str, strlen(test_str)) << "\n";
 	
 	
-	
-	cout << "FactorsIndexV3 - Preparing Trees\n";
+	string index_y(index_base_file, strlen(index_base_file));
+	index_y += ".index.y";
+	string index_x(index_base_file, strlen(index_base_file));
+	index_x += ".index.x";
+	cout << "FactorsIndexV3 - Preparing Trees (files " << index_y << " and " << index_x << ")\n";
 	
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
 	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
 	tree_y.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors);
 	cout << "FactorsIndexV3 - Tree Y finished\n";
 	tree_y.print();
+	tree_y.save(index_y);
 	
-	tree_y.getRange("ALABAR");
-	cout << "----\n";
-	tree_y.getRange("ALABLLL");
-	cout << "----\n";
-	tree_y.getRange("SAL");
-	cout << "----\n";
-	tree_y.getRange("DAAABARDAS");
-	cout << "----\n";
-	tree_y.getRange("SLA");
-	cout << "----\n";
-	tree_y.getRange("S");
-	cout << "----\n";
-	
+//	tree_y.getRange("ALABAR");
+//	cout << "----\n";
+//	tree_y.getRange("ALABLLL");
+//	cout << "----\n";
+//	tree_y.getRange("SAL");
+//	cout << "----\n";
+//	tree_y.getRange("DAAABARDAS");
+//	cout << "----\n";
+//	tree_y.getRange("SLA");
+//	cout << "----\n";
+//	tree_y.getRange("S");
+//	cout << "----\n";
 	
 	cout << "FactorsIndexV3 - Building Tree X\n";
 	tree_x.build(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors);
 	cout << "FactorsIndexV3 - Tree X finished\n";
 	tree_x.print();
+	tree_x.save(index_x);
 	
 	cout << "FactorsIndexV3 - Trees prepared in " << timer.getMilisec() << "\n";
 	timer.reset();

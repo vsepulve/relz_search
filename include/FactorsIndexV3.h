@@ -102,7 +102,7 @@ private:
 public: 
 	FactorsIndexV3();
 //	FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *kr_frases_file, bool load_kr_frases = false);
-	FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin);
+	FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *index_base_file);
 	~FactorsIndexV3();
 	
 	void find(const string &pattern, vector<unsigned int> &results);
@@ -112,6 +112,10 @@ public:
 	unsigned long long querytime_p2;
 	unsigned long long querytime_p3;
 	unsigned long long querytime_p4;
+	
+	KarpRabinFactorsSuffixes *getKRFactors(){
+		return kr_factors;
+	}
 	
 };
 
