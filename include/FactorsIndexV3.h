@@ -110,7 +110,8 @@ public:
 	
 	unsigned long long querytime_p1;
 	unsigned long long querytime_p2;
-	unsigned long long querytime_p3;
+	unsigned long long querytime_p3x;
+	unsigned long long querytime_p3y;
 	unsigned long long querytime_p4;
 	
 	KarpRabinFactorsSuffixes *getKRFactors(){

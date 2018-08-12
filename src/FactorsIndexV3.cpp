@@ -371,6 +371,9 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 //	tree_x.getRange("SA");
 //	cout << "----\n";
 	
+	vector<unsigned long long> pat_vector;
+	karp_rabin->hashPrefixes("ALABARDA", pat_vector);
+	
 	cout << "FactorsIndexV3 - Trees prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -415,6 +418,53 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 	querytime_p2 += timer.getNanosec();
 	
 //	cout << "FactorsIndexV3::findTimes - Section B, ranges\n";
+	
+	vector<unsigned long long> kr_pat_vector;
+	vector<unsigned long long> kr_pat_rev_vector;
+	karp_rabin->hashPrefixes(pattern, kr_pat_vector);
+//	karp_rabin->hashPrefixesRev(pattern, kr_pat_rev_vector);
+	
+	string pattern_rev;
+	for(unsigned int i = 0; i < pattern.length(); ++i){
+		pattern_rev += pattern[pattern.length() - 1 - i];
+	}
+//	cout << "-----  pattern: " << pattern << " -----\n";
+//	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
+	
+	for(unsigned int i = 1; i < pattern.length(); ++i){
+		timer.reset();
+//		cout << "-----  tree_x.getRange -----\n";
+		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
+		querytime_p3x += timer.getNanosec();
+		timer.reset();
+//		cout << "-----  tree_y.getRange -----\n";
+		pair<unsigned int, unsigned int> r2 = tree_y.getRange(kr_pat_vector, i, pattern);
+		querytime_p3y += timer.getNanosec();
+		timer.reset();
+//		cout << "-----\n";
+		
+		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
+			|| r2.second == (unsigned int)(-1) || r2.second < r2.first ){
+//			cout << "FactorsIndexV3::findTimes - Invalid ranges, omitting...\n";
+			continue;
+		}
+		
+//		cout << "FactorsIndexV3::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
+		for (auto point : res.second){
+			unsigned int f = perm_y[point.second];
+			unsigned int cur_perm = perm_inv[f];
+			unsigned int pu = select1_b(perm[cur_perm] + 1);
+			results.push_back(pu - i);
+		}
+		
+		querytime_p4 += timer.getNanosec();
+	}
+	
+	
+	
+	/*
+	// Original Version
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
 		string p1 = pattern.substr(0, i);
@@ -445,6 +495,9 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 		
 		querytime_p4 += timer.getNanosec();
 	}
+	*/
+	
+	
 //	cout << "FactorsIndexV3::findTimes - End\n";
 	
 }
