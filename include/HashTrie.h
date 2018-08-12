@@ -10,6 +10,7 @@
 #include <sstream>
 #include <fstream>
 
+#include <algorithm>
 #include <vector>
 #include <unordered_map>
 #include <map>
@@ -34,7 +35,11 @@ public:
 	
 	// Estructura para los hijos
 	vector<unsigned int> childs_lenghts;
-	unordered_map<unsigned int, shared_ptr<HashTrieNode>> childs;
+	unordered_map<unsigned long long, shared_ptr<HashTrieNode>> childs;
+	
+	// Estructra secundadaria para los hijos
+	// Arreglo de hijos ordenados por largo del texto para acelerar la busqueda
+	vector<pair<unsigned int, vector<shared_ptr<HashTrieNode>>>> childs_pairs;
 	
 	unsigned int getMaxComp(const char *str_1, unsigned int len_1, const char *str_2, unsigned int len_2);
 	
@@ -50,6 +55,8 @@ public:
 	void save(fstream &writer);
 	
 	void load(fstream &reader);
+	
+	void prepareChilds();
 	
 };
 
@@ -78,6 +85,8 @@ public:
 	
 	void load(const string &file);
 	
+	void prepareChilds();
+	
 };
 
 class HashTrieRevNode{
@@ -93,7 +102,11 @@ public:
 	
 	// Estructura para los hijos
 	vector<unsigned int> childs_lenghts;
-	unordered_map<unsigned int, shared_ptr<HashTrieRevNode>> childs;
+	unordered_map<unsigned long long, shared_ptr<HashTrieRevNode>> childs;
+	
+	// Estructra secundadaria para los hijos
+	// Arreglo de hijos ordenados por largo del texto para acelerar la busqueda
+	vector<pair<unsigned int, vector<shared_ptr<HashTrieRevNode>>>> childs_pairs;
 	
 	unsigned int getMaxComp(const char *str_1, unsigned int len_1, const char *str_2, unsigned int len_2);
 	
@@ -109,6 +122,8 @@ public:
 	void save(fstream &writer);
 	
 	void load(fstream &reader);
+	
+	void prepareChilds();
 	
 };
 
@@ -136,6 +151,8 @@ public:
 	void save(const string &file);
 	
 	void load(const string &file);
+	
+	void prepareChilds();
 	
 };
 

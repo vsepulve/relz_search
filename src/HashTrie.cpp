@@ -307,6 +307,67 @@ void HashTrie::load(const string &file){
 	reader.close();
 	cout << "HashTrie::load - End\n";
 }
+
+void HashTrieNode::prepareChilds(){
+//	cout << "HashTrieNode::prepareChilds - Start\n";
+//	root.prepareChilds();
+//	unordered_map<unsigned int, shared_ptr<HashTrieNode>> childs;
+//	vector< pair<unsigned int, vector<shared_ptr<HashTrieNode>>> > childs_pairs;
+	childs_pairs.clear();
+	map< unsigned int, vector<shared_ptr<HashTrieNode>> > childs_map;
+	for( auto it_child : childs ){
+		shared_ptr<HashTrieNode> ptr = it_child.second;
+		unsigned int len = ptr->len;
+		auto it_map = childs_map.find(len);
+		if( it_map == childs_map.end() ){
+			vector<shared_ptr<HashTrieNode>> childs_vector;
+			childs_vector.push_back(ptr);
+			childs_map[len] = childs_vector;
+		}
+		else{
+			it_map->second.push_back(ptr);
+		}
+	}
+	for( auto it_map : childs_map ){
+		unsigned int len = it_map.first;
+		vector<shared_ptr<HashTrieNode>> childs_vector = it_map.second;
+		childs_pairs.push_back(
+			pair<unsigned int, vector<shared_ptr<HashTrieNode>>>(
+				len, childs_vector
+			)
+		);
+	}
+//	cout << "HashTrieNode::prepareChilds - Sorting pairs\n";
+	sort(childs_pairs.begin(), childs_pairs.end());
+	
+	// Verificacion
+	if( childs_pairs.size() != childs_lenghts.size() ){
+		cout << "HashTrieNode::prepareChilds - Error in childs_pairs size\n";
+	}
+	for(unsigned int i = 0; i < childs_pairs.size(); ++i){
+		if( childs_pairs[i].first != childs_lenghts[i] ){
+			cout << "HashTrieNode::prepareChilds - Error in childs_pairs (pos " << i << ", " << childs_pairs[i].first << " != " << childs_lenghts[i] << ")\n";
+		}
+	}
+	
+//	cout << "HashTrieNode::prepareChilds - Resulting pairs:\n";
+//	for( auto it_pair : childs_pairs ){
+//		cout << "HashTrieNode::prepareChilds - (len: " << it_pair.first << ", n_childs: " << it_pair.second.size() << ")\n";
+//	}
+	
+//	cout << "HashTrieNode::prepareChilds - Continuing with " << childs.size() << " childs\n";
+	for( auto it_child : childs ){
+		it_child.second->prepareChilds();
+	}
+	
+//	cout << "HashTrieNode::prepareChilds - End\n";
+}
+
+void HashTrie::prepareChilds(){
+	cout << "HashTrie::prepareChilds - Start\n";
+	root.prepareChilds();
+	cout << "HashTrie::prepareChilds - End\n";
+}
 	
 // VERSIONES REV
 
@@ -642,6 +703,67 @@ void HashTrieRev::load(const string &file){
 	root.load(reader);
 	reader.close();
 	cout << "HashTrieRev::load - End\n";
+}
+
+void HashTrieRevNode::prepareChilds(){
+//	cout << "HashTrieRevNode::prepareChilds - Start\n";
+//	root.prepareChilds();
+//	unordered_map<unsigned int, shared_ptr<HashTrieRevNode>> childs;
+//	vector< pair<unsigned int, vector<shared_ptr<HashTrieRevNode>>> > childs_pairs;
+	childs_pairs.clear();
+	map< unsigned int, vector<shared_ptr<HashTrieRevNode>> > childs_map;
+	for( auto it_child : childs ){
+		shared_ptr<HashTrieRevNode> ptr = it_child.second;
+		unsigned int len = ptr->len;
+		auto it_map = childs_map.find(len);
+		if( it_map == childs_map.end() ){
+			vector<shared_ptr<HashTrieRevNode>> childs_vector;
+			childs_vector.push_back(ptr);
+			childs_map[len] = childs_vector;
+		}
+		else{
+			it_map->second.push_back(ptr);
+		}
+	}
+	for( auto it_map : childs_map ){
+		unsigned int len = it_map.first;
+		vector<shared_ptr<HashTrieRevNode>> childs_vector = it_map.second;
+		childs_pairs.push_back(
+			pair<unsigned int, vector<shared_ptr<HashTrieRevNode>>>(
+				len, childs_vector
+			)
+		);
+	}
+//	cout << "HashTrieRevNode::prepareChilds - Sorting pairs\n";
+	sort(childs_pairs.begin(), childs_pairs.end());
+	
+	// Verificacion
+	if( childs_pairs.size() != childs_lenghts.size() ){
+		cout << "HashTrieRevNode::prepareChilds - Error in childs_pairs size\n";
+	}
+	for(unsigned int i = 0; i < childs_pairs.size(); ++i){
+		if( childs_pairs[i].first != childs_lenghts[i] ){
+			cout << "HashTrieRevNode::prepareChilds - Error in childs_pairs (pos " << i << ", " << childs_pairs[i].first << " != " << childs_lenghts[i] << ")\n";
+		}
+	}
+	
+//	cout << "HashTrieRevNode::prepareChilds - Resulting pairs:\n";
+//	for( auto it_pair : childs_pairs ){
+//		cout << "HashTrieRevNode::prepareChilds - (len: " << it_pair.first << ", n_childs: " << it_pair.second.size() << ")\n";
+//	}
+	
+//	cout << "HashTrieRevNode::prepareChilds - Continuing with " << childs.size() << " childs\n";
+	for( auto it_child : childs ){
+		it_child.second->prepareChilds();
+	}
+	
+//	cout << "HashTrieRevNode::prepareChilds - End\n";
+}
+
+void HashTrieRev::prepareChilds(){
+	cout << "HashTrieRev::prepareChilds - Start\n";
+	root.prepareChilds();
+	cout << "HashTrieRev::prepareChilds - End\n";
 }
 
 
