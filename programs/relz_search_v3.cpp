@@ -24,14 +24,13 @@
 #include "FactorsIndexV3.h"
 #include "FactorsIterator.h"
 #include "FactorsIteratorComparator.h"
+#include "HashTrie.h"
 
 using namespace sdsl;
 using namespace std;
 
 int main(int argc, char* argv[]){
 
-//	if(argc != 7){
-//		cout<<"\nModo de Uso: relz_search serialized_ref sequence_file output_relz queries_file kr_frases_file load_kr_frases\n";
 	if(argc != 5){
 		cout<<"\nModo de Uso: relz_search serialized_ref sequence_file output_relz queries_file\n";
 		return 0;
@@ -73,9 +72,21 @@ int main(int argc, char* argv[]){
 	unsigned int mod = 15485863;
 	KarpRabin karp_rabin(bits, mod);
 	vector<unsigned int> results;
-//	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin, kr_frases_file, load_kr_frases);
-	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin);
+	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin, input);
+	KarpRabinFactorsSuffixes *kr_factors = index.getKRFactors();
 	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
+	
+	cout << "----- Probando Carga de Arboles\n";
+	string index_y(input, strlen(input));
+	index_y += ".index.y";
+	string index_x(input, strlen(input));
+	index_x += ".index.x";
+	HashTrie arbol_y(&karp_rabin, kr_factors);
+	arbol_y.load(index_y);
+	arbol_y.print();
+	HashTrieRev arbol_x(&karp_rabin, kr_factors);
+	arbol_x.load(index_x);
+	arbol_x.print();
 	
 //	cout << "----- Query de Prueba -----\n";
 //	index.find("CATC", results);
