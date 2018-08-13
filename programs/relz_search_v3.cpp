@@ -121,6 +121,8 @@ int main(int argc, char* argv[]){
 	index.querytime_p3x = 0;
 	index.querytime_p3y = 0;
 	index.querytime_p4 = 0;
+	index.tree_y.hash_nano = 0;
+	index.kr_factors->kr_nano = 0;
 	for( string query : queries ){
 //		cout << "----- Query \"" << query << "\" -----\n";
 		index.findTimes(query, results);
@@ -138,6 +140,8 @@ int main(int argc, char* argv[]){
 	cout << "Nanosec wt: " << index.querytime_p4 << " (" << ((long double)index.querytime_p4/total_nano)*100 << " \%)\n";
 	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
 	
+	cout << "Nanosec Treey.hash: " << index.tree_y.hash_nano << "\n";
+	cout << "Nanosec Treey.hash: " << index.kr_factors->kr_nano << "\n";
 	
 	delete reference;
 
