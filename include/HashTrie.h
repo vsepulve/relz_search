@@ -35,7 +35,6 @@ public:
 	unsigned int min_factor_pos;
 	
 	// Estructura para los hijos
-	vector<unsigned int> childs_lenghts;
 	// unordered_map<unsigned long long, shared_ptr<HashTrieNode>> childs;
 	map<unsigned long long, shared_ptr<HashTrieNode>> childs;
 	
@@ -112,7 +111,6 @@ public:
 	string text;
 	
 	// Estructura para los hijos
-	vector<unsigned int> childs_lenghts;
 	unordered_map<unsigned long long, shared_ptr<HashTrieRevNode>> childs;
 	
 	// Estructra secundadaria para los hijos
