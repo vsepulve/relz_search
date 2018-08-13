@@ -66,7 +66,7 @@ private:
 	
 	// Cache de rangos precalculados
 	// Solo valido para alfabeto limitado (adn)
-	static const unsigned int max_pre_ranges = 8;
+	static const unsigned int max_pre_ranges = 0;
 	unordered_map<unsigned long long, pair<unsigned int, unsigned int>> pre_ranges_x;
 	unordered_map<unsigned long long, pair<unsigned int, unsigned int>> pre_ranges_y;
 	KarpRabin *karp_rabin;
