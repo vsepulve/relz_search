@@ -17,6 +17,7 @@
 #include <set>
 #include <memory>
 
+#include "NanoTimer.h"
 #include "KarpRabin.h"
 #include "KarpRabinFactorsSuffixes.h"
 
@@ -35,7 +36,8 @@ public:
 	
 	// Estructura para los hijos
 	vector<unsigned int> childs_lenghts;
-	unordered_map<unsigned long long, shared_ptr<HashTrieNode>> childs;
+	// unordered_map<unsigned long long, shared_ptr<HashTrieNode>> childs;
+	map<unsigned long long, shared_ptr<HashTrieNode>> childs;
 	
 	// Estructra secundadaria para los hijos
 	// Arreglo de hijos ordenados por largo del texto para acelerar la busqueda
@@ -52,7 +54,7 @@ public:
 	
 	pair<unsigned int, unsigned int> getRange(const char *pattern, unsigned int pat_len, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors);
 	
-	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, const string &pattern);
+	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, const string &pattern, unsigned long long *hash_nano);
 	
 	void save(fstream &writer);
 	
@@ -89,6 +91,8 @@ public:
 	void load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file);
 	
 	void prepareChilds();
+	
+	unsigned long long hash_nano;
 	
 };
 
