@@ -14,6 +14,7 @@
 
 #include <sdsl/inv_perm_support.hpp>
 
+#include "NanoTimer.h"
 #include "KarpRabin.h"
 
 using namespace std;
@@ -59,6 +60,8 @@ public:
 	// REturns the hash from the start of factor_ini (positional) of length length
 	// Fast version, only valid for offset and length < karp_rabin->getTableSize()
 	unsigned long long hashFast(unsigned int factor_ini, unsigned int length);
+	
+	unsigned long long kr_nano;
 	
 };
 

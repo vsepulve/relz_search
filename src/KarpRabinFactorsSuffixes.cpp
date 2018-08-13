@@ -98,7 +98,11 @@ unsigned long long KarpRabinFactorsSuffixes::hashFast(unsigned int factor_ini, u
 //	cout << "KarpRabinFactorsSuffixes::hashFast - kr1: " << kr1 << ", cur_len: " << cur_len << "\n";
 	// Calcular el hash de los (length - cur_len) primeros caracteres del factor actual
 	// Notar que lo que sigue se puede extraer er KarpRabinReference (desde tu, de largo length - cur_len)
+	
+	NanoTimer timer;
 	unsigned long long kr2 = karp_rabin->hash(ref_text + tu, length - cur_len);
+	kr_nano += timer.getNanosec();
+	
 //	cout << "KarpRabinFactorsSuffixes::hashFast - kr2: " << kr2 << ", len: " << length - cur_len << "\n";
 	unsigned long long kr12 = karp_rabin->concat(kr1, kr2, length - cur_len);
 //	cout << "KarpRabinFactorsSuffixes::hashFast - End (kr12: " << kr12 << ")\n";
