@@ -311,6 +311,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	index_x += ".index.x";
 	cout << "FactorsIndexV3 - Preparing Trees (files " << index_y << " and " << index_x << ")\n";
 	
+	timer.reset();
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
 	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
 	// Tambien, si hay un archivo para tree_y almacenado, lo cargo en lugar de construirlo
@@ -324,6 +325,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 			load_y = true;
 		}
 	}
+	load_y = false;
 	if( load_y ){
 		cout << "FactorsIndexV3 - Loading Tree Y\n";
 		tree_y.load(karp_rabin, kr_factors, index_y);
@@ -333,8 +335,8 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		tree_y.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors);
 		tree_y.save(index_y);
 	}
-	cout << "FactorsIndexV3 - Tree Y finished\n";
-//	tree_y.print();
+	cout << "FactorsIndexV3 - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
+	tree_y.print();
 	tree_y.prepareChilds();
 	
 //	tree_y.getRange("ALABAR");
@@ -357,7 +359,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	tree_x.build(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors);
 	cout << "FactorsIndexV3 - Tree X finished in (" << timer.getMilisec() << " ms)\n";
 //	tree_x.print();
-//	tree_x.save(index_x);
+	tree_x.save(index_x);
 	tree_x.prepareChilds();
 	
 //	tree_x.getRange("ABA");
