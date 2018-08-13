@@ -155,14 +155,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	}
 	inv_perm_support<> _perm_x(&pre_x_inv);
 	perm_x = _perm_x;
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-		char c = 0;
-		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-			cout << c;
-		cout << "\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+//		char c = 0;
+//		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+//			cout << c;
+//		cout << "\n";
+//	}
+//	cout << "-----\n";
 	
 	cout << "FactorsIndexV3 - Preparing arr Y\n";
 	vector<unsigned int> arr_y(n_factors);
@@ -184,14 +184,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	inv_perm_support<> _perm_y_inv(&pre_y);
 	perm_y = _perm_y;
 	perm_y_inv = _perm_y_inv;
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
-		char c = 0;
-		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
-			cout << c;
-		cout << " (" << (len_text - factors_start[perm_y[i]]) << ")\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
+//		char c = 0;
+//		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
+//			cout << c;
+//		cout << " (" << (len_text - factors_start[perm_y[i]]) << ")\n";
+//	}
+//	cout << "-----\n";
 	cout << "FactorsIndexV3 - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -273,10 +273,10 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - KarpRobin prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-	cout << "FactorsIndexV3 - Testing KarpRabinFactorsSuffixes\n";
-	cout << "FactorsIndexV3 - Hash(BAB): " << karp_rabin->hash("BAB") << "\n";
-	cout << "FactorsIndexV3 - Hash(BABALASLA): " << karp_rabin->hash("BABALASLA") << "\n";
-	cout << "FactorsIndexV3 - Hash(BABALASLALAB): " << karp_rabin->hash("BABALASLALAB") << "\n";
+//	cout << "FactorsIndexV3 - Testing KarpRabinFactorsSuffixes\n";
+//	cout << "FactorsIndexV3 - Hash(BAB): " << karp_rabin->hash("BAB") << "\n";
+//	cout << "FactorsIndexV3 - Hash(BABALASLA): " << karp_rabin->hash("BABALASLA") << "\n";
+//	cout << "FactorsIndexV3 - Hash(BABALASLALAB): " << karp_rabin->hash("BABALASLALAB") << "\n";
 	
 //	cout << "FactorsIndexV3 - Hash(A): " << karp_rabin->hash("A") << "\n";
 //	cout << "FactorsIndexV3 - Hash(AL): " << karp_rabin->hash("AL") << "\n";
@@ -331,10 +331,10 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	else{
 		cout << "FactorsIndexV3 - Building Tree Y\n";
 		tree_y.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors);
+		tree_y.save(index_y);
 	}
 	cout << "FactorsIndexV3 - Tree Y finished\n";
-	tree_y.print();
-	tree_y.save(index_y);
+//	tree_y.print();
 	tree_y.prepareChilds();
 	
 //	tree_y.getRange("ALABAR");
@@ -356,8 +356,8 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	timer.reset();
 	tree_x.build(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors);
 	cout << "FactorsIndexV3 - Tree X finished in (" << timer.getMilisec() << " ms)\n";
-	tree_x.print();
-	tree_x.save(index_x);
+//	tree_x.print();
+//	tree_x.save(index_x);
 	tree_x.prepareChilds();
 	
 //	tree_x.getRange("ABA");

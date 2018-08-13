@@ -65,13 +65,6 @@ private:
 	vector<unsigned int> arr_pu;
 	vector<unsigned int> arr_lu;
 	
-	KarpRabin *karp_rabin;
-	vector<unsigned long long> arr_kr_ref;
-	vector<unsigned long long> arr_kr_s;
-	HashTrie tree_y;
-	HashTrieRev tree_x;
-	KarpRabinFactorsSuffixes *kr_factors;
-	
 	// Solo para pruebas
 	bit_vector arr_s;
 	bit_vector arr_b;
@@ -117,6 +110,13 @@ public:
 	KarpRabinFactorsSuffixes *getKRFactors(){
 		return kr_factors;
 	}
+	
+	KarpRabin *karp_rabin;
+	vector<unsigned long long> arr_kr_ref;
+	vector<unsigned long long> arr_kr_s;
+	HashTrie tree_y;
+	HashTrieRev tree_x;
+	KarpRabinFactorsSuffixes *kr_factors;
 	
 };
 
