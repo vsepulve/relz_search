@@ -45,7 +45,8 @@ void CoderBlocksRelz::codeBlock(const char *text, unsigned int text_size, fstrea
 //		referencia->find(text + compressed_text, (text_size<100)?text_size:100, pos_prefijo, largo_prefijo);
 		
 		if(largo_prefijo == 0){
-			cout<<"CoderBlocksRelz::codeBlock - Error - Prefijo de largo 0, saliendo\n";
+			string s(text + compressed_text, 10);
+			cout<<"CoderBlocksRelz::codeBlock - Error - Prefijo de largo 0, saliendo (\"" << s << "\")\n";
 			return;
 		}
 		text_size -= largo_prefijo;
