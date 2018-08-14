@@ -191,7 +191,7 @@ unsigned int TextFilter::readReferenceFull(const char *in_file, char *text){
 		total_read += lectura;
 		for(unsigned int j = 0; j < lectura; ++j){
 			char c = toupper(buff[j]);
-			if( (c >= 'A' && c <= 'T') || (c >= '0' && c <= '9') ){
+			if( (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ){
 				text[text_length++] = c;
 			}
 		}
