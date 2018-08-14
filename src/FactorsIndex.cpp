@@ -226,56 +226,6 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 		arr_lu.push_back(lu);
 	}
 	
-	// Rangos precalculados de tamaño fijo
-	// Solo valido para alfabeto limitado;
-	cout << "FactorsIndex - Preparing precomputed ranges\n";
-	karp_rabin = new KarpRabin(8, 15485863);
-	vector<char> alphabet;
-	alphabet.push_back('A');
-	alphabet.push_back('C');
-	alphabet.push_back('G');
-	alphabet.push_back('T');
-	for(unsigned int len = 1; len <= max_pre_ranges; ++len){
-		
-		unsigned int n_patterns = 1;
-		for(unsigned int i = 0; i < len; ++i){
-			n_patterns *= alphabet.size();
-		}
-		cout << "FactorsIndex - Preparing " << n_patterns << " patterns of length " << len << "\n";
-		
-		vector<string> patterns(n_patterns);
-		unsigned int n_repeats = 1;
-		for(unsigned int i = 0; i < len; ++i){
-			unsigned int pos = 0;
-			unsigned int p_r = 0;
-			for(unsigned int j = 0; j < n_patterns; ++j){
-//				cout << "FactorsIndex - patterns[" << j << "] += " << alphabet[p_r] << "\n";
-				patterns[j] += alphabet[p_r];
-				if( ++pos == n_repeats ){
-					++p_r;
-					if( p_r == alphabet.size() ){
-						p_r = 0;
-					}
-					pos = 0;
-				}
-			}
-			n_repeats *= alphabet.size();
-		}
-		pair<unsigned int, unsigned int> par;
-		unsigned long long hash;
-		for(unsigned int j = 0; j < n_patterns; ++j){
-//			cout << "FactorsIndex - patterns[" << j << "]: " << patterns[j] << "\n";
-			hash = karp_rabin->hash(patterns[j]);
-			par = getRangeX(patterns[j].c_str());
-			pre_ranges_x[hash] = par;
-			par = getRangeY(patterns[j].c_str());
-			pre_ranges_y[hash] = par;
-		}
-		
-		cout << "-----\n";
-	}
-	
-	
 	cout << "FactorsIndex - End\n";
 	
 }
@@ -328,8 +278,8 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 			p1_rev += p1[ p1.length() - 1 - k ];
 		}
 		string p2 = pattern.substr(i, pattern.length() - i);
-		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str(), true);
-		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str(), true);
+		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
+		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
 		querytime_p3 += timer.getNanosec();
 		timer.reset();
 		
@@ -394,9 +344,9 @@ void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
 //		cout << "FactorsIndex::find - p1_rev: \"" << p1_rev << "\"\n";
 		string p2 = pattern.substr(i, pattern.length() - i);
 //		cout << "FactorsIndex::find - p2: \"" << p2 << "\"\n";
-		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str(), true);
+		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
 //		cout << "FactorsIndex::find - r1 ok\n";
-		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str(), true);
+		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
 //		cout << "FactorsIndex::find - r2 ok\n";
 		
 		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
@@ -452,7 +402,7 @@ void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned in
 	}
 }
 
-char FactorsIndex::getChar(unsigned int factor, unsigned int pos){
+char FactorsIndex::getChar(unsigned int factor, unsigned int pos, unsigned int max_len){
 	
 	// Iterators cache
 	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
@@ -462,6 +412,7 @@ char FactorsIndex::getChar(unsigned int factor, unsigned int pos){
 	if( pos >= it.length() ){
 		return 0;
 	}
+	it.setMaxLength(max_len);
 	if( it.position() > pos ){
 		it.reset();
 	}
@@ -473,7 +424,7 @@ char FactorsIndex::getChar(unsigned int factor, unsigned int pos){
 	return c;
 }
 
-char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos){
+char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos, unsigned int max_len){
 	
 	if( factor == (unsigned int)(-1) ){
 		return 0;
@@ -487,6 +438,7 @@ char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos){
 	if( pos >= it.length() ){
 		return 0;
 	}
+	it.setMaxLength(max_len);
 	if( it.position() > pos ){
 		it.reset();
 	}
@@ -499,31 +451,12 @@ char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos){
 
 // Notar que, a diferencia de la busqueda en referencia, esta debe ser completa
 // Es decir, solo importa el rango que contiene al patron completo
-pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern, bool use_hash){
+pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 	
 	unsigned int pat_len = strlen(pattern);
 	unsigned int izq = 0;
 	unsigned int der = n_factors-1;
 	unsigned int cur_pos = 0;
-	
-	if( use_hash ){
-		unsigned int hash_len = 0;
-		if( pat_len < max_pre_ranges ){
-			hash_len = pat_len;
-		}
-		else{
-			hash_len = max_pre_ranges;
-		}
-		unsigned long long hash = karp_rabin->hash(pattern, hash_len);
-		auto it = pre_ranges_y.find(hash);
-		if( it != pre_ranges_y.end() ){
-			cur_pos = hash_len;
-			pair<unsigned int, unsigned int> par = it->second;
-			izq = par.first;
-			der = par.second;
-//			cout << "FactorsIndex::getRangeY - Usando rango precalculado: [" << izq << ", " << der << "], cur_pos: " << cur_pos << "\n";
-		}
-	}
 	
 //	cout << "getRangeY - Inicio (pat_len: " << pat_len << ", izq: " << izq << ", der: " << der << ")\n";
 	
@@ -542,7 +475,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern, bo
 		while(l < h){
 			m = l + ((h-l)>>1);
 			fm = perm_y[m];
-			c = getChar(fm, cur_pos);
+			c = getChar(fm, cur_pos, pat_len-cur_pos);
 			text_len = mapa_iterators[fm].length();
 //			cout << "getRangeY - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
 			if( cur_pos > text_len || (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
@@ -556,7 +489,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern, bo
 		}
 		izq = h;
 		fm = perm_y[izq];
-		c = getChar(fm, cur_pos);
+		c = getChar(fm, cur_pos, pat_len-cur_pos);
 		text_len = mapa_iterators[fm].length();
 		if( (cur_pos < text_len) && (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
 			++izq;
@@ -599,30 +532,12 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern, bo
 	return pair<unsigned int, unsigned int>(izq, der);
 }
 
-pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern, bool use_hash){
+pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 	
 	unsigned int pat_len = strlen(pattern);
 	unsigned int izq = 0;
 	unsigned int der = n_factors-1;
 	unsigned int cur_pos = 0;
-	
-	if( use_hash ){
-		unsigned int hash_len = 0;
-		if( pat_len < max_pre_ranges ){
-			hash_len = pat_len;
-		}
-		else{
-			hash_len = max_pre_ranges;
-		}
-		unsigned long long hash = karp_rabin->hash(pattern, hash_len);
-		auto it = pre_ranges_x.find(hash);
-		if( it != pre_ranges_x.end() ){
-			cur_pos = hash_len;
-			pair<unsigned int, unsigned int> par = it->second;
-			izq = par.first;
-			der = par.second;
-		}
-	}
 	
 //	cout << "getRangeX - Inicio (pat_len: " << pat_len << ", izq: " << izq << ", der: " << der << ")\n";
 	
@@ -643,7 +558,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern, bo
 //			cout << "getRangeX - l: perm_x[" << m << "]...\n";
 			fm = perm_x[m];
 //			cout << "getRangeX - l: getCharRev(" << (fm-1) << ", " << cur_pos << ")\n";
-			c = getCharRev(fm-1, cur_pos);
+			c = getCharRev(fm-1, cur_pos, pat_len-cur_pos);
 			text_len = mapa_iterators_rev[fm-1].length();
 //			cout << "getRangeX - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
 			if( cur_pos > text_len || (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
@@ -658,7 +573,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern, bo
 //		cout << "getRangeX - end h: " << h << "\n";
 		izq = h;
 		fm = perm_x[izq];
-		c = getCharRev(fm-1, cur_pos);
+		c = getCharRev(fm-1, cur_pos, pat_len-cur_pos);
 		text_len = mapa_iterators_rev[fm-1].length();
 		if( (cur_pos < text_len) && (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
 			++izq;

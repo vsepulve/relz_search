@@ -20,7 +20,6 @@
 #include "FactorsIteratorComparator.h"
 #include "FactorsFastIteratorComparator.h"
 #include "NanoTimer.h"
-#include "KarpRabin.h"
 
 using namespace sdsl;
 using namespace std;
@@ -68,13 +67,6 @@ private:
 	vector<unsigned int> arr_pu;
 	vector<unsigned int> arr_lu;
 	
-	// Cache de rangos precalculados
-	// Solo valido para alfabeto limitado (adn)
-	static const unsigned int max_pre_ranges = 0;
-	unordered_map<unsigned long long, pair<unsigned int, unsigned int>> pre_ranges_x;
-	unordered_map<unsigned long long, pair<unsigned int, unsigned int>> pre_ranges_y;
-	KarpRabin *karp_rabin;
-	
 	// Solo para pruebas
 	bit_vector arr_s;
 	bit_vector arr_b;
@@ -93,13 +85,13 @@ private:
 	// Falta la estructura para agregar efectivamente los resultados, quiza un vector de posiciones
 	void recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results);
 	
-	char getChar(unsigned int factor, unsigned int pos);
+	char getChar(unsigned int factor, unsigned int pos, unsigned int max_len = 100);
 	
-	char getCharRev(unsigned int factor, unsigned int pos);
+	char getCharRev(unsigned int factor, unsigned int pos, unsigned int max_len = 100);
 			
-	pair<unsigned int, unsigned int> getRangeY(const char *pattern, bool use_hash = false);
+	pair<unsigned int, unsigned int> getRangeY(const char *pattern);
 			
-	pair<unsigned int, unsigned int> getRangeX(const char *pattern, bool use_hash = false);
+	pair<unsigned int, unsigned int> getRangeX(const char *pattern);
 	
 	
 public: 
