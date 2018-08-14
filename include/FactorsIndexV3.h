@@ -22,6 +22,7 @@
 #include "BitsUtils.h"
 #include "KarpRabin.h"
 #include "HashTrie.h"
+#include "HashTrieChar.h"
 #include "KarpRabinFactorsSuffixes.h"
 
 using namespace sdsl;
@@ -118,10 +119,23 @@ public:
 	KarpRabin *karp_rabin;
 	vector<unsigned long long> arr_kr_ref;
 	vector<unsigned long long> arr_kr_s;
-	HashTrie tree_y;
-	HashTrieRev tree_x;
+/*	HashTrie tree_y;*/
+/*	HashTrieRev tree_x;*/
+	HashTrieChar tree_y;
+	HashTrieCharRev tree_x;
 	KarpRabinFactorsSuffixes *kr_factors;
 	
+	
+	
+	
+	
+	
 };
+
+
+
+
+
+
 
 #endif //_FACTORS_INDEX_H

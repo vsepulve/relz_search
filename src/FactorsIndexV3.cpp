@@ -338,23 +338,8 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		tree_y.save(index_y);
 	}
 	cout << "FactorsIndexV3 - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
-	tree_y.print();
-	tree_y.prepareChilds();
-	
-//	tree_y.getRange("ALABAR");
-//	cout << "----\n";
-//	tree_y.getRange("ALABLLL");
-//	cout << "----\n";
-//	tree_y.getRange("SAL");
-//	cout << "----\n";
-//	tree_y.getRange("DAAABARDAS");
-//	cout << "----\n";
-//	tree_y.getRange("DAAAB");
-//	cout << "----\n";
-//	tree_y.getRange("SLA");
-//	cout << "----\n";
-//	tree_y.getRange("S");
-//	cout << "----\n";
+//	tree_y.print();
+//	tree_y.prepareChilds();
 	
 	cout << "FactorsIndexV3 - Building Tree X\n";
 	timer.reset();
@@ -362,18 +347,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - Tree X finished in (" << timer.getMilisec() << " ms)\n";
 //	tree_x.print();
 	tree_x.save(index_x);
-	tree_x.prepareChilds();
-	
-//	tree_x.getRange("ABA");
-//	cout << "----\n";
-//	tree_x.getRange("ABALD");
-//	cout << "----\n";
-//	tree_x.getRange("ADRA");
-//	cout << "----\n";
-//	tree_x.getRange("S");
-//	cout << "----\n";
-//	tree_x.getRange("SA");
-//	cout << "----\n";
+//	tree_x.prepareChilds();
 	
 	vector<unsigned long long> pat_vector;
 	karp_rabin->hashPrefixes("ALABARDA", pat_vector);
@@ -426,7 +400,7 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 	vector<unsigned long long> kr_pat_vector;
 	vector<unsigned long long> kr_pat_rev_vector;
 	karp_rabin->hashPrefixes(pattern, kr_pat_vector);
-//	karp_rabin->hashPrefixesRev(pattern, kr_pat_rev_vector);
+	karp_rabin->hashPrefixesRev(pattern, kr_pat_rev_vector);
 	
 	string pattern_rev;
 	for(unsigned int i = 0; i < pattern.length(); ++i){
@@ -437,19 +411,24 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 	
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
+		
 //		cout << "-----  tree_x.getRange -----\n";
 		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
 		querytime_p3x += timer.getNanosec();
 		timer.reset();
+		
+		if( r1.second == (unsigned int)(-1) || r1.second == (unsigned int)(-1) ){
+			continue;
+		}
+		
 //		cout << "-----  tree_y.getRange -----\n";
 		pair<unsigned int, unsigned int> r2 = tree_y.getRange(kr_pat_vector, i, pattern);
 		querytime_p3y += timer.getNanosec();
 		timer.reset();
+		
 //		cout << "-----\n";
 		
-		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
-			|| r2.second == (unsigned int)(-1) || r2.second < r2.first ){
-//			cout << "FactorsIndexV3::findTimes - Invalid ranges, omitting...\n";
+		if( r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 			continue;
 		}
 		
