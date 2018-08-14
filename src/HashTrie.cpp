@@ -334,6 +334,7 @@ void HashTrieNode::save(fstream &writer){
 
 void HashTrieNode::load(fstream &reader){
 	
+	/*
 	reader.read((char*)&len, sizeof(int));
 	reader.read((char*)&min, sizeof(int));
 	reader.read((char*)&max, sizeof(int));
@@ -344,6 +345,34 @@ void HashTrieNode::load(fstream &reader){
 	for(unsigned int i = 0; i < n_childs; ++i){
 		unsigned int hash = 0;
 		reader.read((char*)&hash, sizeof(int));
+		childs[hash] = std::make_shared<HashTrieNode>();
+		childs[hash]->load(reader);
+	}
+	*/
+	
+	// Version antigua
+//	cout << "HashTrieNode::load - Original Version\n";
+	reader.read((char*)&len, sizeof(int));
+	reader.read((char*)&min, sizeof(int));
+	reader.read((char*)&max, sizeof(int));
+	reader.read((char*)&min_factor_pos, sizeof(int));
+//	cout << "HashTrieNode::load - len: " << len << ", [" << min << ", " << max << "], min_factor_pos: " << min_factor_pos << "\n";
+	
+	unsigned int n_lens = 0;
+	reader.read((char*)&n_lens, sizeof(int));
+//	cout << "HashTrieNode::load - Omitiendo " << n_lens << " childs_lenghts\n";
+	for(unsigned int i = 0; i < n_lens; ++i){
+		unsigned int len = 0;
+		reader.read((char*)&len, sizeof(int));
+//		childs_lenghts.push_back(len);
+	}
+	
+	unsigned int n_childs = 0;
+	reader.read((char*)&n_childs, sizeof(int));
+//	cout << "HashTrieNode::load - Cargando " << n_childs << " childs\n";
+	for(unsigned int i = 0; i < n_childs; ++i){
+		unsigned long long hash = 0;
+		reader.read((char*)&hash, sizeof(long long));
 		childs[hash] = std::make_shared<HashTrieNode>();
 		childs[hash]->load(reader);
 	}
@@ -365,6 +394,7 @@ void HashTrie::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factor
 	fstream reader(file, fstream::in);
 	root.load(reader);
 	reader.close();
+	prepareChilds();
 	cout << "HashTrie::load - End\n";
 }
 
