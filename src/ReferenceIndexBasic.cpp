@@ -57,7 +57,7 @@ ReferenceIndexBasic::ReferenceIndexBasic(const char *_referencia, unsigned int n
 	memset(ref, 0, largo + 1);
 	sprintf((char*)ref, "%s", _referencia);
 	
-//	cout<<"ReferenceIndexBasic - Texto: \""<<(char*)ref<<"\"\n";
+//	cout<<"ReferenceIndexBasic - Texto: \""<<(char*)ref<<"\" (" << strlen((char*)ref) << ")\n";
 	
 	for(unsigned int i = 0; i < largo; ++i){
 		arr[i] = i;
