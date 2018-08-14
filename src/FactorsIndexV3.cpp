@@ -327,15 +327,16 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 			load_y = true;
 		}
 	}
-	load_y = false;
+//	load_y = false;
 	if( load_y ){
 		cout << "FactorsIndexV3 - Loading Tree Y\n";
-		tree_y.load(karp_rabin, kr_factors, index_y);
+//		tree_y.load(karp_rabin, kr_factors, index_y);
+		tree_y.load(karp_rabin, kr_factors, index_y, factors_start, full_text);
 	}
 	else{
 		cout << "FactorsIndexV3 - Building Tree Y\n";
-		tree_y.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors);
-		tree_y.save(index_y);
+//		tree_y.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors);
+//		tree_y.save(index_y);
 	}
 	cout << "FactorsIndexV3 - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
 //	tree_y.print();
@@ -346,7 +347,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	tree_x.build(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors);
 	cout << "FactorsIndexV3 - Tree X finished in (" << timer.getMilisec() << " ms)\n";
 //	tree_x.print();
-	tree_x.save(index_x);
+//	tree_x.save(index_x);
 //	tree_x.prepareChilds();
 	
 	vector<unsigned long long> pat_vector;

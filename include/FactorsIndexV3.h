@@ -95,7 +95,6 @@ private:
 	pair<unsigned int, unsigned int> getRangeY(const char *pattern);
 			
 	pair<unsigned int, unsigned int> getRangeX(const char *pattern);
-			
 	
 public: 
 	FactorsIndexV3();
