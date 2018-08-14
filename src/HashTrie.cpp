@@ -76,21 +76,26 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 		// Primero busco el cur_pos MAYOR que tenga *primer* char igual al de min_pos
 		// Despues reviso el largo mayor
 		
-		cout << "HashTrieNode::build - Iniciando busqueda binaria en [" << min_pos << ", " << max << "]\n";
+//		cout << "HashTrieNode::build - Iniciando busqueda binaria en [" << min_pos << ", " << max << "]\n";
 		
 		if( max - min_pos < 0 ){
-			cout << "HashTrieNode::build - Busqueda simple\n";
+//			cout << "HashTrieNode::build - Busqueda simple\n";
 			cur_pos = min_pos;
 			cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
 			
-			cout << "HashTrieNode::build - cur_pos: " << cur_pos<< " / " << max << ", " << full_text[cur_text_start] << " vs " << full_text[min_text_start] << "\n";
+//			cout << "HashTrieNode::build - cur_pos: " << cur_pos<< " / " << max << ", " << full_text[cur_text_start] << " vs " << full_text[min_text_start] << "\n";
 			while( cur_pos <= max && full_text[cur_text_start] == full_text[min_text_start] ){
 				++cur_pos;
+				cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
+//				cout << "HashTrieNode::build - cur_pos: " << cur_pos<< " / " << max << ", " << full_text[cur_text_start] << " vs " << full_text[min_text_start] << "\n";
+			}
+			if( (cur_pos > min_pos) && full_text[cur_text_start] != full_text[min_text_start] ){
+				--cur_pos;
 				cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
 			}
 		}
 		else{
-			cout << "HashTrieNode::build - Busqueda binaria\n";
+//			cout << "HashTrieNode::build - Busqueda binaria\n";
 			unsigned int l = min_pos;
 			unsigned int h = max;
 			while(l < h){
@@ -105,12 +110,12 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 			}
 			cur_pos = h;
 			cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
-			if( (cur_pos > min_pos) && full_text[cur_text_start] > full_text[min_text_start] ){
+			if( (cur_pos > min_pos) && full_text[cur_text_start] != full_text[min_text_start] ){
 				--cur_pos;
 				cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
 			}
 		}
-		cout << "HashTrieNode::build - cur_pos: " << cur_pos << "\n";
+//		cout << "HashTrieNode::build - cur_pos: " << cur_pos << "\n";
 		
 		// Si cur_pos == min_pos, el largo es min_text_len
 		// Si no, buscar el largo maximo entre min y cur
@@ -130,11 +135,11 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 //		cout << "HashTrieNode::build - Preparing string s (min_text_start: " << min_text_start << " / " << len_text << ", len: " << min_text_len << ")\n";
 		
 		// El string es olo para el mensaje de debug
-		string s(full_text + min_text_start, min_text_len);
+//		string s(full_text + min_text_start, min_text_len);
 		
 		// Notar que aqui necesito la posicion del factor en la coleccion, no en el arreglo Y
 		hash = kr_factors->hash(arr_y[min_pos], processed_len, min_text_len);
-		cout << "HashTrieNode::build - Adding range [" << min_pos << ", " << cur_pos+1 << "), len " << min_text_len << ", hash: " << hash << " / " << karp_rabin->hash(s) << " (\"" << s << "\")\n";
+//		cout << "HashTrieNode::build - Adding range [" << min_pos << ", " << cur_pos+1 << "), len " << min_text_len << ", hash: " << hash << " / " << karp_rabin->hash(s) << " (\"" << s << "\")\n";
 //		cout << "HashTrieNode::build - Adding range [" << min_pos << ", " << cur_pos+1 << "), len " << min_text_len << ", hash: " << hash << "\n";
 		// Preparar el hijo, ejecutar la llamda sobre esa instancia
 		if( min_text_len == 0 ){
@@ -211,13 +216,12 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long lon
 	
 	unsigned long long hash_pat = 0;
 	unsigned int child_len = 0;
-//	unsigned long long hash_pat_full = 0;
-//	bool computed_full = false;
 	unsigned int pat_len = kr_pat_vector.size() - pos - processed;
 //	cout << "HashTrieNode::getRange - pat_len: " << pat_len << "\n";
 //	string pat = pattern.substr(pos + processed, pat_len);
 //	cout << "HashTrieNode::getRange - pat: " << pat << "\n";
 	
+	// Version childs length
 	for( unsigned int i = 0; i < childs_pairs.size(); ++i ){
 		child_len = childs_pairs[i].first;
 		if( child_len <= pat_len ){
@@ -243,15 +247,7 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long lon
 				unsigned long long hash = kr_factors->hashFast(childs_vector[j]->min_factor_pos, processed, pat_len);
 				(*hash_nano) += timer.getNanosec();
 				
-				
 				hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
-//				if( computed_full ){
-//					hash_pat = hash_pat_full;
-//				}
-//				else{
-//					hash_pat = hash_pat_full = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
-//					computed_full = true;
-//				}
 //				cout << "HashTrieNode::getRange - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
 				if( hash == hash_pat ){
 //					cout << "HashTrieNode::getRange - Child found -> [" << childs_vector[j]->min << ", " << childs_vector[j]->max << "]\n";
@@ -261,6 +257,7 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long lon
 			}
 		}
 	}
+	
 	
 //	cout << "HashTrieNode::getRange - Patron NO encontrado\n";
 	return pair<unsigned int, unsigned int>(0, 0);
@@ -280,6 +277,7 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(const char *pattern, uns
 	unsigned long long hash_pat_full = 0;
 	bool computed_full = false;
 	
+	// Version childs length
 	for( unsigned int i = 0; i < childs_pairs.size(); ++i ){
 		child_len = childs_pairs[i].first;
 		if( child_len <= pat_len ){
