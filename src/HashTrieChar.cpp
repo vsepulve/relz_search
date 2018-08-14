@@ -248,8 +248,8 @@ void HashTrieCharNode::save(fstream &writer){
 	
 }
 
-void HashTrieCharNode::load(fstream &reader){
-	
+void HashTrieCharNode::load(fstream &reader, unsigned int processed, vector<unsigned int> &factors_start, const char *full_text){
+	/*
 	reader.read((char*)&len, sizeof(int));
 	reader.read((char*)&min, sizeof(int));
 	reader.read((char*)&max, sizeof(int));
@@ -263,7 +263,52 @@ void HashTrieCharNode::load(fstream &reader){
 		childs[hash] = std::make_shared<HashTrieCharNode>();
 		childs[hash]->load(reader);
 	}
+	*/
 	
+	// Version antigua
+//	cout << "HashTrieCharNode::load - Original Version\n";
+	reader.read((char*)&len, sizeof(int));
+	reader.read((char*)&min, sizeof(int));
+	reader.read((char*)&max, sizeof(int));
+	reader.read((char*)&min_factor_pos, sizeof(int));
+//	cout << "HashTrieCharNode::load - len: " << len << ", [" << min << ", " << max << "], min_factor_pos: " << min_factor_pos << "\n";
+	
+	unsigned int n_lens = 0;
+	reader.read((char*)&n_lens, sizeof(int));
+//	cout << "HashTrieCharNode::load - Omitiendo " << n_lens << " childs_lenghts\n";
+	for(unsigned int i = 0; i < n_lens; ++i){
+		unsigned int len = 0;
+		reader.read((char*)&len, sizeof(int));
+//		childs_lenghts.push_back(len);
+	}
+	
+	unsigned int n_childs = 0;
+	reader.read((char*)&n_childs, sizeof(int));
+//	cout << "HashTrieCharNode::load - Cargando " << n_childs << " childs\n";
+	vector<shared_ptr<HashTrieCharNode>> childs_vector;
+	for(unsigned int i = 0; i < n_childs; ++i){
+		unsigned long long hash = 0;
+		reader.read((char*)&hash, sizeof(long long));
+//		childs[hash] = std::make_shared<HashTrieCharNode>();
+//		childs[hash]->load(reader);
+		childs_vector.push_back(std::make_shared<HashTrieCharNode>());
+		childs_vector.back()->load(reader, processed + len, factors_start, full_text);
+		childs_vector.back()->hash = (unsigned int)hash;
+	}
+	
+	// Lo que necesito aqui es el primer caracter de cada hijo, sacado de su min_factor_pos
+	for( auto it_child : childs_vector ){
+		// Calcular primer caracter
+//		cout << "HashTrieCharNode::load - Preparando first_char desde it_child->min_factor_pos: " << it_child->min_factor_pos << ", pos_text: " << factors_start[ it_child->min_factor_pos ] << " + " << processed << " + " << len << "\n";
+		unsigned int text_start = factors_start[ it_child->min_factor_pos ] + processed + len;
+		char first_char = full_text[text_start];
+//		cout << "HashTrieCharNode::load - first_char: " << first_char << "\n";
+		if( childs.find(first_char) != childs.end() ){
+			cout << "HashTrieCharNode::load - Warning\n";
+		}
+		childs[first_char] = it_child;
+	}
+//	cout << "-----\n";
 }
 
 void HashTrieChar::save(const string &file){
@@ -274,12 +319,12 @@ void HashTrieChar::save(const string &file){
 	cout << "HashTrieChar::save - End\n";
 }
 
-void HashTrieChar::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file){
+void HashTrieChar::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file, vector<unsigned int> &factors_start, const char *full_text){
 	cout << "HashTrieChar::load - Start (" << file << ")\n";
 	karp_rabin = _karp_rabin;
 	kr_factors = _kr_factors;
 	fstream reader(file, fstream::in);
-	root.load(reader);
+	root.load(reader, 0, factors_start, full_text);
 	reader.close();
 	cout << "HashTrieChar::load - End\n";
 }

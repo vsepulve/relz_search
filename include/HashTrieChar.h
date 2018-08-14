@@ -57,7 +57,7 @@ public:
 	
 	void save(fstream &writer);
 	
-	void load(fstream &reader);
+	void load(fstream &reader, unsigned int processed, vector<unsigned int> &factors_start, const char *full_text);
 	
 /*	void prepareChilds();*/
 	
@@ -84,7 +84,7 @@ public:
 	
 	void save(const string &file);
 	
-	void load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file);
+	void load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file, vector<unsigned int> &factors_start, const char *full_text);
 	
 /*	void prepareChilds();*/
 	
