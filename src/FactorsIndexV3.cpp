@@ -70,14 +70,15 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - Vector S prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-	rrr_vector<127> _rrr_s(arr_s);
+//	rrr_vector<127> _rrr_s(arr_s);
+//	rrr_s = _rrr_s;
+//	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
+//	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
+	bit_vector _rrr_s(arr_s);
 	rrr_s = _rrr_s;
-	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
+	bit_vector::select_1_type _select1_s(&rrr_s);
+	bit_vector::select_0_type _select0_s(&rrr_s);
 	select1_s = _select1_s;
-	
-	// Notar que la posicion del select DEBE empezar desde 1, no desde 0
-	// De este modo, hay que sumar 1 a las posiciones de la ref para buscar en S
-	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
 	select0_s = _select0_s;
 	
 	// Permutacion 
@@ -120,13 +121,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - Vector B prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 
-	rrr_vector<127> _rrr_b(arr_b);
-//	sd_vector<> _rrr_b(arr_b);
+//	rrr_vector<127> _rrr_b(arr_b);
+//	rrr_b = _rrr_b;
+//	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
+//	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
+	sd_vector<> _rrr_b(arr_b);
 	rrr_b = _rrr_b;
-	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
-	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
-//	sd_vector<>::select_1_type _select1_b(&rrr_b);
-//	sd_vector<>::select_0_type _select0_b(&rrr_b);
+	sd_vector<>::select_1_type _select1_b(&rrr_b);
+	sd_vector<>::select_0_type _select0_b(&rrr_b);
 	select1_b = _select1_b;
 	select0_b = _select0_b;
 	

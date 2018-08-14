@@ -22,11 +22,14 @@ class FactorsIterator {
 private: 
 	
 	// Valores y estructuras globales, compartidas entre iteradores
-	rrr_vector<127>::select_1_type *select1_s;
-	rrr_vector<127>::select_1_type *select1_b;
-	rrr_vector<127>::select_0_type *select0_b;
-//	sd_vector<>::select_1_type *select1_b;
-//	sd_vector<>::select_0_type *select0_b;
+/*	rrr_vector<127>::select_1_type *select1_s;*/
+	bit_vector::select_1_type *select1_s;
+	
+/*	rrr_vector<127>::select_1_type *select1_b;*/
+/*	rrr_vector<127>::select_0_type *select0_b;*/
+	sd_vector<>::select_1_type *select1_b;
+	sd_vector<>::select_0_type *select0_b;
+
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
 	// Texto de la referencia descomprimido
@@ -58,14 +61,14 @@ public:
 	
 	FactorsIterator();
 	
-//	FactorsIterator( unsigned int _start_f, unsigned int _n_factors, 
-//			rrr_vector<127>::select_1_type *_select1_s, 
-//			sd_vector<>::select_1_type *_select1_b, 
-//			sd_vector<>::select_0_type *_select0_b, 
 	FactorsIterator( unsigned int _start_f, unsigned int _n_factors, 
-			rrr_vector<127>::select_1_type *_select1_s, 
-			rrr_vector<127>::select_1_type *_select1_b, 
-			rrr_vector<127>::select_0_type *_select0_b, 
+			bit_vector::select_1_type *_select1_s, 
+			sd_vector<>::select_1_type *_select1_b, 
+			sd_vector<>::select_0_type *_select0_b, 
+/*	FactorsIterator( unsigned int _start_f, unsigned int _n_factors, */
+/*			rrr_vector<127>::select_1_type *_select1_s, */
+/*			rrr_vector<127>::select_1_type *_select1_b, */
+/*			rrr_vector<127>::select_0_type *_select0_b, */
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
 			const char *_ref_text,
@@ -89,11 +92,14 @@ class FactorsIteratorReverse {
 private: 
 	
 	// Valores y estructuras globales, compartidas entre iteradores
-	rrr_vector<127>::select_1_type *select1_s;
-	rrr_vector<127>::select_1_type *select1_b;
-	rrr_vector<127>::select_0_type *select0_b;
-//	sd_vector<>::select_1_type *select1_b;
-//	sd_vector<>::select_0_type *select0_b;
+/*	rrr_vector<127>::select_1_type *select1_s;*/
+	bit_vector::select_1_type *select1_s;
+	
+/*	rrr_vector<127>::select_1_type *select1_b;*/
+/*	rrr_vector<127>::select_0_type *select0_b;*/
+	sd_vector<>::select_1_type *select1_b;
+	sd_vector<>::select_0_type *select0_b;
+
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
 	const char *ref_text;
@@ -124,14 +130,14 @@ public:
 	
 	FactorsIteratorReverse();
 	
-//	FactorsIteratorReverse( unsigned int _start_f, unsigned int _n_factors, 
-//			rrr_vector<127>::select_1_type *_select1_s, 
-//			sd_vector<>::select_1_type *_select1_b, 
-//			sd_vector<>::select_0_type *_select0_b, 
 	FactorsIteratorReverse( unsigned int _start_f, unsigned int _n_factors, 
-			rrr_vector<127>::select_1_type *_select1_s, 
-			rrr_vector<127>::select_1_type *_select1_b, 
-			rrr_vector<127>::select_0_type *_select0_b, 
+			bit_vector::select_1_type *_select1_s, 
+			sd_vector<>::select_1_type *_select1_b, 
+			sd_vector<>::select_0_type *_select0_b, 
+/*	FactorsIteratorReverse( unsigned int _start_f, unsigned int _n_factors, */
+/*			rrr_vector<127>::select_1_type *_select1_s, */
+/*			rrr_vector<127>::select_1_type *_select1_b, */
+/*			rrr_vector<127>::select_0_type *_select0_b, */
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
 			const char *_ref_text,

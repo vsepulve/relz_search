@@ -73,14 +73,15 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	cout << "FactorsIndex - Vector S prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-	rrr_vector<127> _rrr_s(arr_s);
+//	rrr_vector<127> _rrr_s(arr_s);
+//	rrr_s = _rrr_s;
+//	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
+//	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
+	bit_vector _rrr_s(arr_s);
 	rrr_s = _rrr_s;
-	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
+	bit_vector::select_1_type _select1_s(&rrr_s);
+	bit_vector::select_0_type _select0_s(&rrr_s);
 	select1_s = _select1_s;
-	
-	// Notar que la posicion del select DEBE empezar desde 1, no desde 0
-	// De este modo, hay que sumar 1 a las posiciones de la ref para buscar en S
-	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
 	select0_s = _select0_s;
 	
 	// Permutacion 
@@ -123,13 +124,14 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	cout << "FactorsIndex - Vector B prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 
-	rrr_vector<127> _rrr_b(arr_b);
-//	sd_vector<> _rrr_b(arr_b);
+//	rrr_vector<127> _rrr_b(arr_b);
+//	rrr_b = _rrr_b;
+//	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
+//	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
+	sd_vector<> _rrr_b(arr_b);
 	rrr_b = _rrr_b;
-	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
-	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
-//	sd_vector<>::select_1_type _select1_b(&rrr_b);
-//	sd_vector<>::select_0_type _select0_b(&rrr_b);
+	sd_vector<>::select_1_type _select1_b(&rrr_b);
+	sd_vector<>::select_0_type _select0_b(&rrr_b);
 	select1_b = _select1_b;
 	select0_b = _select0_b;
 	
@@ -700,7 +702,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern, bo
 }
 
 void FactorsIndex::printSize(){
-	unsigned long long total_bytes = 0;
+	double total_bytes = 0;
 	
 	// texto descomprimido
 	if( ! omit_text ){
@@ -708,11 +710,11 @@ void FactorsIndex::printSize(){
 		cout << "FactorsIndex::printSize - Reference Text: " << (len_ref/(1024*1024)) << " MB\n";
 	}
 	
-	if( acelerar_rmq ){
-		// 3 integers => 12 bytes per factor
-		total_bytes += n_factors * 12;
-		cout << "FactorsIndex::printSize - Factors: " << (n_factors*12/(1024*1024)) << " MB\n";
-	}
+//	if( acelerar_rmq ){
+//		// 3 integers => 12 bytes per factor
+//		total_bytes += n_factors * 12;
+//		cout << "FactorsIndex::printSize - Factors: " << (n_factors*12/(1024*1024)) << " MB\n";
+//	}
 	
 //	csa_wt<> fm_index;
 	total_bytes += size_in_bytes(fm_index);
@@ -869,19 +871,21 @@ void FactorsIndex::load(const string &file_base){
 	cout << "FactorsIndex::load - rrr_s\n";
 	string rrr_s_file = file_base + ".arrs";
 	load_from_file(rrr_s, rrr_s_file);
-	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
+//	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
+//	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
+	bit_vector::select_1_type _select1_s(&rrr_s);
+	bit_vector::select_0_type _select0_s(&rrr_s);
 	select1_s = _select1_s;
-	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
 	select0_s = _select0_s;
 	
 	// rrr_b
 	cout << "FactorsIndex::load - rrr_b\n";
 	string rrr_b_file = file_base + ".arrb";
 	load_from_file(rrr_b, rrr_b_file);
-	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
-	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
-//	sd_vector<>::select_1_type _select1_b(&rrr_b);
-//	sd_vector<>::select_0_type _select0_b(&rrr_b);
+//	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
+//	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
+	sd_vector<>::select_1_type _select1_b(&rrr_b);
+	sd_vector<>::select_0_type _select0_b(&rrr_b);
 	select1_b = _select1_b;
 	select0_b = _select0_b;
 	
