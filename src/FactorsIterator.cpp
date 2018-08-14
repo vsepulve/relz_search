@@ -21,6 +21,7 @@ void FactorsIterator::loadFactor(unsigned int f, bool reset){
 	if(reset){
 		text_length = full_size - pu;
 		text_pos = 0;
+//		str_f = extract(*fm_index, cur_pos, cur_pos+ ((text_length<max_length)?text_length:max_length) );
 	}
 }
 
@@ -41,6 +42,7 @@ FactorsIterator::FactorsIterator(){
 	cur_f_fin = 0;
 	text_length = 0;
 	text_pos = 0;
+	max_length = 100;
 	reset();
 }
 
@@ -71,6 +73,7 @@ FactorsIterator::FactorsIterator( unsigned int _start_f, unsigned int _n_factors
 	cur_f = 0;
 	cur_f_ini = 0;
 	cur_f_fin = 0;
+	max_length = 100;
 	reset();
 }
 
@@ -88,6 +91,7 @@ char FactorsIterator::next(){
 	else{
 //		cout << "FactorsIterator::next - extract\n";
 		ret = extract(*fm_index, cur_pos, cur_pos)[0];
+//		ret = str_f[text_pos];
 	}
 	++cur_pos;
 	++text_pos;
@@ -139,6 +143,12 @@ void FactorsIteratorReverse::loadFactor(unsigned int f, bool reset){
 //		text_length = pu + lu;
 		text_length = lu;
 		text_pos = 0;
+//		unsigned int len = ((text_length<max_length)?text_length:max_length);
+//		string original = extract(*fm_index, cur_pos - len, cur_pos);
+//		str_f = "";
+//		for(unsigned int i = 0; i < len; ++i){
+//			str_f += original[len - i - 1];
+//		}
 	}
 }
 
@@ -159,6 +169,7 @@ FactorsIteratorReverse::FactorsIteratorReverse(){
 	cur_f_fin = 0;
 	text_length = 0;
 	text_pos = 0;
+	max_length = 100;
 	reset();
 }
 
@@ -189,6 +200,7 @@ FactorsIteratorReverse::FactorsIteratorReverse( unsigned int _start_f, unsigned 
 	cur_f = 0;
 	cur_f_ini = 0;
 	cur_f_fin = 0;
+	max_length = 100;
 	reset();
 }
 
@@ -206,6 +218,7 @@ char FactorsIteratorReverse::next(){
 	else{
 //		cout << "FactorsIteratorReverse::next - extract\n";
 		ret = extract(*fm_index, cur_pos, cur_pos)[0];
+//		ret = str_f[text_pos];
 	}
 	--cur_pos;
 	++text_pos;

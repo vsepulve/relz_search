@@ -47,6 +47,8 @@ private:
 	// Estos datos pueden ser usados para simplificar comparaciones de strings
 	unsigned int text_length;
 	unsigned int text_pos;
+	string str_f;
+	unsigned int max_length;
 	
 	// Factor actual, con posiciones para la referencia
 	unsigned int start_f;
@@ -85,6 +87,10 @@ public:
 	
 	unsigned int position();
 	
+	void setMaxLength(unsigned int _max_length){
+		max_length = _max_length;
+	}
+	
 };
 
 class FactorsIteratorReverse {
@@ -116,6 +122,8 @@ private:
 	// Estos datos pueden ser usados para simplificar comparaciones de strings
 	unsigned int text_length;
 	unsigned int text_pos;
+	string str_f;
+	unsigned int max_length;
 	
 	// Factor actual, con posiciones para la referencia
 	unsigned int start_f;
@@ -153,6 +161,10 @@ public:
 	unsigned int length();
 	
 	unsigned int position();
+	
+	void setMaxLength(unsigned int _max_length){
+		max_length = _max_length;
+	}
 	
 };
 
