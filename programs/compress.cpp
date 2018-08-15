@@ -128,10 +128,14 @@ int main(int argc, char* argv[]){
 		new DecoderBlocksRelz(reference->getText()), 
 		filter
 		);
+	
+	// Esto solo es seguro usando 1 thread
+	vector<pair<unsigned int, unsigned int> > factors;
 		
 	timer.reset();
-	compressor.compress(sequence_text, n_threads, block_size, use_metadata);
+	compressor.compress(sequence_text, n_threads, block_size, use_metadata, &factors);
 	cout<<"Compression finished in "<<timer.getMilisec()<<" ms\n";
+	cout << "Total Factors: " << factors.size() << "\n";
 	
 	delete reference;
 	
