@@ -297,7 +297,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 //	cout << "FactorsIndexV3 - Hash(BALASLALABA): " << karp_rabin->hash("BALASLALABA") << "\n";
 //	cout << "FactorsIndexV3 - Hash(BALASLALABAS): " << karp_rabin->hash("BALASLALABAS") << "\n";
 	
-	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &perm_inv, &arr_tu, &arr_pu, &arr_lu);
+	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &perm_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
 	
 	kr_factors->hash(1, 3, 9);
 	cout << "-----\n";
@@ -327,7 +327,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 			load_y = true;
 		}
 	}
-//	load_y = false;
+	load_y = false;
 	if( load_y ){
 		cout << "FactorsIndexV3 - Loading Tree Y\n";
 //		tree_y.load(karp_rabin, kr_factors, index_y);
@@ -339,7 +339,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		tree_y.save(index_y);
 	}
 	cout << "FactorsIndexV3 - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
-	tree_y.print();
+//	tree_y.print();
 //	tree_y.prepareChilds();
 	tree_y.printSize();
 	
