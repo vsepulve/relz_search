@@ -75,6 +75,7 @@ int main(int argc, char* argv[]){
 	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin, input);
 //	KarpRabinFactorsSuffixes *kr_factors = index.getKRFactors();
 	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
+	index.printSize();
 	
 //	cout << "----- Probando Carga de Arboles\n";
 //	string index_y(input, strlen(input));
