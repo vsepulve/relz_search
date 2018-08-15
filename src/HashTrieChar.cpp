@@ -180,6 +180,31 @@ void HashTrieCharNode::print(unsigned int level){
 	}
 }
 
+unsigned int HashTrieCharNode::totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height){
+	unsigned int ret = childs.size();
+	if( height > max_height ){
+		max_height = height;
+	}
+	if( len > max_len ){
+		max_len = len;
+	}
+	if( childs.size() > max_childs ){
+		max_childs = childs.size();
+	}
+	for( auto it : childs ){
+		ret += it.second->totalChilds(max_len, max_childs, max_height, 1 + height);
+	}
+	return ret;
+}
+
+void HashTrieChar::printSize(){
+	unsigned int max_len = 0;
+	unsigned int max_childs = 0;
+	unsigned int max_height = 0;
+	unsigned int total_childs = root.totalChilds(max_len, max_childs, max_height, 0);
+	cout << "HashTrieChar::printSize - totalChilds: " << total_childs << ", max_len: " << max_len << ", max_childs: " << max_childs << ", max_height: " << max_height << "\n";
+}
+
 pair<unsigned int, unsigned int> HashTrieChar::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, const string &pattern){
 	return root.getRange(kr_pat_vector, pos, 0, karp_rabin, kr_factors, pattern, &hash_nano);
 }
@@ -571,6 +596,31 @@ void HashTrieCharRevNode::print(unsigned int level){
 	for( auto it : childs ){
 		it.second->print(level+1);
 	}
+}
+
+unsigned int HashTrieCharRevNode::totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height){
+	unsigned int ret = childs.size();
+	if( height > max_height ){
+		max_height = height;
+	}
+	if( len > max_len ){
+		max_len = len;
+	}
+	if( childs.size() > max_childs ){
+		max_childs = childs.size();
+	}
+	for( auto it : childs ){
+		ret += it.second->totalChilds(max_len, max_childs, max_height, 1 + height);
+	}
+	return ret;
+}
+
+void HashTrieCharRev::printSize(){
+	unsigned int max_len = 0;
+	unsigned int max_childs = 0;
+	unsigned int max_height = 0;
+	unsigned int total_childs = root.totalChilds(max_len, max_childs, max_height, 0);
+	cout << "HashTrieCharRev::printSize - totalChilds: " << total_childs << ", max_len: " << max_len << ", max_childs: " << max_childs << ", max_height: " << max_height << "\n";
 }
 
 pair<unsigned int, unsigned int> HashTrieCharRev::getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, const string &pattern_rev){
