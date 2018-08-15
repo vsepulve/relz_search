@@ -366,6 +366,83 @@ FactorsIndexV3::~FactorsIndexV3(){
 	
 }
 
+void FactorsIndexV3::printSize(){
+	double total_bytes = 0;
+	
+	// texto descomprimido
+//	if( ! omit_text ){
+//		total_bytes += len_ref;
+//		cout << "FactorsIndexV3::printSize - Reference Text: " << (len_ref/(1024*1024)) << " MB\n";
+//	}
+	
+//	if( acelerar_rmq ){
+//		// 3 integers => 12 bytes per factor
+//		total_bytes += n_factors * 12;
+//		cout << "FactorsIndexV3::printSize - Factors: " << (n_factors*12/(1024*1024)) << " MB\n";
+//	}
+	
+//	csa_wt<> fm_index;
+	total_bytes += size_in_bytes(fm_index);
+	cout << "FactorsIndexV3::printSize - fm_index: " << (size_in_bytes(fm_index)/(1024*1024)) << " MB\n";
+	
+//	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
+	total_bytes += size_in_bytes(rmq);
+	cout << "FactorsIndexV3::printSize - rmq: " << (size_in_bytes(rmq)/(1024*1024)) << " MB\n";
+	
+//	rrr_vector<127> rrr_s;
+	total_bytes += size_in_bytes(rrr_s);
+	cout << "FactorsIndexV3::printSize - rrr_s: " << (size_in_bytes(rrr_s)/(1024*1024)) << " MB\n";
+//	
+//	inv_perm_support<> perm_inv;
+	total_bytes += size_in_bytes(perm_inv);
+	cout << "FactorsIndexV3::printSize - perm_inv: " << (size_in_bytes(perm_inv)/(1024*1024)) << " MB\n";
+	
+//	inv_perm_support<> perm;
+	total_bytes += size_in_bytes(perm);
+	cout << "FactorsIndexV3::printSize - perm: " << (size_in_bytes(perm)/(1024*1024)) << " MB\n";
+	
+//	rrr_vector<127> rrr_b;
+	total_bytes += size_in_bytes(rrr_b);
+	cout << "FactorsIndexV3::printSize - rrr_b: " << (size_in_bytes(rrr_b)/(1024*1024)) << " MB\n";
+//	
+//	inv_perm_support<> perm_x;
+	total_bytes += size_in_bytes(perm_x);
+	cout << "FactorsIndexV3::printSize - perm_x: " << (size_in_bytes(perm_x)/(1024*1024)) << " MB\n";
+	
+//	inv_perm_support<> perm_y;
+	total_bytes += size_in_bytes(perm_y);
+	cout << "FactorsIndexV3::printSize - perm_y: " << (size_in_bytes(perm_y)/(1024*1024)) << " MB\n";
+	
+//	inv_perm_support<> perm_y_inv;
+	total_bytes += size_in_bytes(perm_y_inv);
+	cout << "FactorsIndexV3::printSize - perm_y_inv: " << (size_in_bytes(perm_y_inv)/(1024*1024)) << " MB\n";
+//	
+//	wt_int<rrr_vector<63>> wt;
+	total_bytes += size_in_bytes(wt);
+	cout << "FactorsIndexV3::printSize - wt: " << (size_in_bytes(wt)/(1024*1024)) << " MB\n";
+	
+//	tree_y
+	unsigned int max_len = 0;
+	unsigned int max_childs = 0;
+	unsigned int max_height = 0;
+	unsigned int total_childs = 0;
+	total_childs = tree_y.root.totalChilds(max_len, max_childs, max_height, 0);
+	total_bytes += ((double)total_childs)*12.625;
+	cout << "FactorsIndexV3::printSize - tree_y: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
+	
+//	tree_x
+	max_len = 0;
+	max_childs = 0;
+	max_height = 0;
+	total_childs = 0;
+	total_childs = tree_x.root.totalChilds(max_len, max_childs, max_height, 0);
+	total_bytes += ((double)total_childs)*12.625;
+	cout << "FactorsIndexV3::printSize - tree_x: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
+	
+	cout << "FactorsIndexV3::printSize - Total " << total_bytes << " (" << (total_bytes/(1024*1024)) << " MB)\n";
+	
+}
+
 void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &results){
 
 //	cout << "FactorsIndexV3::findTimes - Start (\"" << pattern << "\")\n";

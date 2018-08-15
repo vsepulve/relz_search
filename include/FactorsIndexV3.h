@@ -125,6 +125,7 @@ public:
 	KarpRabinFactorsSuffixes *kr_factors;
 	
 	
+	void printSize();
 	
 	
 	
