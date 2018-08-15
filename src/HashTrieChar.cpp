@@ -61,7 +61,7 @@ void HashTrieCharNode::build(const char *full_text, unsigned int len_text, vecto
 		return;
 	}
 	
-//	cout << "HashTrieCharNode::build - Start (full text of " << len_text << ", range[" << min << ", " << max << "], processed_len: " << processed_len << ")\n";
+	cout << "HashTrieCharNode::build - Start (full text of " << len_text << ", range[" << min << ", " << max << "], processed_len: " << processed_len << ")\n";
 	
 	unsigned int min_pos = min;
 	unsigned int min_text_start = factors_start[ arr_y[min_pos] ] + processed_len;
@@ -103,14 +103,16 @@ void HashTrieCharNode::build(const char *full_text, unsigned int len_text, vecto
 		// Si no, buscar el largo maximo entre min y cur
 		
 		if( cur_pos > min_pos ){
+//			cout << "HashTrieCharNode::build - Case 1\n";
 			// Buscar el mayor
 			// Aqui uso el hecho de que full_text termina en '\0'
-			min_text_len = 0;
+			min_text_len = 1;
 			while( full_text[min_text_start + min_text_len] == full_text[cur_text_start + min_text_len] ){
 				++min_text_len;
 			}
 		}
 		else{
+//			cout << "HashTrieCharNode::build - Case 2\n";
 			min_text_len = len_text - min_text_start;
 		}
 //		cout << "HashTrieCharNode::build - min_text_len: " << min_text_len << "\n";
@@ -176,6 +178,7 @@ void HashTrieCharNode::print(unsigned int level){
 	}
 	cout << "hash: " << hash << ", len: " << len << " , range [" << min << ", " << max << "]\n";
 	for( auto it : childs ){
+		cout << it.first << " ";
 		it.second->print(level+1);
 	}
 }
@@ -261,35 +264,38 @@ void HashTrieCharNode::save(fstream &writer){
 	writer.write((char*)&len, sizeof(int));
 	writer.write((char*)&min, sizeof(int));
 	writer.write((char*)&max, sizeof(int));
+	writer.write((char*)&hash, sizeof(int));
 	writer.write((char*)&min_factor_pos, sizeof(int));
 	
 	unsigned int n_childs = childs.size();
 	writer.write((char*)&n_childs, sizeof(int));
 	for( auto it : childs ){
-		unsigned int hash = (unsigned int)(it.first);
-		writer.write((char*)&hash, sizeof(int));
+		char child_first_char = it.first;
+		writer.write((char*)&child_first_char, 1);
 		it.second->save(writer);
 	}
 	
 }
 
 void HashTrieCharNode::load(fstream &reader, unsigned int processed, vector<unsigned int> &factors_start, const char *full_text){
-	/*
+	
 	reader.read((char*)&len, sizeof(int));
 	reader.read((char*)&min, sizeof(int));
 	reader.read((char*)&max, sizeof(int));
+	reader.read((char*)&hash, sizeof(int));
 	reader.read((char*)&min_factor_pos, sizeof(int));
 	
 	unsigned int n_childs = 0;
 	reader.read((char*)&n_childs, sizeof(int));
 	for(unsigned int i = 0; i < n_childs; ++i){
-		unsigned int hash = 0;
-		reader.read((char*)&hash, sizeof(int));
-		childs[hash] = std::make_shared<HashTrieCharNode>();
-		childs[hash]->load(reader);
+		char child_first_char = 0;
+		reader.read((char*)&child_first_char, 1);
+		childs[child_first_char] = std::make_shared<HashTrieCharNode>();
+		childs[child_first_char]->load(reader, processed, factors_start, full_text);
 	}
-	*/
 	
+	
+	/*
 	// Version antigua
 //	cout << "HashTrieCharNode::load - Original Version\n";
 	reader.read((char*)&len, sizeof(int));
@@ -334,6 +340,8 @@ void HashTrieCharNode::load(fstream &reader, unsigned int processed, vector<unsi
 		childs[first_char] = it_child;
 	}
 //	cout << "-----\n";
+	*/
+
 }
 
 void HashTrieChar::save(const string &file){
@@ -594,6 +602,7 @@ void HashTrieCharRevNode::print(unsigned int level){
 //	cout << "hash: " << hash << ", len: " << len << ", factor_base " << factor << " , range [" << min << ", " << max << "]\n";
 	cout << "hash: " << hash << ", len: " << len << " , range [" << min << ", " << max << "]\n";
 	for( auto it : childs ){
+		cout << it.first << " ";
 		it.second->print(level+1);
 	}
 }
@@ -679,13 +688,17 @@ void HashTrieCharRevNode::save(fstream &writer){
 	writer.write((char*)&len, sizeof(int));
 	writer.write((char*)&min, sizeof(int));
 	writer.write((char*)&max, sizeof(int));
+	writer.write((char*)&hash, sizeof(int));
 	writer.write((char*)&min_factor_pos, sizeof(int));
+	unsigned int text_len = text.length();
+	writer.write((char*)&text_len, sizeof(int));
+	writer.write((char*)(text.c_str()), text_len);
 	
 	unsigned int n_childs = childs.size();
 	writer.write((char*)&n_childs, sizeof(int));
 	for( auto it : childs ){
-		unsigned int hash = it.first;
-		writer.write((char*)&hash, sizeof(int));
+		char child_first_char = it.first;
+		writer.write((char*)&child_first_char, 1);
 		it.second->save(writer);
 	}
 	
@@ -696,15 +709,22 @@ void HashTrieCharRevNode::load(fstream &reader){
 	reader.read((char*)&len, sizeof(int));
 	reader.read((char*)&min, sizeof(int));
 	reader.read((char*)&max, sizeof(int));
+	reader.read((char*)&hash, sizeof(int));
 	reader.read((char*)&min_factor_pos, sizeof(int));
+	unsigned int text_len = 0;
+	reader.read((char*)&text_len, sizeof(int));
+	char buff[text_len + 1];
+	reader.read(buff, text_len);
+	buff[text_len] = 0;
+	text = string(buff);
 	
 	unsigned int n_childs = 0;
 	reader.read((char*)&n_childs, sizeof(int));
 	for(unsigned int i = 0; i < n_childs; ++i){
-		unsigned int hash = 0;
-		reader.read((char*)&hash, sizeof(int));
-		childs[hash] = std::make_shared<HashTrieCharRevNode>();
-		childs[hash]->load(reader);
+		char child_first_char = 0;
+		reader.read((char*)&child_first_char, 1);
+		childs[child_first_char] = std::make_shared<HashTrieCharRevNode>();
+		childs[child_first_char]->load(reader);
 	}
 	
 }
