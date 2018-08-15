@@ -61,7 +61,7 @@ void HashTrieCharNode::build(const char *full_text, unsigned int len_text, vecto
 		return;
 	}
 	
-	cout << "HashTrieCharNode::build - Start (full text of " << len_text << ", range[" << min << ", " << max << "], processed_len: " << processed_len << ")\n";
+//	cout << "HashTrieCharNode::build - Start (full text of " << len_text << ", range[" << min << ", " << max << "], processed_len: " << processed_len << ")\n";
 	
 	unsigned int min_pos = min;
 	unsigned int min_text_start = factors_start[ arr_y[min_pos] ] + processed_len;
