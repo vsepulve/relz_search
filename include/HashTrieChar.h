@@ -70,9 +70,9 @@ class HashTrieChar{
 private: 
 	KarpRabin *karp_rabin;
 	KarpRabinFactorsSuffixes *kr_factors;
-	HashTrieCharNode root;
 	
 public: 
+	HashTrieCharNode root;
 	
 	HashTrieChar();
 	HashTrieChar(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
@@ -146,9 +146,9 @@ class HashTrieCharRev{
 private: 
 	KarpRabin *karp_rabin;
 	KarpRabinFactorsSuffixes *kr_factors;
-	HashTrieCharRevNode root;
 	
 public: 
+	HashTrieCharRevNode root;
 	
 	HashTrieCharRev();
 	HashTrieCharRev(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_x, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
