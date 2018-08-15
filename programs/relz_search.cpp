@@ -67,7 +67,7 @@ int main(int argc, char* argv[]){
 	cout << "----- Building index -----\n";
 	NanoTimer timer;
 	vector<unsigned int> results;
-	bool omitir_texto = true;
+	bool omitir_texto = false;
 	FactorsIndex index(factors, text, len_text, ref, len_ref, omitir_texto);
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index.printSize();
@@ -115,10 +115,10 @@ int main(int argc, char* argv[]){
 	index.querytime_p3 = 0;
 	index.querytime_p4 = 0;
 	for( string query : queries ){
-		cout << "----- Query \"" << query << "\" -----\n";
+//		cout << "----- Query \"" << query << "\" -----\n";
 //		index.find(query, results);
 		index.findTimes(query, results);
-		cout << "-----     -----\n";
+//		cout << "-----     -----\n";
 		total_occ += results.size();
 		results.clear();
 	}
