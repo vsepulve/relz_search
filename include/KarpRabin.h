@@ -20,7 +20,7 @@ protected:
 	unsigned int voc_bits;
 	unsigned int kr_mod;
 	unsigned int table_size;
-	unsigned long long *pow_table;
+	unsigned int *pow_table;
 	
 	// Direct version (*x, y times)
 	unsigned long long ullpow(unsigned long long x, unsigned int y);

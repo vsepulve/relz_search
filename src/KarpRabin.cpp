@@ -11,10 +11,10 @@ KarpRabin::KarpRabin(unsigned int _voc_bits, unsigned int _kr_mod, unsigned int 
 	voc_bits = _voc_bits;
 	kr_mod = _kr_mod;
 	table_size = _table_size + 1;
-	pow_table = new unsigned long long[table_size];
+	pow_table = new unsigned int[table_size];
 	pow_table[0] = 1;
 	for(unsigned int i = 1; i < table_size; ++i){
-		pow_table[i] = (pow_table[i-1] * (1ull<<voc_bits)) % kr_mod;
+		pow_table[i] = (pow_table[i-1] * (1<<voc_bits)) % kr_mod;
 	}
 }
 
