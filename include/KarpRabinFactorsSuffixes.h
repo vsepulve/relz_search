@@ -41,10 +41,12 @@ protected:
 	vector<unsigned int> *arr_pu;
 	vector<unsigned int> *arr_lu;
 	
+	vector<unsigned int> *factors_start;
+	
 public: 
 	
 	KarpRabinFactorsSuffixes();
-	KarpRabinFactorsSuffixes(unsigned int _n_factors, vector<unsigned long long> *_arr_kr_s, KarpRabin *_karp_rabin, const char *_ref_text, inv_perm_support<> *_perm_inv, vector<unsigned int> *_arr_tu, vector<unsigned int> *_arr_pu, vector<unsigned int> *_arr_lu);
+	KarpRabinFactorsSuffixes(unsigned int _n_factors, vector<unsigned long long> *_arr_kr_s, KarpRabin *_karp_rabin, const char *_ref_text, inv_perm_support<> *_perm_inv, vector<unsigned int> *_arr_tu, vector<unsigned int> *_arr_pu, vector<unsigned int> *_arr_lu, vector<unsigned int> *_factors_start);
 	virtual ~KarpRabinFactorsSuffixes();
 	
 	// Returns the hash from a suffix from a factor (positional), offset and length
