@@ -50,7 +50,8 @@ int main(int argc, char* argv[]){
 		total += n_read;
 		for(unsigned int i = 0; i < n_read; ++i){
 			char c = toupper(buff[i]);
-			if(c == 'A' || c == 'T' || c == 'C' || c == 'G'){
+//			if(c == 'A' || c == 'T' || c == 'C' || c == 'G'){
+			if( (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ){
 				text[text_size++] = c;
 			}
 		}
