@@ -498,6 +498,9 @@ void HashTrieCharRevNode::build(const char *full_text, unsigned int len_text, ve
 		
 //		cout << "HashTrieCharRevNode::build - Preparing cur_pos = " << (min_pos + 1) << "\n";
 		unsigned int cur_pos = min_pos + 1;
+		if( cur_pos > max ){
+			break;
+		}
 		unsigned int cur_text_start = 0;
 		unsigned int cur_text_len = 0;
 		if( arr_x[cur_pos] > 0 ){
@@ -531,26 +534,24 @@ void HashTrieCharRevNode::build(const char *full_text, unsigned int len_text, ve
 			
 		}
 		
-//		cout << "HashTrieCharRevNode::build - Preparing string s (min_text_start: " << min_text_start << " / " << len_text << ", len: " << min_text_len << ")\n";
-		
-		// En el caso de Rev, uso s para el hash directo
-		string s;
-		for( unsigned int i = 0; i < min_text_len; ++i ){
-			s += *(full_text + min_text_start - i);
-		}
-		hash = karp_rabin->hash(s);
-		char first_char = s[0];
-//		cout << "HashTrieCharRevNode::build - s: " << s << " (hash: " << hash << ")\n";
-		
-		// Notar que aqui necesito la posicion del factor en la coleccion, no en el arreglo Y
-//		hash = kr_factors->hash(arr_x[min_pos], processed_len, min_text_len);
-//		cout << "HashTrieCharRevNode::build - Adding range [" << min_pos << ", " << cur_pos << "), len " << min_text_len << ", hash: " << hash << " / " << karp_rabin->hash(s) << "\n";
-//		cout << "HashTrieCharRevNode::build - Adding range [" << min_pos << ", " << cur_pos << "), len " << min_text_len << ", hash: " << hash << "\n";
 		// Preparar el hijo, ejecutar la llamda sobre esa instancia
 		if( min_text_len == 0 ){
 //			cout << "HashTrieCharNode::build - Omiting child of len 0\n";
 		}
 		else{
+			
+//			cout << "HashTrieCharRevNode::build - Preparing string s (min_text_start: " << min_text_start << " / " << len_text << ", len: " << min_text_len << ")\n";
+			
+			// En el caso de Rev, uso s para el hash directo
+			string s;
+			for( unsigned int i = 0; i < min_text_len; ++i ){
+				s += *(full_text + min_text_start - i);
+			}
+			hash = karp_rabin->hash(s);
+//			cout << "HashTrieCharRevNode::build - s: " << s << "\n";
+			char first_char = s[0];
+//			cout << "HashTrieCharRevNode::build - hash: " << hash << "\n";
+			
 			childs[first_char] = std::make_shared<HashTrieCharRevNode>();
 			childs[first_char]->len = min_text_len;
 			childs[first_char]->min = min_pos;
@@ -560,6 +561,8 @@ void HashTrieCharRevNode::build(const char *full_text, unsigned int len_text, ve
 			childs[first_char]->hash = hash;
 			childs[first_char]->build(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors, min_pos, cur_pos-1, processed_len + min_text_len);
 		}
+		
+//		cout << "HashTrieCharRevNode::build - min_pos -> " << cur_pos << " / \n";
 		
 		min_pos = cur_pos;
 		if(min_pos >= arr_x.size()){
