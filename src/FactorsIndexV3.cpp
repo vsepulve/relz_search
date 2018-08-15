@@ -335,11 +335,11 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	}
 	else{
 		cout << "FactorsIndexV3 - Building Tree Y\n";
-//		tree_y.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors);
-//		tree_y.save(index_y);
+		tree_y.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors);
+		tree_y.save(index_y);
 	}
 	cout << "FactorsIndexV3 - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
-//	tree_y.print();
+	tree_y.print();
 //	tree_y.prepareChilds();
 	tree_y.printSize();
 	
