@@ -70,7 +70,7 @@ int main(int argc, char* argv[]){
 	unsigned int bits = 8;
 //	unsigned int mod = 787;
 	unsigned int mod = 15485863;
-	KarpRabin karp_rabin(bits, mod);
+	KarpRabin karp_rabin(bits, mod, 400000000);
 	vector<unsigned int> results;
 	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin, input);
 //	KarpRabinFactorsSuffixes *kr_factors = index.getKRFactors();
