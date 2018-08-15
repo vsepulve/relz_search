@@ -622,7 +622,7 @@ void FactorsIndex::printSize(){
 	// texto descomprimido
 	if( ! omit_text ){
 		total_bytes += len_ref;
-		cout << "FactorsIndex::printSize - Reference Text: " << (len_ref/(1024*1024)) << " MB\n";
+		cout << "FactorsIndex::printSize - Reference Text: " << ((double)len_ref/(1024*1024)) << " MB\n";
 	}
 	
 //	if( acelerar_rmq ){
@@ -633,43 +633,43 @@ void FactorsIndex::printSize(){
 	
 //	csa_wt<> fm_index;
 	total_bytes += size_in_bytes(fm_index);
-	cout << "FactorsIndex::printSize - fm_index: " << (size_in_bytes(fm_index)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - fm_index: " << ((double)size_in_bytes(fm_index)/(1024*1024)) << " MB\n";
 	
 //	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
 	total_bytes += size_in_bytes(rmq);
-	cout << "FactorsIndex::printSize - rmq: " << (size_in_bytes(rmq)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - rmq: " << ((double)size_in_bytes(rmq)/(1024*1024)) << " MB\n";
 	
 //	rrr_vector<127> rrr_s;
 	total_bytes += size_in_bytes(rrr_s);
-	cout << "FactorsIndex::printSize - rrr_s: " << (size_in_bytes(rrr_s)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - rrr_s: " << ((double)size_in_bytes(rrr_s)/(1024*1024)) << " MB\n";
 //	
 //	inv_perm_support<> perm_inv;
 	total_bytes += size_in_bytes(perm_inv);
-	cout << "FactorsIndex::printSize - perm_inv: " << (size_in_bytes(perm_inv)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - perm_inv: " << ((double)size_in_bytes(perm_inv)/(1024*1024)) << " MB\n";
 	
 //	inv_perm_support<> perm;
 	total_bytes += size_in_bytes(perm);
-	cout << "FactorsIndex::printSize - perm: " << (size_in_bytes(perm)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - perm: " << ((double)size_in_bytes(perm)/(1024*1024)) << " MB\n";
 	
 //	rrr_vector<127> rrr_b;
 	total_bytes += size_in_bytes(rrr_b);
-	cout << "FactorsIndex::printSize - rrr_b: " << (size_in_bytes(rrr_b)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - rrr_b: " << ((double)size_in_bytes(rrr_b)/(1024*1024)) << " MB\n";
 //	
 //	inv_perm_support<> perm_x;
 	total_bytes += size_in_bytes(perm_x);
-	cout << "FactorsIndex::printSize - perm_x: " << (size_in_bytes(perm_x)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - perm_x: " << ((double)size_in_bytes(perm_x)/(1024*1024)) << " MB\n";
 	
 //	inv_perm_support<> perm_y;
 	total_bytes += size_in_bytes(perm_y);
-	cout << "FactorsIndex::printSize - perm_y: " << (size_in_bytes(perm_y)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - perm_y: " << ((double)size_in_bytes(perm_y)/(1024*1024)) << " MB\n";
 	
 //	inv_perm_support<> perm_y_inv;
 	total_bytes += size_in_bytes(perm_y_inv);
-	cout << "FactorsIndex::printSize - perm_y_inv: " << (size_in_bytes(perm_y_inv)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - perm_y_inv: " << ((double)size_in_bytes(perm_y_inv)/(1024*1024)) << " MB\n";
 //	
 //	wt_int<rrr_vector<63>> wt;
 	total_bytes += size_in_bytes(wt);
-	cout << "FactorsIndex::printSize - wt: " << (size_in_bytes(wt)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - wt: " << ((double)size_in_bytes(wt)/(1024*1024)) << " MB\n";
 	
 	cout << "FactorsIndex::printSize - Total " << total_bytes << " (" << (total_bytes/(1024*1024)) << " MB)\n";
 	
