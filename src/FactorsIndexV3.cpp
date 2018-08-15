@@ -341,6 +341,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
 //	tree_y.print();
 //	tree_y.prepareChilds();
+	tree_y.printSize();
 	
 	cout << "FactorsIndexV3 - Building Tree X\n";
 	timer.reset();
@@ -349,6 +350,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 //	tree_x.print();
 //	tree_x.save(index_x);
 //	tree_x.prepareChilds();
+	tree_x.printSize();
 	
 	vector<unsigned long long> pat_vector;
 	karp_rabin->hashPrefixes("ALABARDA", pat_vector);
