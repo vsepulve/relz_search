@@ -23,7 +23,6 @@
 
 #include "FactorsIndexV3.h"
 #include "FactorsIterator.h"
-#include "FactorsIteratorComparator.h"
 #include "HashTrie.h"
 
 using namespace sdsl;
@@ -70,7 +69,7 @@ int main(int argc, char* argv[]){
 	unsigned int bits = 8;
 //	unsigned int mod = 787;
 	unsigned int mod = 15485863;
-	KarpRabin karp_rabin(bits, mod, 400000000);
+	KarpRabin karp_rabin(bits, mod, 1100000000);
 	vector<unsigned int> results;
 	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin, input);
 //	KarpRabinFactorsSuffixes *kr_factors = index.getKRFactors();

@@ -23,7 +23,6 @@
 
 #include "FactorsIndex.h"
 #include "FactorsIterator.h"
-#include "FactorsIteratorComparator.h"
 
 using namespace sdsl;
 using namespace std;
@@ -67,7 +66,7 @@ int main(int argc, char* argv[]){
 	cout << "----- Building index -----\n";
 	NanoTimer timer;
 	vector<unsigned int> results;
-	bool omitir_texto = false;
+	bool omitir_texto = true;
 	FactorsIndex index(factors, text, len_text, ref, len_ref, omitir_texto);
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index.printSize();
