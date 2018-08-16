@@ -15,7 +15,7 @@
 #include <sdsl/wavelet_trees.hpp>
 
 #include "FactorsIterator.h"
-#include "FactorsIteratorComparator.h"
+/*#include "FactorsIteratorComparator.h"*/
 #include "FactorsFastIteratorComparator.h"
 #include "NanoTimer.h"
 
@@ -36,7 +36,9 @@ private:
 	unsigned int len_ref;
 	unsigned int n_factors;
 	
-	csa_wt<> fm_index;
+/*	csa_wt<> fm_index;*/
+	csa_wt<wt_huff<>, 16, 32, sa_order_sa_sampling<>, isa_sampling<>> fm_index;
+	
 	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
 	
 /*	rrr_vector<127> rrr_s;*/
@@ -63,6 +65,7 @@ private:
 	inv_perm_support<> perm_y_inv;
 	
 	wt_int<rrr_vector<63>> wt;
+/*	wt_int<> wt;*/
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
 	bool acelerar_rmq;

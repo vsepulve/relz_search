@@ -32,10 +32,16 @@ private:
 
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
+	
+	// Permutaciones unc
+	int_vector<> *pi;
+	int_vector<> *pi_inv;
+	
 	// Texto de la referencia descomprimido
 	const char *ref_text;
 	// FM-Index en lugar del texto
-	csa_wt<> *fm_index;
+/*	csa_wt<> *fm_index;*/
+	csa_wt<wt_huff<>, 16, 32, sa_order_sa_sampling<>, isa_sampling<>> *fm_index;
 	// Largo de la coleccion completa comprimida
 	unsigned int full_size;
 	
@@ -73,8 +79,11 @@ public:
 /*			rrr_vector<127>::select_0_type *_select0_b, */
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
+			int_vector<> *_pi,
+			int_vector<> *_pi_inv,
 			const char *_ref_text,
-			csa_wt<> *_fm_index,
+/*			csa_wt<> *_fm_index,*/
+			csa_wt<wt_huff<>, 16, 32, sa_order_sa_sampling<>, isa_sampling<>> *_fm_index,
 			unsigned int _full_size );
 	
 	void reset();
@@ -108,9 +117,15 @@ private:
 
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
+	
+	// Permutaciones unc
+	int_vector<> *pi;
+	int_vector<> *pi_inv;
+	
 	const char *ref_text;
 	// FM-Index en lugar del texto
-	csa_wt<> *fm_index;
+/*	csa_wt<> *fm_index;*/
+	csa_wt<wt_huff<>, 16, 32, sa_order_sa_sampling<>, isa_sampling<>> *fm_index;
 	// Largo de la coleccion completa comprimida
 	unsigned int full_size;
 	
@@ -148,8 +163,11 @@ public:
 /*			rrr_vector<127>::select_0_type *_select0_b, */
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
+			int_vector<> *_pi,
+			int_vector<> *_pi_inv,
 			const char *_ref_text,
-			csa_wt<> *_fm_index,
+/*			csa_wt<> *_fm_index,*/
+			csa_wt<wt_huff<>, 16, 32, sa_order_sa_sampling<>, isa_sampling<>> *_fm_index,
 			unsigned int _full_size );
 	
 	void reset();

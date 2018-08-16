@@ -17,7 +17,7 @@
 #include <sdsl/wavelet_trees.hpp>
 
 #include "FactorsIterator.h"
-#include "FactorsIteratorComparator.h"
+/*#include "FactorsIteratorComparator.h"*/
 #include "FactorsFastIteratorComparator.h"
 #include "NanoTimer.h"
 
@@ -33,7 +33,21 @@ private:
 	unsigned int n_factors;
 	bool omit_text;
 	
-	csa_wt<> fm_index;
+	
+	/*
+	template<class t_wt              = wt_huff<>,              // Wavelet tree type
+		uint32_t t_dens         = 32,                     // Sample density for suffix array (SA) values
+		uint32_t t_inv_dens     = 64,                     // Sample density for inverse suffix array (ISA) values
+		class t_sa_sample_strat = sa_order_sa_sampling<>, // Policy class for the SA sampling.
+		class t_isa_sample_strat= isa_sampling<>,         // Policy class for ISA sampling.
+		class t_alphabet_strat  =                         // Policy class for the representation of the alphabet.
+		typename wt_alphabet_trait<t_wt>::type
+		>
+	*/
+   
+/*	csa_wt<> fm_index;*/
+	csa_wt<wt_huff<>, 16, 32, sa_order_sa_sampling<>, isa_sampling<>> fm_index;
+
 	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
 	
 /*	rrr_vector<127> rrr_s;*/

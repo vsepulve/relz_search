@@ -383,43 +383,43 @@ void FactorsIndexV3::printSize(){
 	
 //	csa_wt<> fm_index;
 	total_bytes += size_in_bytes(fm_index);
-	cout << "FactorsIndexV3::printSize - fm_index: " << (size_in_bytes(fm_index)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - fm_index: " << ((double)size_in_bytes(fm_index)/(1024*1024)) << " MB\n";
 	
 //	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
 	total_bytes += size_in_bytes(rmq);
-	cout << "FactorsIndexV3::printSize - rmq: " << (size_in_bytes(rmq)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - rmq: " << ((double)size_in_bytes(rmq)/(1024*1024)) << " MB\n";
 	
 //	rrr_vector<127> rrr_s;
 	total_bytes += size_in_bytes(rrr_s);
-	cout << "FactorsIndexV3::printSize - rrr_s: " << (size_in_bytes(rrr_s)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - rrr_s: " << ((double)size_in_bytes(rrr_s)/(1024*1024)) << " MB\n";
 //	
 //	inv_perm_support<> perm_inv;
 	total_bytes += size_in_bytes(perm_inv);
-	cout << "FactorsIndexV3::printSize - perm_inv: " << (size_in_bytes(perm_inv)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - perm_inv: " << ((double)size_in_bytes(perm_inv)/(1024*1024)) << " MB\n";
 	
 //	inv_perm_support<> perm;
 	total_bytes += size_in_bytes(perm);
-	cout << "FactorsIndexV3::printSize - perm: " << (size_in_bytes(perm)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - perm: " << ((double)size_in_bytes(perm)/(1024*1024)) << " MB\n";
 	
 //	rrr_vector<127> rrr_b;
 	total_bytes += size_in_bytes(rrr_b);
-	cout << "FactorsIndexV3::printSize - rrr_b: " << (size_in_bytes(rrr_b)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - rrr_b: " << ((double)size_in_bytes(rrr_b)/(1024*1024)) << " MB\n";
 //	
 //	inv_perm_support<> perm_x;
 	total_bytes += size_in_bytes(perm_x);
-	cout << "FactorsIndexV3::printSize - perm_x: " << (size_in_bytes(perm_x)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - perm_x: " << ((double)size_in_bytes(perm_x)/(1024*1024)) << " MB\n";
 	
 //	inv_perm_support<> perm_y;
 	total_bytes += size_in_bytes(perm_y);
-	cout << "FactorsIndexV3::printSize - perm_y: " << (size_in_bytes(perm_y)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - perm_y: " << ((double)size_in_bytes(perm_y)/(1024*1024)) << " MB\n";
 	
 //	inv_perm_support<> perm_y_inv;
 	total_bytes += size_in_bytes(perm_y_inv);
-	cout << "FactorsIndexV3::printSize - perm_y_inv: " << (size_in_bytes(perm_y_inv)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - perm_y_inv: " << ((double)size_in_bytes(perm_y_inv)/(1024*1024)) << " MB\n";
 //	
 //	wt_int<rrr_vector<63>> wt;
 	total_bytes += size_in_bytes(wt);
-	cout << "FactorsIndexV3::printSize - wt: " << (size_in_bytes(wt)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - wt: " << ((double)size_in_bytes(wt)/(1024*1024)) << " MB\n";
 	
 //	tree_y
 	unsigned int max_len = 0;
@@ -475,7 +475,7 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 	}
 	querytime_p2 += timer.getNanosec();
 	
-//	cout << "FactorsIndexV3::findTimes - Section B, ranges\n";
+	cout << "FactorsIndexV3::findTimes - Section B, ranges\n";
 	
 	vector<unsigned long long> kr_pat_vector;
 	vector<unsigned long long> kr_pat_rev_vector;
@@ -492,36 +492,39 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
 		
-//		cout << "-----  tree_x.getRange -----\n";
+		cout << "-----  tree_x.getRange -----\n";
 		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
 		querytime_p3x += timer.getNanosec();
 		timer.reset();
+		cout << "-----\n";
 		
-		if( r1.second == (unsigned int)(-1) || r1.second == (unsigned int)(-1) ){
+		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
 			continue;
 		}
 		
-//		cout << "-----  tree_y.getRange -----\n";
+		cout << "-----  tree_y.getRange -----\n";
 		pair<unsigned int, unsigned int> r2 = tree_y.getRange(kr_pat_vector, i, pattern);
 		querytime_p3y += timer.getNanosec();
 		timer.reset();
+		cout << "-----\n";
 		
-//		cout << "-----\n";
-		
-		if( r2.second == (unsigned int)(-1) || r2.second < r2.first ){
+		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 			continue;
 		}
 		
-//		cout << "FactorsIndexV3::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+		cout << "FactorsIndexV3::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
+		cout << "FactorsIndexV3::findTimes - Adding " << res.second.size() << " points\n";
 		for (auto point : res.second){
 			unsigned int f = perm_y[point.second];
 			unsigned int cur_perm = perm_inv[f];
 			unsigned int pu = select1_b(perm[cur_perm] + 1);
 			results.push_back(pu - i);
 		}
-		
 		querytime_p4 += timer.getNanosec();
+		
+		cout << "FactorsIndexV3::findTimes - End\n";
+		
 	}
 	
 	
@@ -656,7 +659,7 @@ char FactorsIndexV3::getChar(unsigned int factor, unsigned int pos){
 	
 	// Iterators cache
 	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
-		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
+		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, &pi, &pi_inv, ref_text, &fm_index, len_text);
 	}
 	FactorsIterator it = mapa_iterators[factor];
 	if( pos >= it.length() ){
@@ -681,7 +684,7 @@ char FactorsIndexV3::getCharRev(unsigned int factor, unsigned int pos){
 	
 	// Iterators cache
 	if( mapa_iterators_rev.find(factor) == mapa_iterators_rev.end() ){
-		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
+		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, &pi, &pi_inv, ref_text, &fm_index, len_text);
 	}
 	FactorsIteratorReverse it = mapa_iterators_rev[factor];
 	if( pos >= it.length() ){

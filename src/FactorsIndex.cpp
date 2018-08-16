@@ -98,6 +98,12 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	inv_perm_support<> _perm(&pi_inv);
 	perm_inv = _perm_inv;
 	perm = _perm;
+	
+//	cout << "FactorsIndex - Testing Permutations\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << "perm: " << perm[i] << ", perm_inv: " << perm_inv[i] << ", pi: " << pi[i] << ", pi_inv: " << pi_inv[i] << "\n";
+//	}
+	
 	cout << "FactorsIndex - PI prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -293,8 +299,10 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
 			unsigned int f = perm_y[point.second];
-			unsigned int cur_perm = perm_inv[f];
-			unsigned int pu = select1_b(perm[cur_perm] + 1);
+//			unsigned int cur_perm = perm_inv[f];
+//			unsigned int pu = select1_b(perm[cur_perm] + 1);
+			unsigned int cur_perm = pi_inv[f];
+			unsigned int pu = select1_b(pi[cur_perm] + 1);
 			results.push_back(pu - p1.length());
 		}
 		
@@ -336,22 +344,24 @@ void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
 //	cout << "FactorsIndex::find - Section B, ranges\n";
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		string p1 = pattern.substr(0, i);
-//		cout << "FactorsIndex::find - p1: \"" << p1 << "\"\n";
 		string p1_rev = "";
 		for( unsigned int k = 0; k < p1.length(); ++k ){
 			p1_rev += p1[ p1.length() - 1 - k ];
 		}
-//		cout << "FactorsIndex::find - p1_rev: \"" << p1_rev << "\"\n";
 		string p2 = pattern.substr(i, pattern.length() - i);
-//		cout << "FactorsIndex::find - p2: \"" << p2 << "\"\n";
+//		cout << "-----  getRangeX (" << p1_rev << ") -----\n";
 		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
-//		cout << "FactorsIndex::find - r1 ok\n";
+//		cout << "-----\n";
+		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
+			continue;
+		}
+
+
+//		cout << "-----  getRangeY (" << p1_rev << ") -----\n";
 		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
-//		cout << "FactorsIndex::find - r2 ok\n";
+//		cout << "-----\n";
 		
-		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
-			|| r2.second == (unsigned int)(-1) || r2.second < r2.first ){
-//			cout << "FactorsIndex::find - Invalid ranges, omitting...\n";
+		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 			continue;
 		}
 		
@@ -359,8 +369,10 @@ void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
 			unsigned int f = perm_y[point.second];
-			unsigned int cur_perm = perm_inv[f];
-			unsigned int pu = select1_b(perm[cur_perm] + 1);
+//			unsigned int cur_perm = perm_inv[f];
+//			unsigned int pu = select1_b(perm[cur_perm] + 1);
+			unsigned int cur_perm = pi_inv[f];
+			unsigned int pu = select1_b(pi[cur_perm] + 1);
 //			cout << " -> Adding " << (pu - p1.length()) << "\n";
 			results.push_back(pu - p1.length());
 		}
@@ -406,7 +418,7 @@ char FactorsIndex::getChar(unsigned int factor, unsigned int pos, unsigned int m
 	
 	// Iterators cache
 	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
-		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
+		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, &pi, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
 	}
 	FactorsIterator it = mapa_iterators[factor];
 	if( pos >= it.length() ){
@@ -432,7 +444,7 @@ char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos, unsigned in
 	
 	// Iterators cache
 	if( mapa_iterators_rev.find(factor) == mapa_iterators_rev.end() ){
-		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
+		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, &pi, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
 	}
 	FactorsIteratorReverse it = mapa_iterators_rev[factor];
 	if( pos >= it.length() ){
