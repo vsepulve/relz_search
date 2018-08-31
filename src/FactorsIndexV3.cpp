@@ -70,16 +70,9 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - Vector S prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-//	rrr_vector<127> _rrr_s(arr_s);
-//	rrr_s = _rrr_s;
-//	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
-//	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
-	bit_vector _rrr_s(arr_s);
-	rrr_s = _rrr_s;
-	bit_vector::select_1_type _select1_s(&rrr_s);
-	bit_vector::select_0_type _select0_s(&rrr_s);
-	select1_s = _select1_s;
-	select0_s = _select0_s;
+	bits_s = bits_s_type(arr_s);
+	select1_s = bits_s_type::select_1_type(&bits_s);
+	select0_s = bits_s_type::select_0_type(&bits_s);
 	
 	// Permutacion 
 	cout << "FactorsIndexV3 - Preparing Permutation PI\n";
@@ -104,9 +97,8 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		ez[i] = factors_sort[i].second.first;
 	}
-	// rmq_succinct_sct<> rmq(&ez);
-	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > _rmq(&ez);
-	rmq = _rmq;
+//	rmq = rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > >(&ez);
+	rmq = rmq_type(&ez);
 	
 	// Bit vector B (inicio de las frases en texto)
 	cout << "FactorsIndexV3 - Preparing Vector B\n";
@@ -120,17 +112,10 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	}
 	cout << "FactorsIndexV3 - Vector B prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
-
-//	rrr_vector<127> _rrr_b(arr_b);
-//	rrr_b = _rrr_b;
-//	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
-//	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
-	sd_vector<> _rrr_b(arr_b);
-	rrr_b = _rrr_b;
-	sd_vector<>::select_1_type _select1_b(&rrr_b);
-	sd_vector<>::select_0_type _select0_b(&rrr_b);
-	select1_b = _select1_b;
-	select0_b = _select0_b;
+	
+	bits_b = bits_b_type(arr_b);
+	select1_b = bits_b_type::select_1_type(&bits_b);
+	select0_b = bits_b_type::select_0_type(&bits_b);
 	
 	// Construccion del FM Index (aunque use el SA original para la compresion, esto es para la busqueda)
 	// Construccion con datos en memoria, en un string
@@ -389,9 +374,8 @@ void FactorsIndexV3::printSize(){
 	total_bytes += size_in_bytes(rmq);
 	cout << "FactorsIndexV3::printSize - rmq: " << ((double)size_in_bytes(rmq)/(1024*1024)) << " MB\n";
 	
-//	rrr_vector<127> rrr_s;
-	total_bytes += size_in_bytes(rrr_s);
-	cout << "FactorsIndexV3::printSize - rrr_s: " << ((double)size_in_bytes(rrr_s)/(1024*1024)) << " MB\n";
+	total_bytes += size_in_bytes(bits_s);
+	cout << "FactorsIndexV3::printSize - bits_s: " << ((double)size_in_bytes(bits_s)/(1024*1024)) << " MB\n";
 //	
 //	inv_perm_support<> perm_inv;
 	total_bytes += size_in_bytes(perm_inv);
@@ -401,9 +385,8 @@ void FactorsIndexV3::printSize(){
 	total_bytes += size_in_bytes(perm);
 	cout << "FactorsIndexV3::printSize - perm: " << ((double)size_in_bytes(perm)/(1024*1024)) << " MB\n";
 	
-//	rrr_vector<127> rrr_b;
-	total_bytes += size_in_bytes(rrr_b);
-	cout << "FactorsIndexV3::printSize - rrr_b: " << ((double)size_in_bytes(rrr_b)/(1024*1024)) << " MB\n";
+	total_bytes += size_in_bytes(bits_b);
+	cout << "FactorsIndexV3::printSize - bits_b: " << ((double)size_in_bytes(bits_b)/(1024*1024)) << " MB\n";
 //	
 //	inv_perm_support<> perm_x;
 	total_bytes += size_in_bytes(perm_x);

@@ -10,11 +10,6 @@ void FactorsIterator::loadFactor(unsigned int f, bool reset){
 	}
 	// Convertir el factor posicional creciente a la posicion EN la permutacion (con perm_inv)
 	
-//	unsigned int cur_perm = (*perm_inv)[cur_f];
-//	unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
-//	unsigned int pu = select1_b->operator()( (*perm)[cur_perm] + 1);
-//	unsigned int lu = select1_b->operator()( (*perm)[cur_perm] + 2) - pu;
-	
 	unsigned int cur_perm = (*pi_inv)[cur_f];
 	unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
 	unsigned int pu = select1_b->operator()( (*pi)[cur_perm] + 1);
@@ -56,20 +51,15 @@ FactorsIterator::FactorsIterator(){
 }
 
 FactorsIterator::FactorsIterator( unsigned int _start_f, unsigned int _n_factors, 
-		bit_vector::select_1_type *_select1_s, 
-		sd_vector<>::select_1_type *_select1_b, 
-		sd_vector<>::select_0_type *_select0_b,
-//FactorsIterator::FactorsIterator( unsigned int _start_f, unsigned int _n_factors, 
-//		rrr_vector<127>::select_1_type *_select1_s, 
-//		rrr_vector<127>::select_1_type *_select1_b, 
-//		rrr_vector<127>::select_0_type *_select0_b, 
+		bits_s_type::select_1_type *_select1_s, 
+		bits_b_type::select_1_type *_select1_b, 
+		bits_b_type::select_0_type *_select0_b,
 		inv_perm_support<> *_perm, 
 		inv_perm_support<> *_perm_inv, 
 		int_vector<> *_pi,
 		int_vector<> *_pi_inv,
 		const char *_ref_text,
-//		csa_wt<> *_fm_index,
-		csa_wt<wt_huff<>, 16, 32, sa_order_sa_sampling<>, isa_sampling<>> *_fm_index,
+		fm_index_type *_fm_index,
 		unsigned int _full_size ){
 	start_f = _start_f;
 	n_factors = _n_factors;
@@ -143,11 +133,6 @@ void FactorsIteratorReverse::loadFactor(unsigned int f, bool reset){
 	}
 	// Convertir el factor posicional creciente a la posicion EN la permutacion (con perm_inv)
 	
-//	unsigned int cur_perm = (*perm_inv)[cur_f];
-//	unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
-//	unsigned int pu = select1_b->operator()( (*perm)[cur_perm] + 1);
-//	unsigned int lu = select1_b->operator()( (*perm)[cur_perm] + 2) - pu;
-	
 	unsigned int cur_perm = (*pi_inv)[cur_f];
 	unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
 	unsigned int pu = select1_b->operator()( (*pi)[cur_perm] + 1);
@@ -197,20 +182,15 @@ FactorsIteratorReverse::FactorsIteratorReverse(){
 }
 
 FactorsIteratorReverse::FactorsIteratorReverse( unsigned int _start_f, unsigned int _n_factors, 
-		bit_vector::select_1_type *_select1_s, 
-		sd_vector<>::select_1_type *_select1_b, 
-		sd_vector<>::select_0_type *_select0_b, 
-//FactorsIteratorReverse::FactorsIteratorReverse( unsigned int _start_f, unsigned int _n_factors, 
-//		rrr_vector<127>::select_1_type *_select1_s, 
-//		rrr_vector<127>::select_1_type *_select1_b, 
-//		rrr_vector<127>::select_0_type *_select0_b, 
+		bits_s_type::select_1_type *_select1_s, 
+		bits_b_type::select_1_type *_select1_b, 
+		bits_b_type::select_0_type *_select0_b, 
 		inv_perm_support<> *_perm, 
 		inv_perm_support<> *_perm_inv, 
 		int_vector<> *_pi,
 		int_vector<> *_pi_inv,
 		const char *_ref_text,
-//		csa_wt<> *_fm_index,
-		csa_wt<wt_huff<>, 16, 32, sa_order_sa_sampling<>, isa_sampling<>> *_fm_index,
+		fm_index_type *_fm_index,
 		unsigned int _full_size ){
 	start_f = _start_f;
 	n_factors = _n_factors;
