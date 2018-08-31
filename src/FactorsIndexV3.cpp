@@ -84,10 +84,8 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		pi[i] = factors_sort[i].second.second;
 		pi_inv[ factors_sort[i].second.second ] = i;
 	}
-	inv_perm_support<> _perm_inv(&pi);
-	inv_perm_support<> _perm(&pi_inv);
-	perm_inv = _perm_inv;
-	perm = _perm;
+	perm_inv = inv_perm_support<>(&pi);
+	perm = inv_perm_support<>(&pi_inv);
 	cout << "FactorsIndexV3 - PI prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -97,7 +95,6 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		ez[i] = factors_sort[i].second.first;
 	}
-//	rmq = rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > >(&ez);
 	rmq = rmq_type(&ez);
 	
 	// Bit vector B (inicio de las frases en texto)
