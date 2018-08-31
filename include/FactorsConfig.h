@@ -33,7 +33,9 @@ typedef csa_wt<wt_huff<>, 16, 32, sa_order_sa_sampling<>, isa_sampling<>> fm_ind
 typedef rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq_type;
 //typedef rmq_succinct_sct<false, bp_support_sada<128,32,rank_support_v5<> > > rmq_type;
 
-
+// Type for the Wavelet Tree structure used to combine ranges
+//typedef wt_int<rrr_vector<127>> wt_type;
+typedef wt_int<rrr_vector<63>> wt_type;
 
 
 

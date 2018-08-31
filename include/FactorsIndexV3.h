@@ -56,7 +56,7 @@ private:
 	inv_perm_support<> perm_y;
 	inv_perm_support<> perm_y_inv;
 	
-	wt_int<rrr_vector<63>> wt;
+	wt_type wt;
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
 	bool acelerar_rmq;
