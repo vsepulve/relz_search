@@ -83,6 +83,8 @@ private:
 			
 	pair<unsigned int, unsigned int> getRangeX(const char *pattern);
 	
+	template <typename ItereatorType>
+	bool factorLessRev(unsigned int factor, const char *pattern, unsigned int len, bool equal = false);
 	
 public: 
 	FactorsIndex();
