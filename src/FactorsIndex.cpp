@@ -73,16 +73,9 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	cout << "FactorsIndex - Vector S prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-//	rrr_vector<127> _rrr_s(arr_s);
-//	rrr_s = _rrr_s;
-//	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
-//	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
-	bit_vector _rrr_s(arr_s);
-	rrr_s = _rrr_s;
-	bit_vector::select_1_type _select1_s(&rrr_s);
-	bit_vector::select_0_type _select0_s(&rrr_s);
-	select1_s = _select1_s;
-	select0_s = _select0_s;
+	bits_s = bits_s_type(arr_s);
+	select1_s = bits_s_type::select_1_type(&bits_s);
+	select0_s = bits_s_type::select_0_type(&bits_s);
 	
 	// Permutacion 
 	cout << "FactorsIndex - Preparing Permutation PI\n";
@@ -94,10 +87,14 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 		pi[i] = factors_sort[i].second.second;
 		pi_inv[ factors_sort[i].second.second ] = i;
 	}
-	inv_perm_support<> _perm_inv(&pi);
-	inv_perm_support<> _perm(&pi_inv);
-	perm_inv = _perm_inv;
-	perm = _perm;
+	perm_inv = inv_perm_support<>(&pi);
+	perm = inv_perm_support<>(&pi_inv);
+	
+//	cout << "FactorsIndex - Testing Permutations\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << "perm: " << perm[i] << ", perm_inv: " << perm_inv[i] << ", pi: " << pi[i] << ", pi_inv: " << pi_inv[i] << "\n";
+//	}
+	
 	cout << "FactorsIndex - PI prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -107,9 +104,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		ez[i] = factors_sort[i].second.first;
 	}
-	// rmq_succinct_sct<> rmq(&ez);
-	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > _rmq(&ez);
-	rmq = _rmq;
+	rmq = rmq_type(&ez);
 	
 	// Bit vector B (inicio de las frases en texto)
 	cout << "FactorsIndex - Preparing Vector B\n";
@@ -124,16 +119,9 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	cout << "FactorsIndex - Vector B prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 
-//	rrr_vector<127> _rrr_b(arr_b);
-//	rrr_b = _rrr_b;
-//	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
-//	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
-	sd_vector<> _rrr_b(arr_b);
-	rrr_b = _rrr_b;
-	sd_vector<>::select_1_type _select1_b(&rrr_b);
-	sd_vector<>::select_0_type _select0_b(&rrr_b);
-	select1_b = _select1_b;
-	select0_b = _select0_b;
+	bits_b = bits_b_type(arr_b);
+	select1_b = bits_b_type::select_1_type(&bits_b);
+	select0_b = bits_b_type::select_0_type(&bits_b);
 	
 	// Construccion del FM Index (aunque use el SA original para la compresion, esto es para la busqueda)
 	// Construccion con datos en memoria, en un string
@@ -142,43 +130,35 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	cout << "FactorsIndex - fm_index prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-//	if( omit_text ){
-//		ref_text = NULL;
-//	}
-	
 	// Preparacion de permutaciones X e Y
 	cout << "FactorsIndex - Preparing arr X\n";
-	vector<unsigned int> arr_x(n_factors);
+	vector<unsigned int> arr_x_original(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
-		arr_x[i] = i;
+		arr_x_original[i] = i;
 	}
-//	FactorsIteratorReverseComparator comp_rev(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
 	FactorsFastIteratorReverseComparator comp_rev(&factors_start, full_text, len_text);
-	cout << "FactorsIndex - stable_sort...\n";
-	stable_sort(arr_x.begin(), arr_x.end(), comp_rev);
-	cout << "FactorsIndex - Ok\n";
-	int_vector<> _pre_x_inv(n_factors);
-	pre_x_inv = _pre_x_inv;
+	stable_sort(arr_x_original.begin(), arr_x_original.end(), comp_rev);
+	arr_x = int_vector<>(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
-		pre_x_inv[ arr_x[i] ] = i;
+		arr_x[i] = arr_x_original[i];
 	}
-	inv_perm_support<> _perm_x(&pre_x_inv);
-	perm_x = _perm_x;
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
 	
 	cout << "FactorsIndex - Preparing arr Y\n";
+	/*
+	// Conservo la version original del codigo por ahora
+	// Solo por si decido usar permutaciones despues
 	vector<unsigned int> arr_y(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_y[i] = i;
 	}
-//	FactorsIteratorComparator comp(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
 	FactorsFastIteratorComparator comp(&factors_start, full_text, len_text);
 	stable_sort(arr_y.begin(), arr_y.end(), comp);
 	int_vector<> _pre_y(n_factors);
@@ -193,14 +173,40 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	inv_perm_support<> _perm_y_inv(&pre_y);
 	perm_y = _perm_y;
 	perm_y_inv = _perm_y_inv;
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
+	cout << "FactorsIndex - X & Y prepared in " << timer.getMilisec() << "\n";
+	timer.reset();
+	*/
+	
+	vector<unsigned int> arr_y_original(n_factors);
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		arr_y_original[i] = i;
+	}
+	FactorsFastIteratorComparator comp(&factors_start, full_text, len_text);
+	stable_sort(arr_y_original.begin(), arr_y_original.end(), comp);
+	
+	arr_y = int_vector<>(n_factors);
+	int_vector<> arr_y_inv(n_factors);
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		arr_y[i] = arr_y_original[i];
+		arr_y_inv[ arr_y_original[i] ] = i;
+	}
+	
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 10 && (c = getChar(arr_y[i], k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
 	cout << "FactorsIndex - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -208,7 +214,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	int_vector<> _values_wt(n_factors);
 	values_wt = _values_wt;
 	for( unsigned int i = 0; i < n_factors; ++i ){
-		values_wt[i] = perm_y_inv[ arr_x[ i ] ];
+		values_wt[i] = arr_y_inv[ arr_x[ i ] ];
 	}
 	
 	construct_im(wt, values_wt);
@@ -292,9 +298,11 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 //		cout << "FactorsIndex::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
-			unsigned int f = perm_y[point.second];
-			unsigned int cur_perm = perm_inv[f];
-			unsigned int pu = select1_b(perm[cur_perm] + 1);
+			unsigned int f = arr_y[point.second];
+//			unsigned int cur_perm = perm_inv[f];
+//			unsigned int pu = select1_b(perm[cur_perm] + 1);
+			unsigned int cur_perm = pi_inv[f];
+			unsigned int pu = select1_b(pi[cur_perm] + 1);
 			results.push_back(pu - p1.length());
 		}
 		
@@ -336,31 +344,35 @@ void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
 //	cout << "FactorsIndex::find - Section B, ranges\n";
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		string p1 = pattern.substr(0, i);
-//		cout << "FactorsIndex::find - p1: \"" << p1 << "\"\n";
 		string p1_rev = "";
 		for( unsigned int k = 0; k < p1.length(); ++k ){
 			p1_rev += p1[ p1.length() - 1 - k ];
 		}
-//		cout << "FactorsIndex::find - p1_rev: \"" << p1_rev << "\"\n";
 		string p2 = pattern.substr(i, pattern.length() - i);
-//		cout << "FactorsIndex::find - p2: \"" << p2 << "\"\n";
+//		cout << "-----  getRangeX (" << p1_rev << ") -----\n";
 		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
-//		cout << "FactorsIndex::find - r1 ok\n";
+//		cout << "-----\n";
+		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
+			continue;
+		}
+
+
+//		cout << "-----  getRangeY (" << p1_rev << ") -----\n";
 		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
-//		cout << "FactorsIndex::find - r2 ok\n";
+//		cout << "-----\n";
 		
-		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
-			|| r2.second == (unsigned int)(-1) || r2.second < r2.first ){
-//			cout << "FactorsIndex::find - Invalid ranges, omitting...\n";
+		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 			continue;
 		}
 		
 //		cout << "FactorsIndex::find - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
-			unsigned int f = perm_y[point.second];
-			unsigned int cur_perm = perm_inv[f];
-			unsigned int pu = select1_b(perm[cur_perm] + 1);
+			unsigned int f = arr_y[point.second];
+//			unsigned int cur_perm = perm_inv[f];
+//			unsigned int pu = select1_b(perm[cur_perm] + 1);
+			unsigned int cur_perm = pi_inv[f];
+			unsigned int pu = select1_b(pi[cur_perm] + 1);
 //			cout << " -> Adding " << (pu - p1.length()) << "\n";
 			results.push_back(pu - p1.length());
 		}
@@ -406,7 +418,7 @@ char FactorsIndex::getChar(unsigned int factor, unsigned int pos, unsigned int m
 	
 	// Iterators cache
 	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
-		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
+		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, &pi, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
 	}
 	FactorsIterator it = mapa_iterators[factor];
 	if( pos >= it.length() ){
@@ -432,7 +444,7 @@ char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos, unsigned in
 	
 	// Iterators cache
 	if( mapa_iterators_rev.find(factor) == mapa_iterators_rev.end() ){
-		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
+		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, &pi, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
 	}
 	FactorsIteratorReverse it = mapa_iterators_rev[factor];
 	if( pos >= it.length() ){
@@ -474,7 +486,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 //		cout << "getRangeY - l: " << l << ", h: " << h << "\n";
 		while(l < h){
 			m = l + ((h-l)>>1);
-			fm = perm_y[m];
+			fm = arr_y[m];
 			c = getChar(fm, cur_pos, pat_len-cur_pos);
 			text_len = mapa_iterators[fm].length();
 //			cout << "getRangeY - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
@@ -488,7 +500,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 			}
 		}
 		izq = h;
-		fm = perm_y[izq];
+		fm = arr_y[izq];
 		c = getChar(fm, cur_pos, pat_len-cur_pos);
 		text_len = mapa_iterators[fm].length();
 		if( (cur_pos < text_len) && (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
@@ -503,7 +515,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 //		cout << "getRangeY - l: " << l << ", h: " << h << "\n";
 		while(l < h){
 			m = l + ((h-l)>>1);
-			fm = perm_y[m];
+			fm = arr_y[m];
 			c = getChar(fm, cur_pos);
 			text_len = mapa_iterators[fm].length();
 //			cout << "getRangeY - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
@@ -517,7 +529,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 			}
 		}
 		der = h;
-		fm = perm_y[der];
+		fm = arr_y[der];
 		c = getChar(fm, cur_pos);
 		text_len = mapa_iterators[fm].length();
 		if( (der > 0) && (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
@@ -555,8 +567,8 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 //		cout << "getRangeX - l: " << l << ", h: " << h << "\n";
 		while(l < h){
 			m = l + ((h-l)>>1);
-//			cout << "getRangeX - l: perm_x[" << m << "]...\n";
-			fm = perm_x[m];
+//			cout << "getRangeX - l: arr_x[" << m << "]...\n";
+			fm = arr_x[m];
 //			cout << "getRangeX - l: getCharRev(" << (fm-1) << ", " << cur_pos << ")\n";
 			c = getCharRev(fm-1, cur_pos, pat_len-cur_pos);
 			text_len = mapa_iterators_rev[fm-1].length();
@@ -572,7 +584,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 		}
 //		cout << "getRangeX - end h: " << h << "\n";
 		izq = h;
-		fm = perm_x[izq];
+		fm = arr_x[izq];
 		c = getCharRev(fm-1, cur_pos, pat_len-cur_pos);
 		text_len = mapa_iterators_rev[fm-1].length();
 		if( (cur_pos < text_len) && (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
@@ -587,7 +599,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 //		cout << "getRangeX - l: " << l << ", h: " << h << "\n";
 		while(l < h){
 			m = l + ((h-l)>>1);
-			fm = perm_x[m];
+			fm = arr_x[m];
 			c = getCharRev(fm-1, cur_pos);
 			text_len = mapa_iterators_rev[fm-1].length();
 //			cout << "getRangeX - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
@@ -601,7 +613,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 			}
 		}
 		der = h;
-		fm = perm_x[der];
+		fm = arr_x[der];
 		c = getCharRev(fm-1, cur_pos);
 		text_len = mapa_iterators_rev[fm-1].length();
 		if( (der > 0) && (cur_pos < text_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
@@ -622,56 +634,42 @@ void FactorsIndex::printSize(){
 	// texto descomprimido
 	if( ! omit_text ){
 		total_bytes += len_ref;
-		cout << "FactorsIndex::printSize - Reference Text: " << ((double)len_ref/(1024*1024)) << " MB\n";
+		cout << "FactorsIndex::printSize - Reference Text: " << (8.0*len_ref/len_text) << " bps\n";
 	}
-	
-//	if( acelerar_rmq ){
-//		// 3 integers => 12 bytes per factor
-//		total_bytes += n_factors * 12;
-//		cout << "FactorsIndex::printSize - Factors: " << (n_factors*12/(1024*1024)) << " MB\n";
-//	}
 	
 //	csa_wt<> fm_index;
 	total_bytes += size_in_bytes(fm_index);
-	cout << "FactorsIndex::printSize - fm_index: " << ((double)size_in_bytes(fm_index)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - fm_index: " << (8.0*size_in_bytes(fm_index)/len_text) << " bps\n";
 	
 //	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
 	total_bytes += size_in_bytes(rmq);
-	cout << "FactorsIndex::printSize - rmq: " << ((double)size_in_bytes(rmq)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - rmq: " << (8.0*size_in_bytes(rmq)/len_text) << " bps\n";
 	
-//	rrr_vector<127> rrr_s;
-	total_bytes += size_in_bytes(rrr_s);
-	cout << "FactorsIndex::printSize - rrr_s: " << ((double)size_in_bytes(rrr_s)/(1024*1024)) << " MB\n";
-//	
+	total_bytes += size_in_bytes(bits_s);
+	cout << "FactorsIndex::printSize - bits_s: " << (8.0*size_in_bytes(bits_s)/len_text) << " bps\n";
+	
 //	inv_perm_support<> perm_inv;
 	total_bytes += size_in_bytes(perm_inv);
-	cout << "FactorsIndex::printSize - perm_inv: " << ((double)size_in_bytes(perm_inv)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - perm_inv: " << (8.0*size_in_bytes(perm_inv)/len_text) << " bps\n";
 	
 //	inv_perm_support<> perm;
 	total_bytes += size_in_bytes(perm);
-	cout << "FactorsIndex::printSize - perm: " << ((double)size_in_bytes(perm)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - perm: " << (8.0*size_in_bytes(perm)/len_text) << " bps\n";
 	
-//	rrr_vector<127> rrr_b;
-	total_bytes += size_in_bytes(rrr_b);
-	cout << "FactorsIndex::printSize - rrr_b: " << ((double)size_in_bytes(rrr_b)/(1024*1024)) << " MB\n";
-//	
-//	inv_perm_support<> perm_x;
-	total_bytes += size_in_bytes(perm_x);
-	cout << "FactorsIndex::printSize - perm_x: " << ((double)size_in_bytes(perm_x)/(1024*1024)) << " MB\n";
+	total_bytes += size_in_bytes(bits_b);
+	cout << "FactorsIndex::printSize - bits_b: " << (8.0*size_in_bytes(bits_b)/len_text) << " bps\n";
 	
-//	inv_perm_support<> perm_y;
-	total_bytes += size_in_bytes(perm_y);
-	cout << "FactorsIndex::printSize - perm_y: " << ((double)size_in_bytes(perm_y)/(1024*1024)) << " MB\n";
+	total_bytes += size_in_bytes(arr_x);
+	cout << "FactorsIndex::printSize - arr_x: " << (8.0*size_in_bytes(arr_x)/len_text) << " bps\n";
 	
-//	inv_perm_support<> perm_y_inv;
-	total_bytes += size_in_bytes(perm_y_inv);
-	cout << "FactorsIndex::printSize - perm_y_inv: " << ((double)size_in_bytes(perm_y_inv)/(1024*1024)) << " MB\n";
+	total_bytes += size_in_bytes(arr_y);
+	cout << "FactorsIndex::printSize - arr_y: " << (8.0*size_in_bytes(arr_y)/len_text) << " bps\n";
 //	
 //	wt_int<rrr_vector<63>> wt;
 	total_bytes += size_in_bytes(wt);
-	cout << "FactorsIndex::printSize - wt: " << ((double)size_in_bytes(wt)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndex::printSize - wt: " << (8.0*size_in_bytes(wt)/len_text) << " bps\n";
 	
-	cout << "FactorsIndex::printSize - Total " << total_bytes << " (" << (total_bytes/(1024*1024)) << " MB)\n";
+	cout << "FactorsIndex::printSize - Total " << total_bytes/(1024*1024) << " MB (" << (8.0*total_bytes/len_text) << " bps)\n";
 	
 }
 
@@ -707,13 +705,13 @@ void FactorsIndex::save(const string &file_base){
 	string rmq_file = file_base + ".rmq";
 	store_to_file(rmq, rmq_file);
 	
-	// rrr_s
-	string rrr_s_file = file_base + ".arrs";
-	store_to_file(rrr_s, rrr_s_file);
+	// bits_s
+	string bits_s_file = file_base + ".arrs";
+	store_to_file(bits_s, bits_s_file);
 	
-	// rrr_b
-	string rrr_b_file = file_base + ".arrb";
-	store_to_file(rrr_b, rrr_b_file);
+	// bits_b
+	string bits_b_file = file_base + ".arrb";
+	store_to_file(bits_b, bits_b_file);
 	
 	// perm
 	string pi_file = file_base + ".pi";
@@ -723,17 +721,13 @@ void FactorsIndex::save(const string &file_base){
 	string pi1_file = file_base + ".pi1";
 	store_to_file(perm_inv, pi1_file);
 	
-	// perm_x
+	// arr_x
 	string x_file = file_base + ".x";
-	store_to_file(perm_x, x_file);
+	store_to_file(arr_x, x_file);
 	
-	// perm_y
+	// arr_y
 	string y_file = file_base + ".y";
-	store_to_file(perm_y, y_file);
-	
-	// perm_y_inv
-	string y1_file = file_base + ".y1";
-	store_to_file(perm_y_inv, y1_file);
+	store_to_file(arr_y, y_file);
 	
 	// wt
 	string wt_file = file_base + ".wt";
@@ -782,27 +776,19 @@ void FactorsIndex::load(const string &file_base){
 	string rmq_file = file_base + ".rmq";
 	load_from_file(rmq, rmq_file);
 	
-	// rrr_s
-	cout << "FactorsIndex::load - rrr_s\n";
-	string rrr_s_file = file_base + ".arrs";
-	load_from_file(rrr_s, rrr_s_file);
-//	rrr_vector<127>::select_1_type _select1_s(&rrr_s);
-//	rrr_vector<127>::select_0_type _select0_s(&rrr_s);
-	bit_vector::select_1_type _select1_s(&rrr_s);
-	bit_vector::select_0_type _select0_s(&rrr_s);
-	select1_s = _select1_s;
-	select0_s = _select0_s;
+	// bits_s
+	cout << "FactorsIndex::load - bits_s\n";
+	string bits_s_file = file_base + ".arrs";
+	load_from_file(bits_s, bits_s_file);
+	select1_s = bits_s_type::select_1_type(&bits_s);
+	select0_s = bits_s_type::select_0_type(&bits_s);
 	
-	// rrr_b
-	cout << "FactorsIndex::load - rrr_b\n";
-	string rrr_b_file = file_base + ".arrb";
-	load_from_file(rrr_b, rrr_b_file);
-//	rrr_vector<127>::select_1_type _select1_b(&rrr_b);
-//	rrr_vector<127>::select_0_type _select0_b(&rrr_b);
-	sd_vector<>::select_1_type _select1_b(&rrr_b);
-	sd_vector<>::select_0_type _select0_b(&rrr_b);
-	select1_b = _select1_b;
-	select0_b = _select0_b;
+	// bits_b
+	cout << "FactorsIndex::load - bits_b\n";
+	string bits_b_file = file_base + ".arrb";
+	load_from_file(bits_b, bits_b_file);
+	select1_b = bits_b_type::select_1_type(&bits_b);
+	select0_b = bits_b_type::select_0_type(&bits_b);
 	
 	// perm
 	cout << "FactorsIndex::load - perm\n";
@@ -813,17 +799,13 @@ void FactorsIndex::load(const string &file_base){
 	string pi1_file = file_base + ".pi1";
 	load_from_file(perm_inv, pi1_file);
 	
-	// perm_x
+	// arr_x
 	string x_file = file_base + ".x";
-	load_from_file(perm_x, x_file);
+	load_from_file(arr_x, x_file);
 	
-	// perm_y
+	// arr_y
 	string y_file = file_base + ".y";
-	load_from_file(perm_y, y_file);
-	
-	// perm_y_inv
-	string y1_file = file_base + ".y1";
-	load_from_file(perm_y_inv, y1_file);
+	load_from_file(arr_y, y_file);
 	
 	// wt
 	cout << "FactorsIndex::load - wt\n";

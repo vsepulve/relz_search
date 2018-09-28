@@ -23,7 +23,6 @@
 
 #include "FactorsIndex.h"
 #include "FactorsIterator.h"
-#include "FactorsIteratorComparator.h"
 
 using namespace sdsl;
 using namespace std;

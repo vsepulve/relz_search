@@ -16,8 +16,8 @@
 #include <sdsl/inv_perm_support.hpp>
 #include <sdsl/wavelet_trees.hpp>
 
+#include "FactorsConfig.h"
 #include "FactorsIterator.h"
-#include "FactorsIteratorComparator.h"
 #include "FactorsFastIteratorComparator.h"
 #include "NanoTimer.h"
 
@@ -27,39 +27,34 @@ using namespace std;
 class FactorsIndex {
 
 private: 
+	
 	unsigned int len_text;
 	char *ref_text;
 	unsigned int len_ref;
 	unsigned int n_factors;
 	bool omit_text;
 	
-	csa_wt<> fm_index;
-	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
+	fm_index_type fm_index;
+
+	rmq_type rmq;
 	
-/*	rrr_vector<127> rrr_s;*/
-/*	rrr_vector<127>::select_1_type select1_s;*/
-/*	rrr_vector<127>::select_0_type select0_s;*/
+	bits_s_type bits_s;
+	bits_s_type::select_1_type select1_s;
+	bits_s_type::select_0_type select0_s;
 	
-	bit_vector rrr_s;
-	bit_vector::select_1_type select1_s;
-	bit_vector::select_0_type select0_s;
+	bits_b_type bits_b;
+	bits_b_type::select_1_type select1_b;
+	bits_b_type::select_0_type select0_b;
 	
-/*	rrr_vector<127> rrr_b;*/
-/*	rrr_vector<127>::select_1_type select1_b;*/
-/*	rrr_vector<127>::select_0_type select0_b;*/
-	
-	sd_vector<> rrr_b;
-	sd_vector<>::select_1_type select1_b;
-	sd_vector<>::select_0_type select0_b;
-	
+	int_vector<> pi;
+	int_vector<> pi_inv;
 	inv_perm_support<> perm;
 	inv_perm_support<> perm_inv;
 	
-	inv_perm_support<> perm_x;
-	inv_perm_support<> perm_y;
-	inv_perm_support<> perm_y_inv;
+	int_vector<> arr_x;
+	int_vector<> arr_y;
 	
-	wt_int<rrr_vector<63>> wt;
+	wt_type wt;
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
 	bool acelerar_rmq;
@@ -71,11 +66,6 @@ private:
 	bit_vector arr_s;
 	bit_vector arr_b;
 	int_vector<> ez;
-	int_vector<> pi;
-	int_vector<> pi_inv;
-	int_vector<> pre_x_inv;
-	int_vector<> pre_y;
-	int_vector<> pre_y_inv;
 	int_vector<> values_wt;
 	
 	// Cache de iteradores

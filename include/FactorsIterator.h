@@ -14,6 +14,8 @@
 #include <sdsl/inv_perm_support.hpp>
 #include <sdsl/wavelet_trees.hpp>
 
+#include "FactorsConfig.h"
+
 using namespace sdsl;
 using namespace std;
 
@@ -22,20 +24,24 @@ class FactorsIterator {
 private: 
 	
 	// Valores y estructuras globales, compartidas entre iteradores
-/*	rrr_vector<127>::select_1_type *select1_s;*/
-	bit_vector::select_1_type *select1_s;
+	bits_s_type::select_1_type *select1_s;
 	
-/*	rrr_vector<127>::select_1_type *select1_b;*/
-/*	rrr_vector<127>::select_0_type *select0_b;*/
-	sd_vector<>::select_1_type *select1_b;
-	sd_vector<>::select_0_type *select0_b;
+	bits_b_type::select_1_type *select1_b;
+	bits_b_type::select_0_type *select0_b;
 
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
+	
+	// Permutaciones unc
+	int_vector<> *pi;
+	int_vector<> *pi_inv;
+	
 	// Texto de la referencia descomprimido
 	const char *ref_text;
+	
 	// FM-Index en lugar del texto
-	csa_wt<> *fm_index;
+	fm_index_type *fm_index;
+	
 	// Largo de la coleccion completa comprimida
 	unsigned int full_size;
 	
@@ -64,17 +70,15 @@ public:
 	FactorsIterator();
 	
 	FactorsIterator( unsigned int _start_f, unsigned int _n_factors, 
-			bit_vector::select_1_type *_select1_s, 
-			sd_vector<>::select_1_type *_select1_b, 
-			sd_vector<>::select_0_type *_select0_b, 
-/*	FactorsIterator( unsigned int _start_f, unsigned int _n_factors, */
-/*			rrr_vector<127>::select_1_type *_select1_s, */
-/*			rrr_vector<127>::select_1_type *_select1_b, */
-/*			rrr_vector<127>::select_0_type *_select0_b, */
+			bits_s_type::select_1_type *_select1_s, 
+			bits_b_type::select_1_type *_select1_b, 
+			bits_b_type::select_0_type *_select0_b, 
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
+			int_vector<> *_pi,
+			int_vector<> *_pi_inv,
 			const char *_ref_text,
-			csa_wt<> *_fm_index,
+			fm_index_type *_fm_index,
 			unsigned int _full_size );
 	
 	void reset();
@@ -98,19 +102,23 @@ class FactorsIteratorReverse {
 private: 
 	
 	// Valores y estructuras globales, compartidas entre iteradores
-/*	rrr_vector<127>::select_1_type *select1_s;*/
-	bit_vector::select_1_type *select1_s;
+	bits_s_type::select_1_type *select1_s;
 	
-/*	rrr_vector<127>::select_1_type *select1_b;*/
-/*	rrr_vector<127>::select_0_type *select0_b;*/
-	sd_vector<>::select_1_type *select1_b;
-	sd_vector<>::select_0_type *select0_b;
+	bits_b_type::select_1_type *select1_b;
+	bits_b_type::select_0_type *select0_b;
 
 	inv_perm_support<> *perm;
 	inv_perm_support<> *perm_inv;
+	
+	// Permutaciones unc
+	int_vector<> *pi;
+	int_vector<> *pi_inv;
+	
 	const char *ref_text;
+	
 	// FM-Index en lugar del texto
-	csa_wt<> *fm_index;
+	fm_index_type *fm_index;
+	
 	// Largo de la coleccion completa comprimida
 	unsigned int full_size;
 	
@@ -139,17 +147,15 @@ public:
 	FactorsIteratorReverse();
 	
 	FactorsIteratorReverse( unsigned int _start_f, unsigned int _n_factors, 
-			bit_vector::select_1_type *_select1_s, 
-			sd_vector<>::select_1_type *_select1_b, 
-			sd_vector<>::select_0_type *_select0_b, 
-/*	FactorsIteratorReverse( unsigned int _start_f, unsigned int _n_factors, */
-/*			rrr_vector<127>::select_1_type *_select1_s, */
-/*			rrr_vector<127>::select_1_type *_select1_b, */
-/*			rrr_vector<127>::select_0_type *_select0_b, */
+			bits_s_type::select_1_type *_select1_s, 
+			bits_b_type::select_1_type *_select1_b, 
+			bits_b_type::select_0_type *_select0_b, 
 			inv_perm_support<> *_perm, 
 			inv_perm_support<> *_perm_inv, 
+			int_vector<> *_pi,
+			int_vector<> *_pi_inv,
 			const char *_ref_text,
-			csa_wt<> *_fm_index,
+			fm_index_type *_fm_index,
 			unsigned int _full_size );
 	
 	void reset();
