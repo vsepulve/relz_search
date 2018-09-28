@@ -135,7 +135,29 @@ int main(int argc, char* argv[]){
 	timer.reset();
 	compressor.compress(sequence_text, n_threads, block_size, use_metadata, &factors);
 	cout<<"Compression finished in "<<timer.getMilisec()<<" ms\n";
-	cout << "Total Factors: " << factors.size() << "\n";
+	
+	double mean_len = 0;
+	unsigned int min_len = 0xffffffff;
+	unsigned int max_len = 0;
+	map<unsigned int, unsigned int> histo;
+	for(auto factor : factors){
+		mean_len += factor.second;
+		if(factor.second < min_len){
+			min_len = factor.second;
+		}
+		if(factor.second > max_len){
+			max_len = factor.second;
+		}
+		histo[factor.second]++;
+	}
+	mean_len /= factors.size();
+	
+	cout << "Total Factors: " << factors.size() << " (min_len: " << min_len << ", max_len: " << max_len << ", mean_len: " << mean_len << ")\n";
+	
+	for(unsigned int i = 0; i < ( (max_len<100)?max_len:100 ); ++i){
+		cout << "Histo[" << i << "]: " << histo[i] << "\n";
+	}
+	
 	
 	delete reference;
 	
