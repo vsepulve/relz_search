@@ -108,7 +108,8 @@ char FactorsIterator::next(){
 bool FactorsIterator::hasNext(){
 //	cout << "FactorsIterator::hasNext - " << cur_pos << " <= " << cur_f_fin << "?\n";
 //	if( cur_pos <= cur_f_fin ){
-	if( cur_pos <= cur_f_fin && cur_f >= 0 && cur_f < n_factors ){
+//	if( cur_pos <= cur_f_fin && cur_f >= 0 && cur_f < n_factors ){
+	if( text_pos < text_length ){
 		return true;
 	}
 	return false;
