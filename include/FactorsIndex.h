@@ -80,11 +80,13 @@ private:
 	char getCharRev(unsigned int factor, unsigned int pos, unsigned int max_len = 100);
 			
 	pair<unsigned int, unsigned int> getRangeY(const char *pattern);
-			
+	pair<unsigned int, unsigned int> getRangeYv2(const char *pattern);
+	
 	pair<unsigned int, unsigned int> getRangeX(const char *pattern);
+	pair<unsigned int, unsigned int> getRangeXv2(const char *pattern);
 	
 	template <typename ItereatorType>
-	bool factorLessRev(unsigned int factor, const char *pattern, unsigned int len, bool equal = false);
+	bool factorLess(unsigned int factor, const char *pattern, unsigned int len, bool equal = false);
 	
 public: 
 	FactorsIndex();
