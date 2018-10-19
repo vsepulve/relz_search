@@ -35,7 +35,7 @@ private:
 	bool omit_text;
 	
 	fm_index_type fm_index;
-
+	
 	rmq_type rmq;
 	
 	bits_s_type bits_s;

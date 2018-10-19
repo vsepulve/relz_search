@@ -442,7 +442,7 @@ char FactorsIndex::getChar(unsigned int factor, unsigned int pos, unsigned int m
 	
 	// Iterators cache
 	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
-		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, &pi, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
+		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &pi, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
 	}
 	FactorsIterator it = mapa_iterators[factor];
 	if( pos >= it.length() ){
@@ -467,7 +467,7 @@ char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos, unsigned in
 	
 	// Iterators cache
 	if( mapa_iterators_rev.find(factor) == mapa_iterators_rev.end() ){
-		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, &pi, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
+		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &pi, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
 	}
 	FactorsIteratorReverse it = mapa_iterators_rev[factor];
 	if( pos >= it.length() ){
@@ -489,7 +489,7 @@ bool FactorsIndex::factorLess(unsigned int factor, const char *pattern, unsigned
 	if( factor == (unsigned int)(-1) ){
 		return true;
 	}
-	ItereatorType it(factor, n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, &pi, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
+	ItereatorType it(factor, n_factors, &select1_s, &select1_b, &select0_b, &pi, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
 	if( it.length() == 0 ){
 		return true;
 	}

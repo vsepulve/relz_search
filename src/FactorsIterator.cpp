@@ -8,12 +8,12 @@ void FactorsIterator::loadFactor(unsigned int f, bool reset){
 	if( cur_f == (unsigned int)(-1) || cur_f >= n_factors){
 		return;
 	}
-	// Convertir el factor posicional creciente a la posicion EN la permutacion (con perm_inv)
+	// Convertir el factor posicional creciente a la posicion EN la permutacion
 	
-	unsigned int cur_perm = (*pi_inv)[cur_f];
-	unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
-	unsigned int pu = select1_b->operator()( (*pi)[cur_perm] + 1);
-	unsigned int lu = select1_b->operator()( (*pi)[cur_perm] + 2) - pu;
+	unsigned int cur_pi = (*pi_inv)[cur_f];
+	unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
+	unsigned int pu = select1_b->operator()( (*pi)[cur_pi] + 1);
+	unsigned int lu = select1_b->operator()( (*pi)[cur_pi] + 2) - pu;
 	
 //	cout << "FactorsIterator::loadFactor - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 	cur_f_ini = tu;
@@ -33,8 +33,6 @@ FactorsIterator::FactorsIterator(){
 	select1_s = NULL;
 	select1_b = NULL;
 	select0_b = NULL;
-	perm = NULL;
-	perm_inv = NULL;
 	pi = NULL;
 	pi_inv = NULL;
 	ref_text = NULL;
@@ -54,8 +52,6 @@ FactorsIterator::FactorsIterator( unsigned int _start_f, unsigned int _n_factors
 		bits_s_type::select_1_type *_select1_s, 
 		bits_b_type::select_1_type *_select1_b, 
 		bits_b_type::select_0_type *_select0_b,
-		inv_perm_support<> *_perm, 
-		inv_perm_support<> *_perm_inv, 
 		int_vector<> *_pi,
 		int_vector<> *_pi_inv,
 		const char *_ref_text,
@@ -66,8 +62,6 @@ FactorsIterator::FactorsIterator( unsigned int _start_f, unsigned int _n_factors
 	select1_s = _select1_s;
 	select1_b = _select1_b;
 	select0_b = _select0_b;
-	perm = _perm;
-	perm_inv = _perm_inv;
 	pi = _pi;
 	pi_inv = _pi_inv;
 	ref_text = _ref_text;
@@ -132,14 +126,14 @@ void FactorsIteratorReverse::loadFactor(unsigned int f, bool reset){
 //		cout << "FactorsIteratorReverse::loadFactor - Factor invalido\n";
 		return;
 	}
-	// Convertir el factor posicional creciente a la posicion EN la permutacion (con perm_inv)
+	// Convertir el factor posicional creciente a la posicion EN la permutacion 
 	
-	unsigned int cur_perm = (*pi_inv)[cur_f];
-	unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
-	unsigned int pu = select1_b->operator()( (*pi)[cur_perm] + 1);
-	unsigned int lu = select1_b->operator()( (*pi)[cur_perm] + 2) - pu;
+	unsigned int cur_pi = (*pi_inv)[cur_f];
+	unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
+	unsigned int pu = select1_b->operator()( (*pi)[cur_pi] + 1);
+	unsigned int lu = select1_b->operator()( (*pi)[cur_pi] + 2) - pu;
 	
-//	cout << "FactorsIteratorReverse::loadFactor - cur_perm: " << cur_perm << ", tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
+//	cout << "FactorsIteratorReverse::loadFactor - cur_pi: " << cur_pi << ", tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 	cur_f_ini = tu;
 	cur_f_fin = tu + lu - 1;
 	cur_pos = cur_f_fin;
@@ -165,8 +159,6 @@ FactorsIteratorReverse::FactorsIteratorReverse(){
 	select1_s = NULL;
 	select1_b = NULL;
 	select0_b = NULL;
-	perm = NULL;
-	perm_inv = NULL;
 	pi = NULL;
 	pi_inv = NULL;
 	ref_text = NULL;
@@ -186,8 +178,6 @@ FactorsIteratorReverse::FactorsIteratorReverse( unsigned int _start_f, unsigned 
 		bits_s_type::select_1_type *_select1_s, 
 		bits_b_type::select_1_type *_select1_b, 
 		bits_b_type::select_0_type *_select0_b, 
-		inv_perm_support<> *_perm, 
-		inv_perm_support<> *_perm_inv, 
 		int_vector<> *_pi,
 		int_vector<> *_pi_inv,
 		const char *_ref_text,
@@ -198,8 +188,6 @@ FactorsIteratorReverse::FactorsIteratorReverse( unsigned int _start_f, unsigned 
 	select1_s = _select1_s;
 	select1_b = _select1_b;
 	select0_b = _select0_b;
-	perm = _perm;
-	perm_inv = _perm_inv;
 	pi = _pi;
 	pi_inv = _pi_inv;
 	ref_text = _ref_text;

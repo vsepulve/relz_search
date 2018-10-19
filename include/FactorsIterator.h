@@ -11,7 +11,6 @@
 #include <sdsl/suffix_arrays.hpp>
 #include <sdsl/bit_vectors.hpp>
 #include <sdsl/rmq_support.hpp>
-#include <sdsl/inv_perm_support.hpp>
 #include <sdsl/wavelet_trees.hpp>
 
 #include "FactorsConfig.h"
@@ -28,9 +27,6 @@ private:
 	
 	bits_b_type::select_1_type *select1_b;
 	bits_b_type::select_0_type *select0_b;
-
-	inv_perm_support<> *perm;
-	inv_perm_support<> *perm_inv;
 	
 	// Permutaciones unc
 	int_vector<> *pi;
@@ -73,8 +69,6 @@ public:
 			bits_s_type::select_1_type *_select1_s, 
 			bits_b_type::select_1_type *_select1_b, 
 			bits_b_type::select_0_type *_select0_b, 
-			inv_perm_support<> *_perm, 
-			inv_perm_support<> *_perm_inv, 
 			int_vector<> *_pi,
 			int_vector<> *_pi_inv,
 			const char *_ref_text,
@@ -106,9 +100,6 @@ private:
 	
 	bits_b_type::select_1_type *select1_b;
 	bits_b_type::select_0_type *select0_b;
-
-	inv_perm_support<> *perm;
-	inv_perm_support<> *perm_inv;
 	
 	// Permutaciones unc
 	int_vector<> *pi;
@@ -150,8 +141,6 @@ public:
 			bits_s_type::select_1_type *_select1_s, 
 			bits_b_type::select_1_type *_select1_b, 
 			bits_b_type::select_0_type *_select0_b, 
-			inv_perm_support<> *_perm, 
-			inv_perm_support<> *_perm_inv, 
 			int_vector<> *_pi,
 			int_vector<> *_pi_inv,
 			const char *_ref_text,
