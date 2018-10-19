@@ -6,7 +6,6 @@ FactorsIndexV3::FactorsIndexV3(){
 	len_ref = 0;
 	n_factors = 0;
 	karp_rabin = NULL;
-	acelerar_rmq = false;
 }
 
 //FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *kr_frases_file, bool load_kr_frases){
@@ -18,7 +17,6 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	len_ref = _len_ref;
 	n_factors = factors.size();
 	karp_rabin = _karp_rabin;
-	acelerar_rmq = false;
 	
 	NanoTimer timer;
 	
@@ -84,8 +82,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		pi[i] = factors_sort[i].second.second;
 		pi_inv[ factors_sort[i].second.second ] = i;
 	}
-	perm_inv = inv_perm_support<>(&pi);
-	perm = inv_perm_support<>(&pi_inv);
+	
 	cout << "FactorsIndexV3 - PI prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -123,37 +120,31 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	
 	// Preparacion de permutaciones X e Y
 	cout << "FactorsIndexV3 - Preparing arr X\n";
-	vector<unsigned int> arr_x(n_factors);
+	vector<unsigned int> arr_x_original(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
-		arr_x[i] = i;
+		arr_x_original[i] = i;
 	}
-	
 	FactorsFastIteratorReverseComparator comp_rev(&factors_start, full_text, len_text);
-	cout << "FactorsIndexV3 - stable_sort...\n";
-	stable_sort(arr_x.begin(), arr_x.end(), comp_rev);
-	cout << "FactorsIndexV3 - Ok\n";
-	int_vector<> _pre_x_inv(n_factors);
-	pre_x_inv = _pre_x_inv;
+	stable_sort(arr_x_original.begin(), arr_x_original.end(), comp_rev);
+	arr_x = int_vector<>(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
-		pre_x_inv[ arr_x[i] ] = i;
+		arr_x[i] = arr_x_original[i];
 	}
-	inv_perm_support<> _perm_x(&pre_x_inv);
-	perm_x = _perm_x;
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 10 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 20 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
 	
 	cout << "FactorsIndexV3 - Preparing arr Y\n";
 	vector<unsigned int> arr_y(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_y[i] = i;
 	}
-//	FactorsIteratorComparator comp(n_factors, &select1_s, &select1_b, &select0_b, &perm, &perm_inv, ref_text, &fm_index, len_text);
+	
 	FactorsFastIteratorComparator comp(&factors_start, full_text, len_text);
 	stable_sort(arr_y.begin(), arr_y.end(), comp);
 	int_vector<> _pre_y(n_factors);
@@ -191,14 +182,15 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	timer.reset();
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
-	acelerar_rmq = true;
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		unsigned int tu = select1_s(i + 1) - i;
-		unsigned int pu = select1_b(perm[i] + 1);
-		unsigned int lu = select1_b(perm[i] + 2) - pu;
-		arr_tu.push_back(tu);
-		arr_pu.push_back(pu);
-		arr_lu.push_back(lu);
+	if(precompute_rmq){
+		for( unsigned int i = 0; i < n_factors; ++i ){
+			unsigned int tu = select1_s(i + 1) - i;
+			unsigned int pu = select1_b(pi[i] + 1);
+			unsigned int lu = select1_b(pi[i] + 2) - pu;
+			arr_tu.push_back(tu);
+			arr_pu.push_back(pu);
+			arr_lu.push_back(lu);
+		}
 	}
 	
 	cout << "FactorsIndexV3 - Preparing KarpRobin Structures\n";
@@ -279,7 +271,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 //	cout << "FactorsIndexV3 - Hash(BALASLALABA): " << karp_rabin->hash("BALASLALABA") << "\n";
 //	cout << "FactorsIndexV3 - Hash(BALASLALABAS): " << karp_rabin->hash("BALASLALABAS") << "\n";
 	
-	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &perm_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
+	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
 	
 	kr_factors->hash(1, 3, 9);
 	cout << "-----\n";
@@ -327,7 +319,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	
 	cout << "FactorsIndexV3 - Building Tree X\n";
 	timer.reset();
-	tree_x.build(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors);
+	tree_x.build(full_text, len_text, factors_start, arr_x_original, karp_rabin, kr_factors);
 	cout << "FactorsIndexV3 - Tree X finished in (" << timer.getMilisec() << " ms)\n";
 //	tree_x.print();
 //	tree_x.save(index_x);
@@ -357,49 +349,38 @@ void FactorsIndexV3::printSize(){
 //		cout << "FactorsIndexV3::printSize - Reference Text: " << (len_ref/(1024*1024)) << " MB\n";
 //	}
 	
-//	if( acelerar_rmq ){
+//	if( precompute_rmq ){
 //		// 3 integers => 12 bytes per factor
 //		total_bytes += n_factors * 12;
 //		cout << "FactorsIndexV3::printSize - Factors: " << (n_factors*12/(1024*1024)) << " MB\n";
 //	}
 	
-//	csa_wt<> fm_index;
 	total_bytes += size_in_bytes(fm_index);
-	cout << "FactorsIndexV3::printSize - fm_index: " << ((double)size_in_bytes(fm_index)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - fm_index: " << (8.0*size_in_bytes(fm_index)/len_text) << " bps\n";
 	
-//	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
 	total_bytes += size_in_bytes(rmq);
-	cout << "FactorsIndexV3::printSize - rmq: " << ((double)size_in_bytes(rmq)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - rmq: " << (8.0*size_in_bytes(rmq)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(bits_s);
-	cout << "FactorsIndexV3::printSize - bits_s: " << ((double)size_in_bytes(bits_s)/(1024*1024)) << " MB\n";
-//	
-//	inv_perm_support<> perm_inv;
-	total_bytes += size_in_bytes(perm_inv);
-	cout << "FactorsIndexV3::printSize - perm_inv: " << ((double)size_in_bytes(perm_inv)/(1024*1024)) << " MB\n";
-	
-//	inv_perm_support<> perm;
-	total_bytes += size_in_bytes(perm);
-	cout << "FactorsIndexV3::printSize - perm: " << ((double)size_in_bytes(perm)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - bits_s: " << (8.0*size_in_bytes(bits_s)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(bits_b);
-	cout << "FactorsIndexV3::printSize - bits_b: " << ((double)size_in_bytes(bits_b)/(1024*1024)) << " MB\n";
-//	
-//	inv_perm_support<> perm_x;
-	total_bytes += size_in_bytes(perm_x);
-	cout << "FactorsIndexV3::printSize - perm_x: " << ((double)size_in_bytes(perm_x)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - bits_b: " << (8.0*size_in_bytes(bits_b)/len_text) << " bps\n";
 	
-//	inv_perm_support<> perm_y;
-	total_bytes += size_in_bytes(perm_y);
-	cout << "FactorsIndexV3::printSize - perm_y: " << ((double)size_in_bytes(perm_y)/(1024*1024)) << " MB\n";
+	total_bytes += size_in_bytes(pi);
+	cout << "FactorsIndexV3::printSize - pi: " << (8.0*size_in_bytes(pi)/len_text) << " bps\n";
 	
-//	inv_perm_support<> perm_y_inv;
-	total_bytes += size_in_bytes(perm_y_inv);
-	cout << "FactorsIndexV3::printSize - perm_y_inv: " << ((double)size_in_bytes(perm_y_inv)/(1024*1024)) << " MB\n";
-//	
-//	wt_int<rrr_vector<63>> wt;
+	total_bytes += size_in_bytes(pi_inv);
+	cout << "FactorsIndexV3::printSize - pi_inv: " << (8.0*size_in_bytes(pi_inv)/len_text) << " bps\n";
+	
+	total_bytes += size_in_bytes(arr_x);
+	cout << "FactorsIndexV3::printSize - arr_x: " << (8.0*size_in_bytes(arr_x)/len_text) << " bps\n";
+	
+	total_bytes += size_in_bytes(arr_y);
+	cout << "FactorsIndexV3::printSize - arr_y: " << (8.0*size_in_bytes(arr_y)/len_text) << " bps\n";
+	
 	total_bytes += size_in_bytes(wt);
-	cout << "FactorsIndexV3::printSize - wt: " << ((double)size_in_bytes(wt)/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - wt: " << (8.0*size_in_bytes(wt)/len_text) << " bps\n";
 	
 //	tree_y
 	unsigned int max_len = 0;
@@ -408,7 +389,8 @@ void FactorsIndexV3::printSize(){
 	unsigned int total_childs = 0;
 	total_childs = tree_y.root.totalChilds(max_len, max_childs, max_height, 0);
 	total_bytes += ((double)total_childs)*12.625;
-	cout << "FactorsIndexV3::printSize - tree_y: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
+//	cout << "FactorsIndexV3::printSize - tree_y: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - tree_y: " << (8.0*((double)total_childs)*12.625/(len_text)) << " bps\n";
 	
 //	tree_x
 	max_len = 0;
@@ -417,14 +399,15 @@ void FactorsIndexV3::printSize(){
 	total_childs = 0;
 	total_childs = tree_x.root.totalChilds(max_len, max_childs, max_height, 0);
 	total_bytes += ((double)total_childs)*12.625;
-	cout << "FactorsIndexV3::printSize - tree_x: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
+//	cout << "FactorsIndexV3::printSize - tree_x: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
+	cout << "FactorsIndexV3::printSize - tree_x: " << (8.0*((double)total_childs)*12.625/(len_text)) << " bps\n";
 	
 	cout << "FactorsIndexV3::printSize - Total " << total_bytes << " (" << (total_bytes/(1024*1024)) << " MB)\n";
 	
 }
 
 void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &results){
-
+	
 //	cout << "FactorsIndexV3::findTimes - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
 	
@@ -497,8 +480,7 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 		cout << "FactorsIndexV3::findTimes - Adding " << res.second.size() << " points\n";
 		for (auto point : res.second){
 			unsigned int f = perm_y[point.second];
-			unsigned int cur_perm = perm_inv[f];
-			unsigned int pu = select1_b(perm[cur_perm] + 1);
+			unsigned int pu = select1_b(f + 1);
 			results.push_back(pu - i);
 		}
 		querytime_p4 += timer.getNanosec();
@@ -507,47 +489,11 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 		
 	}
 	
-	
-	
-	/*
-	// Original Version
-	for(unsigned int i = 1; i < pattern.length(); ++i){
-		timer.reset();
-		string p1 = pattern.substr(0, i);
-		string p1_rev = "";
-		for( unsigned int k = 0; k < p1.length(); ++k ){
-			p1_rev += p1[ p1.length() - 1 - k ];
-		}
-		string p2 = pattern.substr(i, pattern.length() - i);
-		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
-		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
-		querytime_p3 += timer.getNanosec();
-		timer.reset();
-		
-		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
-			|| r2.second == (unsigned int)(-1) || r2.second < r2.first ){
-//			cout << "FactorsIndexV3::findTimes - Invalid ranges, omitting...\n";
-			continue;
-		}
-		
-//		cout << "FactorsIndexV3::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
-		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
-		for (auto point : res.second){
-			unsigned int f = perm_y[point.second];
-			unsigned int cur_perm = perm_inv[f];
-			unsigned int pu = select1_b(perm[cur_perm] + 1);
-			results.push_back(pu - p1.length());
-		}
-		
-		querytime_p4 += timer.getNanosec();
-	}
-	*/
-	
-	
 //	cout << "FactorsIndexV3::findTimes - End\n";
 	
 }
 
+/*
 void FactorsIndexV3::find(const string &pattern, vector<unsigned int> &results){
 
 //	cout << "FactorsIndexV3::find - Start\n";
@@ -593,8 +539,7 @@ void FactorsIndexV3::find(const string &pattern, vector<unsigned int> &results){
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
 			unsigned int f = perm_y[point.second];
-			unsigned int cur_perm = perm_inv[f];
-			unsigned int pu = select1_b(perm[cur_perm] + 1);
+			unsigned int pu = select1_b(f + 1);
 //			cout << " -> Adding " << (pu - p1.length()) << "\n";
 			results.push_back(pu - p1.length());
 		}
@@ -603,20 +548,29 @@ void FactorsIndexV3::find(const string &pattern, vector<unsigned int> &results){
 //	cout << "FactorsIndexV3::find - End\n";
 	
 }
+*/
 
 void FactorsIndexV3::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results){
 //	cout << "FactorsIndexV3::recursive_rmq - " << ini << ", " << fin << "\n";
 	
 	unsigned int pos_max = rmq(ini, fin);
 	
-//	unsigned int tu = select1_s(pos_max + 1) - pos_max;
-//	unsigned int pu = select1_b(perm[pos_max] + 1);
-//	unsigned int lu = select1_b(perm[pos_max] + 2) - pu;
-	// Prueba de aceleracion
+//	cout << "FactorsIndex::recursive_rmq - Computing factor\n";
 	assert(pos_max < n_factors);
-	unsigned int tu = arr_tu[pos_max];
-	unsigned int pu = arr_pu[pos_max];
-	unsigned int lu = arr_lu[pos_max];
+	unsigned int tu = 0;
+	unsigned int pu = 0;
+	unsigned int lu = 0;
+	if( precompute_rmq ){
+		tu = arr_tu[pos_max];
+		pu = arr_pu[pos_max];
+		lu = arr_lu[pos_max];
+	}
+	else{
+		tu = select1_s(pos_max + 1) - pos_max;
+		pu = select1_b(pi[pos_max] + 1);
+		lu = select1_b(pi[pos_max] + 2) - pu;
+	}
+	
 //	cout << "FactorsIndexV3::recursive_rmq - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 	
 	if( tu + lu < min_pos ){
@@ -680,6 +634,7 @@ char FactorsIndexV3::getCharRev(unsigned int factor, unsigned int pos){
 	return c;
 }
 
+/*
 // Notar que, a diferencia de la busqueda en referencia, esta debe ser completa
 // Es decir, solo importa el rango que contiene al patron completo
 pair<unsigned int, unsigned int> FactorsIndexV3::getRangeY(const char *pattern){
@@ -761,7 +716,9 @@ pair<unsigned int, unsigned int> FactorsIndexV3::getRangeY(const char *pattern){
 //	cout << "getRangeY - result: (" << izq << ", " << der << ")\n";
 	return pair<unsigned int, unsigned int>(izq, der);
 }
+*/
 
+/*
 pair<unsigned int, unsigned int> FactorsIndexV3::getRangeX(const char *pattern){
 	
 	unsigned int pat_len = strlen(pattern);
@@ -841,4 +798,5 @@ pair<unsigned int, unsigned int> FactorsIndexV3::getRangeX(const char *pattern){
 //	cout << "getRangeX - result: (" << izq << ", " << der << ")\n";
 	return pair<unsigned int, unsigned int>(izq, der);
 }
+*/
 

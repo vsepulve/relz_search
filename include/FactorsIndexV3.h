@@ -49,17 +49,20 @@ private:
 	bits_b_type::select_1_type select1_b;
 	bits_b_type::select_0_type select0_b;
 	
-	inv_perm_support<> perm_inv;
-	inv_perm_support<> perm;
+	int_vector<> pi;
+	int_vector<> pi_inv;
 	
-	inv_perm_support<> perm_x;
+	int_vector<> arr_x;
+	int_vector<> arr_y;
+	
+/*	inv_perm_support<> perm_x;*/
 	inv_perm_support<> perm_y;
 	inv_perm_support<> perm_y_inv;
 	
 	wt_type wt;
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
-	bool acelerar_rmq;
+	static const bool precompute_rmq = false;
 	vector<unsigned int> arr_tu;
 	vector<unsigned int> arr_pu;
 	vector<unsigned int> arr_lu;
@@ -68,9 +71,7 @@ private:
 	bit_vector arr_s;
 	bit_vector arr_b;
 	int_vector<> ez;
-	int_vector<> pi;
-	int_vector<> pi_inv;
-	int_vector<> pre_x_inv;
+/*	int_vector<> pre_x_inv;*/
 	int_vector<> pre_y;
 	int_vector<> pre_y_inv;
 	int_vector<> values_wt;
@@ -85,18 +86,13 @@ private:
 	char getChar(unsigned int factor, unsigned int pos);
 	
 	char getCharRev(unsigned int factor, unsigned int pos);
-			
-	pair<unsigned int, unsigned int> getRangeY(const char *pattern);
-			
-	pair<unsigned int, unsigned int> getRangeX(const char *pattern);
 	
 public: 
 	FactorsIndexV3();
-//	FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *kr_frases_file, bool load_kr_frases = false);
 	FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *index_base_file);
 	~FactorsIndexV3();
 	
-	void find(const string &pattern, vector<unsigned int> &results);
+	// void find(const string &pattern, vector<unsigned int> &results);
 	void findTimes(const string &pattern, vector<unsigned int> &results);
 	
 	unsigned long long querytime_p1;
