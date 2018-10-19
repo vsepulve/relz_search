@@ -67,17 +67,18 @@ int main(int argc, char* argv[]){
 	NanoTimer timer;
 	vector<unsigned int> results;
 	bool omitir_texto = false;
-	FactorsIndex index(factors, text, len_text, ref, len_ref, omitir_texto);
+	FactorsIndex index_built(factors, text, len_text, ref, len_ref, omitir_texto);
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
-	index.printSize();
+	index_built.printSize();
 	
-//	cout << "----- Testing save -----\n";
-//	index.save("test/index");
-//	
-//	cout << "----- Testing load -----\n";
-//	FactorsIndex index2;
-//	index2.load("test/index");
-//	index2.printSize();
+	
+	cout << "----- Testing save -----\n";
+	index_built.save("test/index");
+	
+	cout << "----- Testing load -----\n";
+	FactorsIndex index;
+	index.load("test/index");
+	index.printSize();
 //	
 //	cout << "----- Test Query -----\n";
 //	index.find("CATC", results);
