@@ -48,8 +48,6 @@ private:
 	
 	int_vector<> pi;
 	int_vector<> pi_inv;
-	inv_perm_support<> perm;
-	inv_perm_support<> perm_inv;
 	
 	int_vector<> arr_x;
 	int_vector<> arr_y;
@@ -57,16 +55,10 @@ private:
 	wt_type wt;
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
-	bool acelerar_rmq;
+	static const bool precompute_rmq = true;
 	vector<unsigned int> arr_tu;
 	vector<unsigned int> arr_pu;
 	vector<unsigned int> arr_lu;
-	
-	// Solo para pruebas
-	bit_vector arr_s;
-	bit_vector arr_b;
-	int_vector<> ez;
-	int_vector<> values_wt;
 	
 	// Cache de iteradores
 	unordered_map<unsigned int, FactorsIterator> mapa_iterators;

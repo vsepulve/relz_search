@@ -6,7 +6,6 @@ FactorsIndex::FactorsIndex(){
 	len_ref = 0;
 	n_factors = 0;
 	omit_text = false;
-	acelerar_rmq = false;
 }
 
 FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool _omit_text){
@@ -23,7 +22,6 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 		memcpy(ref_text, _ref_text, _len_ref);
 		ref_text[_len_ref] = 0;
 	}
-	acelerar_rmq = false;
 	
 	NanoTimer timer;
 	
@@ -55,8 +53,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	
 	// Bit vector S
 	cout << "FactorsIndex - Preparing Vector S\n";
-	bit_vector _arr_s(len_ref + n_factors, 0);
-	arr_s = _arr_s;
+	bit_vector arr_s = bit_vector(len_ref + n_factors, 0);
 	unsigned cur_ref = 0;
 	cur_pos = 0;
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -79,28 +76,18 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	
 	// Permutacion 
 	cout << "FactorsIndex - Preparing Permutation PI\n";
-	int_vector<> _pi(n_factors);
-	int_vector<> _pi_inv(n_factors);
-	pi = _pi;
-	pi_inv = _pi_inv;	
+	pi = int_vector<>(n_factors);
+	pi_inv = int_vector<>(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		pi[i] = factors_sort[i].second.second;
 		pi_inv[ factors_sort[i].second.second ] = i;
 	}
-	perm_inv = inv_perm_support<>(&pi);
-	perm = inv_perm_support<>(&pi_inv);
-	
-//	cout << "FactorsIndex - Testing Permutations\n";
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << "perm: " << perm[i] << ", perm_inv: " << perm_inv[i] << ", pi: " << pi[i] << ", pi_inv: " << pi_inv[i] << "\n";
-//	}
 	
 	cout << "FactorsIndex - PI prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Posiciones finales Ez
-	int_vector<> _ez(n_factors);
-	ez = _ez;
+	int_vector<> ez = int_vector<>(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		ez[i] = factors_sort[i].second.first;
 	}
@@ -108,8 +95,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	
 	// Bit vector B (inicio de las frases en texto)
 	cout << "FactorsIndex - Preparing Vector B\n";
-	bit_vector _arr_b(len_text, 0);
-	arr_b = _arr_b;
+	bit_vector arr_b(len_text, 0);
 	unsigned int pos_text = 0;
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		unsigned int len = factors[i].second;
@@ -152,38 +138,6 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	cout << "-----\n";
 	
 	cout << "FactorsIndex - Preparing arr Y\n";
-	/*
-	// Conservo la version original del codigo por ahora
-	// Solo por si decido usar permutaciones despues
-	vector<unsigned int> arr_y(n_factors);
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		arr_y[i] = i;
-	}
-	FactorsFastIteratorComparator comp(&factors_start, full_text, len_text);
-	stable_sort(arr_y.begin(), arr_y.end(), comp);
-	int_vector<> _pre_y(n_factors);
-	int_vector<> _pre_y_inv(n_factors);
-	pre_y = _pre_y;
-	pre_y_inv = _pre_y_inv;
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		pre_y[i] = arr_y[i];
-		pre_y_inv[ arr_y[i] ] = i;
-	}
-	inv_perm_support<> _perm_y(&pre_y_inv);
-	inv_perm_support<> _perm_y_inv(&pre_y);
-	perm_y = _perm_y;
-	perm_y_inv = _perm_y_inv;
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_y[" << i << "]: " << perm_y[i] << " -> ";
-		char c = 0;
-		for(unsigned int k = 0; k < 10 && (c = getChar(perm_y[i], k)) != 0; ++k ) 
-			cout << c;
-		cout << "\n";
-	}
-	cout << "-----\n";
-	cout << "FactorsIndex - X & Y prepared in " << timer.getMilisec() << "\n";
-	timer.reset();
-	*/
 	
 	vector<unsigned int> arr_y_original(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -211,25 +165,24 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	timer.reset();
 	
 	cout << "FactorsIndex - Preparing WT\n";
-	int_vector<> _values_wt(n_factors);
-	values_wt = _values_wt;
+	int_vector<> values_wt(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		values_wt[i] = arr_y_inv[ arr_x[ i ] ];
 	}
-	
 	construct_im(wt, values_wt);
 	cout << "FactorsIndex - WT prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
-	acelerar_rmq = true;
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		unsigned int tu = select1_s(i + 1) - i;
-		unsigned int pu = select1_b(perm[i] + 1);
-		unsigned int lu = select1_b(perm[i] + 2) - pu;
-		arr_tu.push_back(tu);
-		arr_pu.push_back(pu);
-		arr_lu.push_back(lu);
+	if(precompute_rmq){
+		for( unsigned int i = 0; i < n_factors; ++i ){
+			unsigned int tu = select1_s(i + 1) - i;
+			unsigned int pu = select1_b(pi[i] + 1);
+			unsigned int lu = select1_b(pi[i] + 2) - pu;
+			arr_tu.push_back(tu);
+			arr_pu.push_back(pu);
+			arr_lu.push_back(lu);
+		}
 	}
 	
 	cout << "FactorsIndex - End\n";
@@ -322,10 +275,7 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
 			unsigned int f = arr_y[point.second];
-//			unsigned int cur_perm = perm_inv[f];
-//			unsigned int pu = select1_b(perm[cur_perm] + 1);
-			unsigned int cur_perm = pi_inv[f];
-			unsigned int pu = select1_b(pi[cur_perm] + 1);
+			unsigned int pu = select1_b(f + 1);
 			cout << "FactorsIndex::findTimes - Adding pos " << (pu - p1.length()) << "\n";
 			results.push_back(pu - p1.length());
 		}
@@ -393,10 +343,7 @@ void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
 			unsigned int f = arr_y[point.second];
-//			unsigned int cur_perm = perm_inv[f];
-//			unsigned int pu = select1_b(perm[cur_perm] + 1);
-			unsigned int cur_perm = pi_inv[f];
-			unsigned int pu = select1_b(pi[cur_perm] + 1);
+			unsigned int pu = select1_b(f + 1);
 //			cout << " -> Adding " << (pu - p1.length()) << "\n";
 			results.push_back(pu - p1.length());
 		}
@@ -412,14 +359,21 @@ void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned in
 	unsigned int pos_max = rmq(ini, fin);
 	
 //	cout << "FactorsIndex::recursive_rmq - Computing factor\n";
-//	unsigned int tu = select1_s(pos_max + 1) - pos_max;
-//	unsigned int pu = select1_b(perm[pos_max] + 1);
-//	unsigned int lu = select1_b(perm[pos_max] + 2) - pu;
-	// Prueba de aceleracion
 	assert(pos_max < n_factors);
-	unsigned int tu = arr_tu[pos_max];
-	unsigned int pu = arr_pu[pos_max];
-	unsigned int lu = arr_lu[pos_max];
+	unsigned int tu = 0;
+	unsigned int pu = 0;
+	unsigned int lu = 0;
+	if( precompute_rmq ){
+		tu = arr_tu[pos_max];
+		pu = arr_pu[pos_max];
+		lu = arr_lu[pos_max];
+	}
+	else{
+		tu = select1_s(pos_max + 1) - pos_max;
+		pu = select1_b(pi[pos_max] + 1);
+		lu = select1_b(pi[pos_max] + 2) - pu;
+	}
+	
 //	cout << "FactorsIndex::recursive_rmq - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 	
 	if( tu + lu < min_pos ){
@@ -853,35 +807,30 @@ void FactorsIndex::printSize(){
 		cout << "FactorsIndex::printSize - Reference Text: " << (8.0*len_ref/len_text) << " bps\n";
 	}
 	
-//	csa_wt<> fm_index;
 	total_bytes += size_in_bytes(fm_index);
 	cout << "FactorsIndex::printSize - fm_index: " << (8.0*size_in_bytes(fm_index)/len_text) << " bps\n";
 	
-//	rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq;
 	total_bytes += size_in_bytes(rmq);
 	cout << "FactorsIndex::printSize - rmq: " << (8.0*size_in_bytes(rmq)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(bits_s);
 	cout << "FactorsIndex::printSize - bits_s: " << (8.0*size_in_bytes(bits_s)/len_text) << " bps\n";
 	
-//	inv_perm_support<> perm_inv;
-	total_bytes += size_in_bytes(perm_inv);
-	cout << "FactorsIndex::printSize - perm_inv: " << (8.0*size_in_bytes(perm_inv)/len_text) << " bps\n";
-	
-//	inv_perm_support<> perm;
-	total_bytes += size_in_bytes(perm);
-	cout << "FactorsIndex::printSize - perm: " << (8.0*size_in_bytes(perm)/len_text) << " bps\n";
-	
 	total_bytes += size_in_bytes(bits_b);
 	cout << "FactorsIndex::printSize - bits_b: " << (8.0*size_in_bytes(bits_b)/len_text) << " bps\n";
+	
+	total_bytes += size_in_bytes(pi);
+	cout << "FactorsIndex::printSize - pi: " << (8.0*size_in_bytes(pi)/len_text) << " bps\n";
+	
+	total_bytes += size_in_bytes(pi_inv);
+	cout << "FactorsIndex::printSize - pi_inv: " << (8.0*size_in_bytes(pi_inv)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(arr_x);
 	cout << "FactorsIndex::printSize - arr_x: " << (8.0*size_in_bytes(arr_x)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(arr_y);
 	cout << "FactorsIndex::printSize - arr_y: " << (8.0*size_in_bytes(arr_y)/len_text) << " bps\n";
-//	
-//	wt_int<rrr_vector<63>> wt;
+	
 	total_bytes += size_in_bytes(wt);
 	cout << "FactorsIndex::printSize - wt: " << (8.0*size_in_bytes(wt)/len_text) << " bps\n";
 	
@@ -929,13 +878,13 @@ void FactorsIndex::save(const string &file_base){
 	string bits_b_file = file_base + ".arrb";
 	store_to_file(bits_b, bits_b_file);
 	
-	// perm
+	// pi
 	string pi_file = file_base + ".pi";
-	store_to_file(perm, pi_file);
+	store_to_file(pi, pi_file);
 	
-	// perm_inv
-	string pi1_file = file_base + ".pi1";
-	store_to_file(perm_inv, pi1_file);
+	// pi_inv
+	string pi_inv_file = file_base + ".pi_inv";
+	store_to_file(pi_inv, pi_inv_file);
 	
 	// arr_x
 	string x_file = file_base + ".x";
@@ -1006,14 +955,13 @@ void FactorsIndex::load(const string &file_base){
 	select1_b = bits_b_type::select_1_type(&bits_b);
 	select0_b = bits_b_type::select_0_type(&bits_b);
 	
-	// perm
-	cout << "FactorsIndex::load - perm\n";
+	// pi
 	string pi_file = file_base + ".pi";
-	load_from_file(perm, pi_file);
+	load_from_file(pi, pi_file);
 	
-	// perm_inv
-	string pi1_file = file_base + ".pi1";
-	load_from_file(perm_inv, pi1_file);
+	// pi_inv
+	string pi_inv_file = file_base + ".pi_inv";
+	load_from_file(pi_inv, pi_inv_file);
 	
 	// arr_x
 	string x_file = file_base + ".x";
@@ -1027,6 +975,17 @@ void FactorsIndex::load(const string &file_base){
 	cout << "FactorsIndex::load - wt\n";
 	string wt_file = file_base + ".wt";
 	load_from_file(wt, wt_file);
+	
+	if(precompute_rmq){
+		for( unsigned int i = 0; i < n_factors; ++i ){
+			unsigned int tu = select1_s(i + 1) - i;
+			unsigned int pu = select1_b(pi[i] + 1);
+			unsigned int lu = select1_b(pi[i] + 2) - pu;
+			arr_tu.push_back(tu);
+			arr_pu.push_back(pu);
+			arr_lu.push_back(lu);
+		}
+	}
 	
 	cout << "FactorsIndex::load - End\n";
 	
