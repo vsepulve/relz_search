@@ -34,7 +34,8 @@ protected:
 	const char *ref_text;
 	
 	// Permutation to turn posicional factors to its id in the other data structures
-	inv_perm_support<> *perm_inv;
+/*	inv_perm_support<> *perm_inv;*/
+	int_vector<> *pi_inv;
 	
 	// Si usamos la aceleracion de factores
 	vector<unsigned int> *arr_tu;
@@ -46,7 +47,7 @@ protected:
 public: 
 	
 	KarpRabinFactorsSuffixes();
-	KarpRabinFactorsSuffixes(unsigned int _n_factors, vector<unsigned long long> *_arr_kr_s, KarpRabin *_karp_rabin, const char *_ref_text, inv_perm_support<> *_perm_inv, vector<unsigned int> *_arr_tu, vector<unsigned int> *_arr_pu, vector<unsigned int> *_arr_lu, vector<unsigned int> *_factors_start);
+	KarpRabinFactorsSuffixes(unsigned int _n_factors, vector<unsigned long long> *_arr_kr_s, KarpRabin *_karp_rabin, const char *_ref_text, int_vector<> *_pi_inv, vector<unsigned int> *_arr_tu, vector<unsigned int> *_arr_pu, vector<unsigned int> *_arr_lu, vector<unsigned int> *_factors_start);
 	virtual ~KarpRabinFactorsSuffixes();
 	
 	// Returns the hash from a suffix from a factor (positional), offset and length

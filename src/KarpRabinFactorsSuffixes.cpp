@@ -5,14 +5,14 @@ KarpRabinFactorsSuffixes::KarpRabinFactorsSuffixes(){
 	arr_kr_s = NULL;
 	karp_rabin = NULL;
 	ref_text = NULL;
-	perm_inv = NULL;
+	pi_inv = NULL;
 	arr_tu = NULL;
 	arr_pu = NULL;
 	arr_lu = NULL;
 	factors_start = NULL;
 }
 
-KarpRabinFactorsSuffixes::KarpRabinFactorsSuffixes(unsigned int _n_factors, vector<unsigned long long> *_arr_kr_s, KarpRabin *_karp_rabin, const char *_ref_text, inv_perm_support<> *_perm_inv, vector<unsigned int> *_arr_tu, vector<unsigned int> *_arr_pu, vector<unsigned int> *_arr_lu, vector<unsigned int> *_factors_start){
+KarpRabinFactorsSuffixes::KarpRabinFactorsSuffixes(unsigned int _n_factors, vector<unsigned long long> *_arr_kr_s, KarpRabin *_karp_rabin, const char *_ref_text, int_vector<> *_pi_inv, vector<unsigned int> *_arr_tu, vector<unsigned int> *_arr_pu, vector<unsigned int> *_arr_lu, vector<unsigned int> *_factors_start){
 	n_factors = _n_factors;
 	arr_kr_s = _arr_kr_s;
 	karp_rabin = _karp_rabin;
@@ -20,7 +20,7 @@ KarpRabinFactorsSuffixes::KarpRabinFactorsSuffixes(unsigned int _n_factors, vect
 		cout << "KarpRabinFactorsSuffixes - Warning (insufficient prefixes, must include one for the whole collection)\n";
 	}
 	ref_text = _ref_text;
-	perm_inv = _perm_inv;
+	pi_inv = _pi_inv;
 	arr_tu = _arr_tu;
 	arr_pu = _arr_pu;
 	arr_lu = _arr_lu;
@@ -39,15 +39,15 @@ unsigned long long KarpRabinFactorsSuffixes::hash(unsigned int factor_ini, unsig
 	unsigned int cur_len = 0;
 	unsigned int factor_cur = factor_ini;
 	unsigned long long kr1 = 0;
-	unsigned int cur_perm = 0;
+	unsigned int cur_pi = 0;
 	unsigned int tu = 0;
 	unsigned int lu = 0;
 	while( cur_len < length ){
 		cout << "a\n";
-		cur_perm = (*perm_inv)[factor_cur];
-		cout << "b (cur_perm: " << cur_perm << " / " << arr_tu->size() << ")\n";
-		tu = arr_tu->at(cur_perm);
-		lu = arr_lu->at(cur_perm);
+		cur_pi = (*pi_inv)[factor_cur];
+		cout << "b (cur_pi: " << cur_pi << " / " << arr_tu->size() << ")\n";
+		tu = arr_tu->at(cur_pi);
+		lu = arr_lu->at(cur_pi);
 		if( cur_len + lu >= length ){
 			break;
 		}
@@ -80,31 +80,11 @@ unsigned long long KarpRabinFactorsSuffixes::hashFast(unsigned int factor_ini, u
 //	cout << "KarpRabinFactorsSuffixes::hashFast - Start (factor_ini: " << factor_ini << ", length: " << length << ")\n";
 	unsigned long long kr1 = 0;
 	
-	/*
-	unsigned int cur_len = 0;
-	unsigned int factor_cur = factor_ini;
-	unsigned int cur_perm = (*perm_inv)[factor_cur];
-	unsigned int tu = arr_tu->at(cur_perm);
-	unsigned int lu = arr_lu->at(cur_perm);
-//	cout << "1...\n";
-	while( cur_len + lu < length ){
-		// Agregar factor completo y continuar
-//		cout << "KarpRabinFactorsSuffixes::hashFast - Adding factor " << factor_cur << " of len " << lu << " (cur_len: " << cur_len << " -> " << (cur_len + lu) << ")\n";
-		cur_len += lu;
-		++factor_cur;
-		cur_perm = (*perm_inv)[factor_cur];
-		tu = arr_tu->at(cur_perm);
-		lu = arr_lu->at(cur_perm);
-	}
-	*/
-//	cout << "2\n";
-	
 	// Prueba de Busqueda Binaria
-	
 	unsigned int l = factor_ini;
 	unsigned int h = factors_start->size();
 	unsigned int factor_cur_bin = factor_ini;
-	unsigned int cur_perm_bin = (*perm_inv)[factor_cur_bin];
+	unsigned int cur_perm_bin = (*pi_inv)[factor_cur_bin];
 	unsigned int tu_bin = arr_tu->at(cur_perm_bin);
 	while(l < h){
 		factor_cur_bin = l + ((h-l)>>1);
@@ -120,7 +100,7 @@ unsigned long long KarpRabinFactorsSuffixes::hashFast(unsigned int factor_ini, u
 		--factor_cur_bin;
 	}
 	unsigned int cur_len_bin = (factors_start->at(factor_cur_bin) - factors_start->at(factor_ini));
-	cur_perm_bin = (*perm_inv)[factor_cur_bin];
+	cur_perm_bin = (*pi_inv)[factor_cur_bin];
 	tu_bin = arr_tu->at(cur_perm_bin);
 	
 //	cout << "2 bin (factor_cur_bin: " << factor_cur_bin << " / " << factor_cur << ", cur_perm_bin: " << cur_perm_bin << " / " << cur_perm << ", tu_bin: " << tu_bin << " / " << tu << ", cur_len_bin: " << cur_len_bin << " / " << cur_len << ")\n";
@@ -182,14 +162,14 @@ unsigned long long KarpRabinFactorsSuffixes::hash(unsigned int factor_ini, unsig
 	unsigned int factor_cur = factor_ini;
 	
 	// Primero omito los factores completos previos a offset
-	unsigned int cur_perm = (*perm_inv)[factor_cur];
+	unsigned int cur_perm = (*pi_inv)[factor_cur];
 	unsigned int tu = arr_tu->at(cur_perm);
 	unsigned int lu = arr_lu->at(cur_perm);
 	while( lu < offset ){
 //		cout << "KarpRabinFactorsSuffixes::hash - Ommiting factor " << factor_cur << "\n";
 		offset -= lu;
 		++factor_cur;
-		cur_perm = (*perm_inv)[factor_cur];
+		cur_perm = (*pi_inv)[factor_cur];
 		tu = arr_tu->at(cur_perm);
 		lu = arr_lu->at(cur_perm);
 	}
@@ -197,7 +177,7 @@ unsigned long long KarpRabinFactorsSuffixes::hash(unsigned int factor_ini, unsig
 	if( lu == offset ){
 		offset = 0;
 		++factor_cur;
-		cur_perm = (*perm_inv)[factor_cur];
+		cur_perm = (*pi_inv)[factor_cur];
 		tu = arr_tu->at(cur_perm);
 		lu = arr_lu->at(cur_perm);
 	}
@@ -229,7 +209,7 @@ unsigned long long KarpRabinFactorsSuffixes::hash(unsigned int factor_ini, unsig
 	
 	length -= (lu - offset);
 	++factor_cur;
-	cur_perm = (*perm_inv)[factor_cur];
+	cur_perm = (*pi_inv)[factor_cur];
 	tu = arr_tu->at(cur_perm);
 	lu = arr_lu->at(cur_perm);
 	
@@ -246,7 +226,7 @@ unsigned long long KarpRabinFactorsSuffixes::hash(unsigned int factor_ini, unsig
 		
 		length -= lu;
 		++factor_cur;
-		cur_perm = (*perm_inv)[factor_cur];
+		cur_perm = (*pi_inv)[factor_cur];
 		tu = arr_tu->at(cur_perm);
 		lu = arr_lu->at(cur_perm);
 	}
