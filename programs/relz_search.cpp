@@ -66,7 +66,7 @@ int main(int argc, char* argv[]){
 	cout << "----- Building index -----\n";
 	NanoTimer timer;
 	vector<unsigned int> results;
-	bool delete_text = true;
+	bool delete_text = false;
 	FactorsIndex index_built(factors, text, len_text, ref, len_ref, delete_text);
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index_built.printSize();
@@ -114,6 +114,9 @@ int main(int argc, char* argv[]){
 	index.querytime_p2 = 0;
 	index.querytime_p3 = 0;
 	index.querytime_p4 = 0;
+	index.occs_a = 0;
+	index.occs_b = 0;
+	index.occs_c = 0;
 	for( string query : queries ){
 //		cout << "----- Query \"" << query << "\" -----\n";
 //		index.find(query, results);
@@ -122,14 +125,30 @@ int main(int argc, char* argv[]){
 		total_occ += results.size();
 		results.clear();
 	}
-	cout << "----- Queries finished in " << timer.getMilisec() << " ms (" << (timer.getMilisec() / total_occ) << " ms/occ, " << queries.size() << " queries, " << total_occ << " occs) -----\n";
+	double total_milisec = timer.getMilisec();
+	cout << "----- Queries finished in " << total_milisec << " ms (" << (timer.getMilisec() / total_occ) << " ms/occ, " << queries.size() << " queries, " << total_occ << " occs) -----\n";
 	
 	unsigned long long total_nano = index.querytime_p1 + index.querytime_p2 + index.querytime_p3 + index.querytime_p4;
-	cout << "Nanosec fm_index: " << index.querytime_p1 << " (" << ((long double)index.querytime_p1/total_nano)*100 << " \%)\n";
-	cout << "Nanosec recursive_rmq: " << index.querytime_p2 << " (" << ((long double)index.querytime_p2/total_nano)*100 << " \%)\n";
-	cout << "Nanosec getRange: " << index.querytime_p3 << " (" << ((long double)index.querytime_p3/total_nano)*100 << " \%)\n";
-	cout << "Nanosec wt: " << index.querytime_p4 << " (" << ((long double)index.querytime_p4/total_nano)*100 << " \%)\n";
-	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
+	double f1 = (double)(((long double)index.querytime_p1/total_nano));
+	double f2 = (double)(((long double)index.querytime_p2/total_nano));
+	double f3 = (double)(((long double)index.querytime_p3/total_nano));
+	double f4 = (double)(((long double)index.querytime_p4/total_nano));
+	
+	cout << "Occs A: " << index.occs_a << "\n";
+	cout << "Occs B: " << index.occs_b << "\n";
+	cout << "Occs C: " << index.occs_c << "\n";
+	
+	double total_occ_ref = index.occs_a + index.occs_b + index.occs_c;
+	
+	cout << "Nanosec fm_index: " << (f1 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f1 * 100 << " \%)\n";
+	cout << "Nanosec recursive_rmq: " << (f2 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f2 * 100 << " \%)\n";
+	cout << "Nanosec getRange: " << (f3 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f3 * 100 << " \%)\n";
+	cout << "Nanosec wt: " << (f4 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f4 * 100 << " \%)\n";
+	
+//	cout << "Nanosec recursive_rmq: " << index.querytime_p2 << " (" << ((long double)index.querytime_p2/total_nano)*100 << " \%)\n";
+//	cout << "Nanosec getRange: " << index.querytime_p3 << " (" << ((long double)index.querytime_p3/total_nano)*100 << " \%)\n";
+//	cout << "Nanosec wt: " << index.querytime_p4 << " (" << ((long double)index.querytime_p4/total_nano)*100 << " \%)\n";
+//	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
 	
 	
 	delete reference;
