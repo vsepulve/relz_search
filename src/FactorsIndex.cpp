@@ -128,14 +128,15 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_x[i] = arr_x_original[i];
 	}
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-		char c = 0;
-		for(unsigned int k = 0; k < 20 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-			cout << c;
-		cout << "\n";
-	}
-	cout << "-----\n";
+	
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+//		char c = 0;
+//		for(unsigned int k = 0; k < 20 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+//			cout << c;
+//		cout << "\n";
+//	}
+//	cout << "-----\n";
 	
 	cout << "FactorsIndex - Preparing arr Y\n";
 	
@@ -153,14 +154,15 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 		arr_y_inv[ arr_y_original[i] ] = i;
 	}
 	
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
-		char c = 0;
-		for(unsigned int k = 0; k < 20 && (c = getChar(arr_y[i], k)) != 0; ++k ) 
-			cout << c;
-		cout << "\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
+//		char c = 0;
+//		for(unsigned int k = 0; k < 20 && (c = getChar(arr_y[i], k)) != 0; ++k ) 
+//			cout << c;
+//		cout << "\n";
+//	}
+//	cout << "-----\n";
+
 	cout << "FactorsIndex - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -198,10 +200,10 @@ FactorsIndex::~FactorsIndex(){
 
 void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &results){
 
-	cout << "FactorsIndex::findTimes - Start (\"" << pattern << "\")\n";
+//	cout << "FactorsIndex::findTimes - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
 	
-	cout << "FactorsIndex::findTimes - Section A, reference\n";
+//	cout << "FactorsIndex::findTimes - Section A, reference\n";
 	
 	size_t m = pattern.size();
 	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
@@ -228,7 +230,7 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 	}
 	querytime_p2 += timer.getNanosec();
 	
-	cout << "FactorsIndex::findTimes - Section B, ranges\n";
+//	cout << "FactorsIndex::findTimes - Section B, ranges\n";
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
 		string p1 = pattern.substr(0, i);
@@ -237,52 +239,52 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 			p1_rev += p1[ p1.length() - 1 - k ];
 		}
 		string p2 = pattern.substr(i, pattern.length() - i);
-		cout << "FactorsIndex::findTimes - p1_rev: " << p1_rev << ", p2: " << p2 << "\n";
+//		cout << "FactorsIndex::findTimes - p1_rev: " << p1_rev << ", p2: " << p2 << "\n";
 		// Rango X
-		cout << "----- RangeX v1 ----- \n";
+//		cout << "----- RangeX v1 ----- \n";
 		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
-		cout << "----- RangeX v2 ----- \n";
+//		cout << "----- RangeX v2 ----- \n";
 		pair<unsigned int, unsigned int> r1v2 = getRangeXv2(p1_rev.c_str());
-		cout << "----- ----- \n";
+//		cout << "----- ----- \n";
 		if( r1.first != r1v2.first || r1.second != r1v2.second ){
 			cout << "FactorsIndex::findTimes - Error en getRangeX ([" << r1.first << ", " << r1.second << "] vs [" << r1v2.first << ", " << r1v2.second << "])\n";
 			exit(0);
 		}
 		
 		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
-			cout << "FactorsIndex::findTimes - getRangeX invalido, omitiendo\n";
+//			cout << "FactorsIndex::findTimes - getRangeX invalido, omitiendo\n";
 			continue;
 		}
 		// Rango Y
-		cout << "----- RangeY v1 ----- \n";
+//		cout << "----- RangeY v1 ----- \n";
 		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
-		cout << "----- RangeY v2 ----- \n";
+//		cout << "----- RangeY v2 ----- \n";
 		pair<unsigned int, unsigned int> r2v2 = getRangeYv2(p2.c_str());
-		cout << "-----  ----- \n";
+//		cout << "-----  ----- \n";
 		if( r2.first != r2v2.first || r2.second != r2v2.second ){
 			cout << "FactorsIndex::findTimes - Error en getRangeY ([" << r2.first << ", " << r2.second << "] vs [" << r2v2.first << ", " << r2v2.second << "])\n";
 			exit(0);
 		}
 		
 		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
-			cout << "FactorsIndex::findTimes - getRangeY invalido, omitiendo\n";
+//			cout << "FactorsIndex::findTimes - getRangeY invalido, omitiendo\n";
 			continue;
 		}
 		querytime_p3 += timer.getNanosec();
 		timer.reset();
 		
-		cout << "FactorsIndex::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+//		cout << "FactorsIndex::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
 			unsigned int f = arr_y[point.second];
 			unsigned int pu = select1_b(f + 1);
-			cout << "FactorsIndex::findTimes - Adding pos " << (pu - p1.length()) << "\n";
+//			cout << "FactorsIndex::findTimes - Adding pos " << (pu - p1.length()) << "\n";
 			results.push_back(pu - p1.length());
 		}
 		
 		querytime_p4 += timer.getNanosec();
 	}
-	cout << "FactorsIndex::findTimes - End\n";
+//	cout << "FactorsIndex::findTimes - End\n";
 	
 }
 
@@ -497,7 +499,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 	unsigned int der = n_factors-1;
 	unsigned int cur_pos = 0;
 	
-	cout << "getRangeY - Inicio (pat " << pattern << ", pat_len: " << pat_len << ", izq: " << izq << ", der: " << der << ")\n";
+//	cout << "getRangeY - Inicio (pat " << pattern << ", pat_len: " << pat_len << ", izq: " << izq << ", der: " << der << ")\n";
 	
 	for( ; cur_pos < pat_len; ++cur_pos ){
 //		cout << "getRangeY - cur_pos: " << cur_pos << " (pattern[" << cur_pos << "]: " << pattern[cur_pos] << ")\n";
@@ -571,7 +573,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 		
 	}
 	
-	cout << "getRangeY - result: (" << izq << ", " << der << ")\n";
+//	cout << "getRangeY - result: (" << izq << ", " << der << ")\n";
 	return pair<unsigned int, unsigned int>(izq, der);
 }
 
@@ -638,7 +640,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeYv2(const char *pattern){
 	}
 //	cout << "getRangeY - der: " << der << "\n";
 	
-	cout << "getRangeY - result: (" << izq << ", " << der << ")\n";
+//	cout << "getRangeY - result: (" << izq << ", " << der << ")\n";
 	return pair<unsigned int, unsigned int>(izq, der);
 }
 
@@ -651,7 +653,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 	unsigned int der = n_factors-1;
 	unsigned int cur_pos = 0;
 	
-	cout << "getRangeX - Inicio (pat " << pattern << ", pat_len: " << pat_len << ", izq: " << izq << ", der: " << der << ")\n";
+//	cout << "getRangeX - Inicio (pat " << pattern << ", pat_len: " << pat_len << ", izq: " << izq << ", der: " << der << ")\n";
 	
 	for( ; cur_pos < pat_len; ++cur_pos ){
 //		cout << "getRangeX - cur_pos: " << cur_pos << " (pattern[" << cur_pos << "]: " << pattern[cur_pos] << ")\n";
@@ -729,7 +731,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 		
 	}
 	
-	cout << "getRangeX - result: (" << izq << ", " << der << ")\n";
+//	cout << "getRangeX - result: (" << izq << ", " << der << ")\n";
 	return pair<unsigned int, unsigned int>(izq, der);
 }
 
@@ -794,7 +796,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeXv2(const char *pattern){
 	}
 //	cout << "getRangeX - der: " << der << "\n";
 	
-	cout << "getRangeX - result: (" << izq << ", " << der << ")\n";
+//	cout << "getRangeX - result: (" << izq << ", " << der << ")\n";
 	return pair<unsigned int, unsigned int>(izq, der);
 }
 
