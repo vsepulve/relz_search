@@ -66,7 +66,7 @@ int main(int argc, char* argv[]){
 	cout << "----- Building index -----\n";
 	NanoTimer timer;
 	vector<unsigned int> results;
-	bool delete_text = false;
+	bool delete_text = true;
 	FactorsIndex index_built(factors, text, len_text, ref, len_ref, delete_text);
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index_built.printSize();
