@@ -101,6 +101,10 @@ public:
 	unsigned long long querytime_p3y;
 	unsigned long long querytime_p4;
 	
+	unsigned int occs_a;
+	unsigned int occs_b;
+	unsigned int occs_c;
+	
 	KarpRabinFactorsSuffixes *getKRFactors(){
 		return kr_factors;
 	}

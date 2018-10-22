@@ -100,7 +100,9 @@ public:
 	unsigned long long querytime_p3;
 	unsigned long long querytime_p4;
 	
-	
+	unsigned int occs_a;
+	unsigned int occs_b;
+	unsigned int occs_c;
 	
 };
 
