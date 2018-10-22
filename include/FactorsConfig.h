@@ -12,6 +12,8 @@
 #include <sdsl/rmq_support.hpp>
 #include <sdsl/inv_perm_support.hpp>
 #include <sdsl/wavelet_trees.hpp>
+#include <sdsl/bp_support_g.hpp>
+#include <sdsl/bp_support_gg.hpp>
 
 using namespace sdsl;
 using namespace std;
@@ -30,8 +32,9 @@ typedef sd_vector<> bits_b_type;
 typedef csa_wt<wt_huff<>, 16, 32, sa_order_sa_sampling<>, isa_sampling<>> fm_index_type;
 
 // Type for the rmq structure
-typedef rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq_type;
-//typedef rmq_succinct_sct<false, bp_support_sada<128,32,rank_support_v5<> > > rmq_type;
+// typedef rmq_succinct_sct<false, bp_support_sada<256,32,rank_support_v5<> > > rmq_type;
+// typedef rmq_succinct_sct<false, bp_support_sada<128,32,rank_support_v5<> > > rmq_type;
+typedef rmq_succinct_sct<false, bp_support_gg<> > rmq_type;
 
 // Type for the Wavelet Tree structure used to combine ranges
 //typedef wt_int<rrr_vector<127>> wt_type;
