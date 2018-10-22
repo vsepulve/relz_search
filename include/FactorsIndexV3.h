@@ -56,13 +56,13 @@ private:
 	int_vector<> arr_y;
 	
 /*	inv_perm_support<> perm_x;*/
-	inv_perm_support<> perm_y;
-	inv_perm_support<> perm_y_inv;
+//	inv_perm_support<> perm_y;
+//	inv_perm_support<> perm_y_inv;
 	
 	wt_type wt;
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
-	static const bool precompute_rmq = false;
+	static const bool precompute_rmq = true;
 	vector<unsigned int> arr_tu;
 	vector<unsigned int> arr_pu;
 	vector<unsigned int> arr_lu;
