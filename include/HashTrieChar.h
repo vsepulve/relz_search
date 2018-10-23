@@ -27,24 +27,16 @@ class HashTrieCharNode{
 
 public: 
 
-	// Datos descomprimidos del nodo
+	// Uncompressed node's data
 	unsigned int len;
 	unsigned int min;
 	unsigned int max;
 	unsigned int hash;
-	// Posicion del factor de referencia en la coleccion (no en el arreglo lexicografico)
+	// Position of the factor in the collection
 	unsigned int min_factor_pos;
 	
-	// Estructura para los hijos
-	// unordered_map<unsigned long long, shared_ptr<HashTrieNode>> childs;
-	// map<unsigned long long, shared_ptr<HashTrieNode>> childs;
+	// Structure for chidls, indexed by first char
 	map<char, shared_ptr<HashTrieCharNode>> childs;
-	
-	// Estructra secundadaria para los hijos
-	// Arreglo de hijos ordenados por largo del texto para acelerar la busqueda
-/*	vector<pair<unsigned int, vector<shared_ptr<HashTrieNode>>>> childs_pairs;*/
-	
-/*	unsigned int getMaxComp(const char *str_1, unsigned int len_1, const char *str_2, unsigned int len_2);*/
 	
 	HashTrieCharNode();
 	~HashTrieCharNode();
@@ -60,8 +52,6 @@ public:
 	void save(fstream &writer);
 	
 	void load(fstream &reader, unsigned int processed, vector<unsigned int> &factors_start, const char *full_text);
-	
-/*	void prepareChilds();*/
 	
 };
 
@@ -90,8 +80,6 @@ public:
 	
 	void load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file, vector<unsigned int> &factors_start, const char *full_text);
 	
-/*	void prepareChilds();*/
-	
 	unsigned long long hash_nano;
 	
 };
@@ -100,25 +88,20 @@ class HashTrieCharRevNode{
 
 public: 
 
-	// Datos descomprimidos del nodo
+	// Uncompressed node's data
 	unsigned int len;
 	unsigned int min;
 	unsigned int max;
 	unsigned int hash;
-	// Posicion del factor de referencia en la coleccion (no en el arreglo lexicografico)
+	// Position of the factor in the collection
 	unsigned int min_factor_pos;
 	
-	// Por ahora agrego el texto para los hash de prefijo
-	// Notar que la idea seria acelerar esto con datos del factor y los prefijos de la referncia
+	// To simplify tge code, I add the text to evaluate prefix hash
+	// Obviously this text can be accesed from the reference in querytime
 	string text;
 	
-	// Estructura para los hijos
-/*	unordered_map<unsigned long long, shared_ptr<HashTrieRevNode>> childs;*/
+	// Structure for chidls, indexed by first char
 	unordered_map<char, shared_ptr<HashTrieCharRevNode>> childs;
-	
-	// Estructra secundadaria para los hijos
-	// Arreglo de hijos ordenados por largo del texto para acelerar la busqueda
-/*	vector<pair<unsigned int, vector<shared_ptr<HashTrieRevNode>>>> childs_pairs;*/
 	
 	unsigned int getMaxComp(const char *str_1, unsigned int len_1, const char *str_2, unsigned int len_2);
 	
@@ -136,8 +119,6 @@ public:
 	void save(fstream &writer);
 	
 	void load(fstream &reader);
-	
-/*	void prepareChilds();*/
 	
 };
 
@@ -165,8 +146,6 @@ public:
 	void save(const string &file);
 	
 	void load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file);
-	
-/*	void prepareChilds();*/
 	
 };
 
