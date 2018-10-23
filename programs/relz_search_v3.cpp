@@ -59,12 +59,12 @@ int main(int argc, char* argv[]){
 	unsigned long long real_len_text = 0;
 	char *text = filter->readText(input, real_len_text);
 	unsigned int len_text = compressor.getTextSize();
-	cout << "Texto Cargado de " << len_text << " / " << real_len_text << " chars\n";
+	cout << "Full text loaded of " << len_text << " / " << real_len_text << " chars\n";
 	
 	const char *ref = reference->getText();
 	unsigned int len_ref = reference->getLength();
 	
-	cout << "----- Construyendo Indice -----\n";
+	cout << "----- Building index -----\n";
 	NanoTimer timer;
 	unsigned int bits = 8;
 //	unsigned int mod = 787;
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]){
 	vector<unsigned int> results;
 	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin, input);
 //	KarpRabinFactorsSuffixes *kr_factors = index.getKRFactors();
-	cout << "----- Construccion terminada en " << timer.getMilisec() << " ms -----\n";
+	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index.printSize();
 	
 //	cout << "----- Probando Carga de Arboles\n";
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]){
 //	cout << "-----     -----\n";
 //	results.clear();
 	
-	cout << "----- Cargando Queries desde \"" << queries_file << "\" -----\n";
+	cout << "----- Loading Queries from \"" << queries_file << "\" -----\n";
 	vector<string> queries;
 	unsigned int max_line = 1000000;
 	char buff[max_line + 1];
@@ -113,7 +113,7 @@ int main(int argc, char* argv[]){
 		queries.push_back(query);
 	}
 	
-	cout << "----- Realizando Queres -----\n";
+	cout << "----- Searching Queres -----\n";
 	timer.reset();
 	unsigned long long total_occ = 0;
 	index.querytime_p1 = 0;
@@ -121,6 +121,9 @@ int main(int argc, char* argv[]){
 	index.querytime_p3x = 0;
 	index.querytime_p3y = 0;
 	index.querytime_p4 = 0;
+	index.occs_a = 0;
+	index.occs_b = 0;
+	index.occs_c = 0;
 	index.tree_y.hash_nano = 0;
 	index.kr_factors->kr_nano = 0;
 	for( string query : queries ){
@@ -130,18 +133,35 @@ int main(int argc, char* argv[]){
 		total_occ += results.size();
 		results.clear();
 	}
-	cout << "----- Queries terminadas en " << timer.getMilisec() << " ms (" << (timer.getMilisec() / total_occ) << " ms/occ, " << queries.size() << " queries, " << total_occ << " occs) -----\n";
+	double total_milisec = timer.getMilisec();
+	cout << "----- Queries finished in " << total_milisec << " ms (" << (total_milisec / total_occ) << " ms/occ, " << queries.size() << " queries, " << total_occ << " occs) -----\n";
 	
 	unsigned long long total_nano = index.querytime_p1 + index.querytime_p2 + index.querytime_p3x + index.querytime_p3y + index.querytime_p4;
-	cout << "Nanosec fm_index: " << index.querytime_p1 << " (" << ((long double)index.querytime_p1/total_nano)*100 << " \%)\n";
-	cout << "Nanosec recursive_rmq: " << index.querytime_p2 << " (" << ((long double)index.querytime_p2/total_nano)*100 << " \%)\n";
-	cout << "Nanosec getRangeX: " << index.querytime_p3x << " (" << ((long double)index.querytime_p3x/total_nano)*100 << " \%)\n";
-	cout << "Nanosec getRangeY: " << index.querytime_p3y << " (" << ((long double)index.querytime_p3y/total_nano)*100 << " \%)\n";
-	cout << "Nanosec wt: " << index.querytime_p4 << " (" << ((long double)index.querytime_p4/total_nano)*100 << " \%)\n";
-	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
+	double f1 = (double)(((long double)index.querytime_p1/total_nano));
+	double f2 = (double)(((long double)index.querytime_p2/total_nano));
+	double f3 = (double)(((long double)(index.querytime_p3x + index.querytime_p3y)/total_nano));
+	double f4 = (double)(((long double)index.querytime_p4/total_nano));
 	
-	cout << "Nanosec Treey.hash: " << index.tree_y.hash_nano << "\n";
-	cout << "Nanosec Treey.hash: " << index.kr_factors->kr_nano << "\n";
+	cout << "Occs A: " << index.occs_a << "\n";
+	cout << "Occs B: " << index.occs_b << "\n";
+	cout << "Occs C: " << index.occs_c << "\n";
+	double total_occ_ref = index.occs_a + index.occs_b + index.occs_c;
+	
+	cout << "Fm_index: " << (f1 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f1 * 100 << " \%)\n";
+	cout << "Recursive RMQ: " << (f2 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f2 * 100 << " \%)\n";
+	cout << "getRange: " << (f3 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f3 * 100 << " \%)\n";
+	cout << "WT: " << (f4 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f4 * 100 << " \%)\n";
+	
+//	unsigned long long total_nano = index.querytime_p1 + index.querytime_p2 + index.querytime_p3x + index.querytime_p3y + index.querytime_p4;
+//	cout << "Nanosec fm_index: " << index.querytime_p1 << " (" << ((long double)index.querytime_p1/total_nano)*100 << " \%)\n";
+//	cout << "Nanosec recursive_rmq: " << index.querytime_p2 << " (" << ((long double)index.querytime_p2/total_nano)*100 << " \%)\n";
+//	cout << "Nanosec getRangeX: " << index.querytime_p3x << " (" << ((long double)index.querytime_p3x/total_nano)*100 << " \%)\n";
+//	cout << "Nanosec getRangeY: " << index.querytime_p3y << " (" << ((long double)index.querytime_p3y/total_nano)*100 << " \%)\n";
+//	cout << "Nanosec wt: " << index.querytime_p4 << " (" << ((long double)index.querytime_p4/total_nano)*100 << " \%)\n";
+//	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
+	
+//	cout << "Nanosec Treey.hash: " << index.tree_y.hash_nano << "\n";
+//	cout << "Nanosec Treey.hash: " << index.kr_factors->kr_nano << "\n";
 	
 	delete reference;
 
