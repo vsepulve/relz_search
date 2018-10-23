@@ -77,9 +77,31 @@ unsigned long long KarpRabinFactorsSuffixes::hash(unsigned int factor_ini, unsig
 
 // Fast version, only valid for offset and length < karp_rabin->getTableSize()
 unsigned long long KarpRabinFactorsSuffixes::hashFast(unsigned int factor_ini, unsigned int length){
-//	cout << "KarpRabinFactorsSuffixes::hashFast - Start (factor_ini: " << factor_ini << ", length: " << length << ")\n";
+	cout << "KarpRabinFactorsSuffixes::hashFast - Start (factor_ini: " << factor_ini << ", length: " << length << ")\n";
 	unsigned long long kr1 = 0;
 	
+	unsigned int cur_len = 0;
+	unsigned int factor_cur = 0;
+	unsigned int tu = 0;
+	
+	
+	factor_cur = factor_ini;
+	unsigned int cur_perm = (*pi_inv)[factor_cur];
+	tu = arr_tu->at(cur_perm);
+	unsigned int lu = arr_lu->at(cur_perm);
+//	cout << "1...\n";
+	while( cur_len + lu < length ){
+		// Agregar factor completo y continuar
+//		cout << "KarpRabinFactorsSuffixes::hashFast - Adding factor " << factor_cur << " of len " << lu << " (cur_len: " << cur_len << " -> " << (cur_len + lu) << ")\n";
+		cur_len += lu;
+		++factor_cur;
+		cur_perm = (*pi_inv)[factor_cur];
+		tu = arr_tu->at(cur_perm);
+		lu = arr_lu->at(cur_perm);
+	}
+	
+	
+	/*
 	// Prueba de Busqueda Binaria
 	unsigned int l = factor_ini;
 	unsigned int h = factors_start->size();
@@ -112,40 +134,44 @@ unsigned long long KarpRabinFactorsSuffixes::hashFast(unsigned int factor_ini, u
 //		exit(0);
 //	}
 	
+	cur_len = cur_len_bin;
+	factor_cur = factor_cur_bin;
+	tu = tu_bin;
+	*/
 	
-	if( factor_cur_bin > factor_ini ){
-//		cout << "KarpRabinFactorsSuffixes::hashFast - Preparing kr1 subtract_prefix(" << arr_kr_s->at(factor_cur_bin) << ", " << arr_kr_s->at(factor_ini) << ", " << cur_len_bin << ")\n";
-		kr1 = karp_rabin->subtract_prefix(arr_kr_s->at(factor_cur_bin), arr_kr_s->at(factor_ini), cur_len_bin);
+	if( factor_cur > factor_ini ){
+		cout << "KarpRabinFactorsSuffixes::hashFast - Preparing kr1 subtract_prefix(" << arr_kr_s->at(factor_cur) << ", " << arr_kr_s->at(factor_ini) << ", " << cur_len << ")\n";
+		kr1 = karp_rabin->subtract_prefix(arr_kr_s->at(factor_cur), arr_kr_s->at(factor_ini), cur_len);
 	}
-//	cout << "KarpRabinFactorsSuffixes::hashFast - kr1: " << kr1 << ", cur_len_bin: " << cur_len_bin << "\n";
+	cout << "KarpRabinFactorsSuffixes::hashFast - kr1: " << kr1 << ", cur_len: " << cur_len << "\n";
 	// Calcular el hash de los (length - cur_len) primeros caracteres del factor actual
 	// Notar que lo que sigue se puede extraer er KarpRabinReference (desde tu, de largo length - cur_len)
 	
 	NanoTimer timer;
-//	cout << "KarpRabinFactorsSuffixes::hashFast - karp_rabin->hash(ref_text + " << tu_bin << ", " << length << " - " << cur_len_bin << ")\n";
-	unsigned long long kr2 = karp_rabin->hash(ref_text + tu_bin, length - cur_len_bin);
+	cout << "KarpRabinFactorsSuffixes::hashFast - karp_rabin->hash(ref_text + " << tu << ", " << length << " - " << cur_len << ")\n";
+	unsigned long long kr2 = karp_rabin->hash(ref_text + tu, length - cur_len);
 	kr_nano += timer.getNanosec();
 	
-//	cout << "KarpRabinFactorsSuffixes::hashFast - kr2: " << kr2 << ", len: " << length - cur_len_bin << "\n";
-	unsigned long long kr12 = karp_rabin->concat(kr1, kr2, length - cur_len_bin);
-//	cout << "KarpRabinFactorsSuffixes::hashFast - End (kr12: " << kr12 << ")\n";
+	cout << "KarpRabinFactorsSuffixes::hashFast - kr2: " << kr2 << ", len: " << length - cur_len << "\n";
+	unsigned long long kr12 = karp_rabin->concat(kr1, kr2, length - cur_len);
+	cout << "KarpRabinFactorsSuffixes::hashFast - End (kr12: " << kr12 << ")\n";
 	return kr12;
 }
 
 // Fast version, only valid for offset and length < karp_rabin->getTableSize()
 unsigned long long KarpRabinFactorsSuffixes::hashFast(unsigned int factor_ini, unsigned int offset, unsigned int length){
-//	cout << "KarpRabinFactorsSuffixes::hashFast - Start (factor_ini: " << factor_ini << ", offset: " << offset << ", length: " << length << ")\n";
+	cout << "KarpRabinFactorsSuffixes::hashFast - Start (factor_ini: " << factor_ini << ", offset: " << offset << ", length: " << length << ")\n";
 	
 	if( length == 0 ){
 		return 0;
 	}
 	
 	unsigned long long kr_total = hashFast(factor_ini, offset + length);
-//	cout << "KarpRabinFactorsSuffixes::hashFast - kr_total: " << kr_total << "\n";
+	cout << "KarpRabinFactorsSuffixes::hashFast - kr_total: " << kr_total << "\n";
 	unsigned long long kr_prefix = hashFast(factor_ini, offset);
-//	cout << "KarpRabinFactorsSuffixes::hashFast - kr_prefix: " << kr_prefix << "\n";
+	cout << "KarpRabinFactorsSuffixes::hashFast - kr_prefix: " << kr_prefix << "\n";
 	unsigned long long kr = karp_rabin->subtract_prefix(kr_total, kr_prefix, length);
-//	cout << "KarpRabinFactorsSuffixes::hashFast - kr: " << kr << "\n";
+	cout << "KarpRabinFactorsSuffixes::hashFast - kr: " << kr << "\n";
 	return kr;
 }
 
