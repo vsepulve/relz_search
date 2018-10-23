@@ -214,10 +214,10 @@ pair<unsigned int, unsigned int> HashTrieChar::getRange(vector<unsigned long lon
 
 pair<unsigned int, unsigned int> HashTrieCharNode::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, const string &pattern, unsigned long long *hash_nano){
 	
-//	cout << "HashTrieCharNode::getRange - Start (prefixes: " << kr_pat_vector.size() << ", pos: " << pos << ", processed: " << processed << ")\n";
+	cout << "HashTrieCharNode::getRange - Start (prefixes: " << kr_pat_vector.size() << ", pos: " << pos << ", processed: " << processed << ")\n";
 	
 	if( pos + processed >= kr_pat_vector.size() ){
-//		cout << "HashTrieCharNode::getRange - [" << min << ", " << max << "]\n";
+		cout << "HashTrieCharNode::getRange - [" << min << ", " << max << "]\n";
 		return pair<unsigned int, unsigned int>(min, max);
 	}
 	
@@ -238,29 +238,31 @@ pair<unsigned int, unsigned int> HashTrieCharNode::getRange(vector<unsigned long
 			string pat_cut = pattern.substr(pos + processed, child_len);
 //			cout << "HashTrieCharNode::getRange - pat_cut: " << pat_cut << " hash_pat: " << hash_pat << " / " << karp_rabin->hash(pat_cut) << " (processed: " << processed << ")\n";
 			if( hash_pat == it_child->second->hash ){
-//				cout << "HashTrieCharNode::getRange - Child found -> [" << it_child->second->min << ", " << it_child->second->max << "]\n";
+				cout << "HashTrieCharNode::getRange - Child found -> [" << it_child->second->min << ", " << it_child->second->max << "]\n";
 				return it_child->second->getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, pattern, hash_nano);
 			}
 		}
 		else{
-//			cout << "HashTrieCharNode::getRange - Case 2, child_len: " << child_len << "\n";
+			cout << "HashTrieCharNode::getRange - Case 2, child_len: " << child_len << "\n";
 			
 //			cout << "Node: \n";
 //			it_child->second->print(0);
 			// Caso de borde detectado a veces en kr_factors->hashFast(it_child->second->min_factor_pos, processed, pat_len
 			
 			unsigned long long hash = kr_factors->hashFast(it_child->second->min_factor_pos, processed, pat_len);
+			
+			
 			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
-//			cout << "HashTrieCharNode::getRange - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
+			cout << "HashTrieCharNode::getRange - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
 			if( hash == hash_pat ){
-//				cout << "HashTrieCharNode::getRange - Child found -> [" << it_child->second->min << ", " << it_child->second->max << "]\n";
+				cout << "HashTrieCharNode::getRange - Child found -> [" << it_child->second->min << ", " << it_child->second->max << "]\n";
 				return pair<unsigned int, unsigned int>(it_child->second->min, it_child->second->max);
 			}
 			
 		}
 	}
 	
-//	cout << "HashTrieCharNode::getRange - Pattern NOT found\n";
+	cout << "HashTrieCharNode::getRange - Pattern NOT found\n";
 	return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
 }
 
