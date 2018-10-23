@@ -129,14 +129,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		arr_x[i] = arr_x_original[i];
 	}
 	
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 20 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 20 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
 	
 	cout << "FactorsIndexV3 - Preparing arr Y\n";
 	vector<unsigned int> arr_y_original(n_factors);
@@ -153,19 +153,15 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		arr_y[i] = arr_y_original[i];
 		arr_y_inv[ arr_y_original[i] ] = i;
 	}
-//	inv_perm_support<> _perm_y(&arr_y_inv);
-//	inv_perm_support<> _perm_y_inv(&arr_y);
-//	perm_y = _perm_y;
-//	perm_y_inv = _perm_y_inv;
 	
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 20 && (c = getChar(arr_y[i], k)) != 0; ++k ) 
-//			cout << c;
-//		cout << " (" << (len_text - factors_start[arr_y[i]]) << ")\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
+		char c = 0;
+		for(unsigned int k = 0; k < 20 && (c = getChar(arr_y[i], k)) != 0; ++k ) 
+			cout << c;
+		cout << " (" << (len_text - factors_start[arr_y[i]]) << ")\n";
+	}
+	cout << "-----\n";
 
 	cout << "FactorsIndexV3 - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
@@ -313,18 +309,18 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		tree_y.save(index_y);
 	}
 	cout << "FactorsIndexV3 - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
-//	tree_y.print();
+	tree_y.print();
 //	tree_y.prepareChilds();
-	tree_y.printSize();
+//	tree_y.printSize();
 	
 	cout << "FactorsIndexV3 - Building Tree X\n";
 	timer.reset();
 	tree_x.build(full_text, len_text, factors_start, arr_x_original, karp_rabin, kr_factors);
 	cout << "FactorsIndexV3 - Tree X finished in (" << timer.getMilisec() << " ms)\n";
-//	tree_x.print();
+	tree_x.print();
 //	tree_x.save(index_x);
 //	tree_x.prepareChilds();
-	tree_x.printSize();
+//	tree_x.printSize();
 	
 	vector<unsigned long long> pat_vector;
 	karp_rabin->hashPrefixes("ALABARDA", pat_vector);
