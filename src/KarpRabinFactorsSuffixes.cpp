@@ -122,6 +122,7 @@ unsigned long long KarpRabinFactorsSuffixes::hashFast(unsigned int factor_ini, u
 	// Notar que lo que sigue se puede extraer er KarpRabinReference (desde tu, de largo length - cur_len)
 	
 	NanoTimer timer;
+//	cout << "KarpRabinFactorsSuffixes::hashFast - karp_rabin->hash(ref_text + " << tu_bin << ", " << length << " - " << cur_len_bin << ")\n";
 	unsigned long long kr2 = karp_rabin->hash(ref_text + tu_bin, length - cur_len_bin);
 	kr_nano += timer.getNanosec();
 	
@@ -133,18 +134,18 @@ unsigned long long KarpRabinFactorsSuffixes::hashFast(unsigned int factor_ini, u
 
 // Fast version, only valid for offset and length < karp_rabin->getTableSize()
 unsigned long long KarpRabinFactorsSuffixes::hashFast(unsigned int factor_ini, unsigned int offset, unsigned int length){
-	cout << "KarpRabinFactorsSuffixes::hashFast - Start (factor_ini: " << factor_ini << ", offset: " << offset << ", length: " << length << ")\n";
+//	cout << "KarpRabinFactorsSuffixes::hashFast - Start (factor_ini: " << factor_ini << ", offset: " << offset << ", length: " << length << ")\n";
 	
 	if( length == 0 ){
 		return 0;
 	}
 	
 	unsigned long long kr_total = hashFast(factor_ini, offset + length);
-	cout << "KarpRabinFactorsSuffixes::hashFast - kr_total: " << kr_total << "\n";
+//	cout << "KarpRabinFactorsSuffixes::hashFast - kr_total: " << kr_total << "\n";
 	unsigned long long kr_prefix = hashFast(factor_ini, offset);
-	cout << "KarpRabinFactorsSuffixes::hashFast - kr_prefix: " << kr_prefix << "\n";
+//	cout << "KarpRabinFactorsSuffixes::hashFast - kr_prefix: " << kr_prefix << "\n";
 	unsigned long long kr = karp_rabin->subtract_prefix(kr_total, kr_prefix, length);
-	cout << "KarpRabinFactorsSuffixes::hashFast - kr: " << kr << "\n";
+//	cout << "KarpRabinFactorsSuffixes::hashFast - kr: " << kr << "\n";
 	return kr;
 }
 

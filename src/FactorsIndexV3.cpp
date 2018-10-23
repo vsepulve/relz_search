@@ -44,8 +44,8 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - Factors Sorted prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 //	cout << "Factors Sorted: \n";
-//	for( pair<unsigned int, pair<unsigned int, unsigned int> > factor : factors_sort ){
-//		cout << "(" << factor.first << ", " << factor.second.first << ", " << factor.second.second << ")\n";
+//	for( unsigned int i = 0; i < factors_sort.size(); ++i ){
+//		cout << "factors_sort[" << i << "]: (" << factors_sort[i].first << ", " << factors_sort[i].second.first << ", " << factors_sort[i].second.second << ")\n";
 //	}
 	
 	// Bit vector S
@@ -297,7 +297,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 			load_y = true;
 		}
 	}
-//	load_y = false;
+	load_y = false;
 	if( load_y ){
 		cout << "FactorsIndexV3 - Loading Tree Y\n";
 //		tree_y.load(karp_rabin, kr_factors, index_y);
@@ -404,10 +404,10 @@ void FactorsIndexV3::printSize(){
 
 void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &results){
 	
-	cout << "FactorsIndexV3::findTimes - Start (\"" << pattern << "\")\n";
+//	cout << "FactorsIndexV3::findTimes - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
 	
-	cout << "FactorsIndexV3::findTimes - Section A, reference\n";
+//	cout << "FactorsIndexV3::findTimes - Section A, reference\n";
 	
 	size_t m = pattern.size();
 	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
@@ -434,7 +434,7 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 	}
 	querytime_p2 += timer.getNanosec();
 	
-	cout << "FactorsIndexV3::findTimes - Section B, ranges\n";
+//	cout << "FactorsIndexV3::findTimes - Section B, ranges\n";
 	
 	vector<unsigned long long> kr_pat_vector;
 	vector<unsigned long long> kr_pat_rev_vector;
@@ -445,33 +445,33 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 	for(unsigned int i = 0; i < pattern.length(); ++i){
 		pattern_rev += pattern[pattern.length() - 1 - i];
 	}
-	cout << "-----  pattern: " << pattern << " -----\n";
-	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
+//	cout << "-----  pattern: " << pattern << " -----\n";
+//	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
 	
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
 		
-		cout << "-----  tree_x.getRange -----\n";
+//		cout << "-----  tree_x.getRange -----\n";
 		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
 		querytime_p3x += timer.getNanosec();
 		timer.reset();
-		cout << "-----\n";
+//		cout << "-----\n";
 		
 		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
 			continue;
 		}
 		
-		cout << "-----  tree_y.getRange -----\n";
+//		cout << "-----  tree_y.getRange -----\n";
 		pair<unsigned int, unsigned int> r2 = tree_y.getRange(kr_pat_vector, i, pattern);
 		querytime_p3y += timer.getNanosec();
 		timer.reset();
-		cout << "-----\n";
+//		cout << "-----\n";
 		
 		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 			continue;
 		}
 		
-		cout << "FactorsIndexV3::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+//		cout << "FactorsIndexV3::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 //		cout << "FactorsIndexV3::findTimes - Adding " << res.second.size() << " points\n";
 		for (auto point : res.second){
@@ -481,11 +481,11 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 		}
 		querytime_p4 += timer.getNanosec();
 		
-		cout << "FactorsIndexV3::findTimes - End\n";
+//		cout << "FactorsIndexV3::findTimes - End\n";
 		
 	}
 	
-	cout << "FactorsIndexV3::findTimes - End\n";
+//	cout << "FactorsIndexV3::findTimes - End\n";
 	
 }
 
