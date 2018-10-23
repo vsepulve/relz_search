@@ -27,7 +27,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	cout << "FactorsIndexV3 - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
 	vector<pair<unsigned int, pair<unsigned int, unsigned int> > > factors_sort;
-	vector<unsigned int> factors_start;
+//	vector<unsigned int> factors_start;
 	unsigned int cur_start = 0;
 	unsigned int cur_pos = 0;
 	for( pair<unsigned int, unsigned int> factor : factors ){
@@ -129,14 +129,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		arr_x[i] = arr_x_original[i];
 	}
 	
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-		char c = 0;
-		for(unsigned int k = 0; k < 20 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-			cout << c;
-		cout << "\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+//		char c = 0;
+//		for(unsigned int k = 0; k < 20 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
+//			cout << c;
+//		cout << "\n";
+//	}
+//	cout << "-----\n";
 	
 	cout << "FactorsIndexV3 - Preparing arr Y\n";
 	vector<unsigned int> arr_y_original(n_factors);
@@ -154,14 +154,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		arr_y_inv[ arr_y_original[i] ] = i;
 	}
 	
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
-		char c = 0;
-		for(unsigned int k = 0; k < 20 && (c = getChar(arr_y[i], k)) != 0; ++k ) 
-			cout << c;
-		cout << " (" << (len_text - factors_start[arr_y[i]]) << ")\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
+//		char c = 0;
+//		for(unsigned int k = 0; k < 20 && (c = getChar(arr_y[i], k)) != 0; ++k ) 
+//			cout << c;
+//		cout << " (" << (len_text - factors_start[arr_y[i]]) << ")\n";
+//	}
+//	cout << "-----\n";
 
 	cout << "FactorsIndexV3 - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
@@ -231,7 +231,6 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 //		string s(full_text, factors_start[i]);
 //		cout << "FactorsIndexV3 - Adding hash de \"" << s << "\" " << kr_total << " / " << karp_rabin->hash(s) << "\n";
 		
-		
 		arr_kr_s.push_back(kr_total);
 	}
 	// Agrego tambien el hash de la coleccion completa como un factor ficticio con id = n_factors
@@ -244,28 +243,6 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	
 	cout << "FactorsIndexV3 - KarpRobin prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
-	
-//	cout << "FactorsIndexV3 - Testing KarpRabinFactorsSuffixes\n";
-//	cout << "FactorsIndexV3 - Hash(BAB): " << karp_rabin->hash("BAB") << "\n";
-//	cout << "FactorsIndexV3 - Hash(BABALASLA): " << karp_rabin->hash("BABALASLA") << "\n";
-//	cout << "FactorsIndexV3 - Hash(BABALASLALAB): " << karp_rabin->hash("BABALASLALAB") << "\n";
-	
-//	cout << "FactorsIndexV3 - Hash(A): " << karp_rabin->hash("A") << "\n";
-//	cout << "FactorsIndexV3 - Hash(AL): " << karp_rabin->hash("AL") << "\n";
-//	cout << "FactorsIndexV3 - Hash(ALA): " << karp_rabin->hash("ALA") << "\n";
-//	cout << "FactorsIndexV3 - Hash(ALAS): " << karp_rabin->hash("ALAS") << "\n";
-//	cout << "FactorsIndexV3 - Hash(ALASL): " << karp_rabin->hash("ALASL") << "\n";
-//	cout << "FactorsIndexV3 - Hash(ALASLA): " << karp_rabin->hash("ALASLA") << "\n";
-//	cout << "FactorsIndexV3 - Hash(ALASLAL): " << karp_rabin->hash("ALASLAL") << "\n";
-//	cout << "FactorsIndexV3 - Hash(ALASLALA): " << karp_rabin->hash("ALASLALA") << "\n";
-//	cout << "FactorsIndexV3 - Hash(ALASLALAB): " << karp_rabin->hash("ALASLALAB") << "\n";
-//	
-//	cout << "FactorsIndexV3 - Hash(BA): " << karp_rabin->hash("BA") << "\n";
-//	cout << "FactorsIndexV3 - Hash(BALA): " << karp_rabin->hash("BALA") << "\n";
-//	cout << "FactorsIndexV3 - Hash(BALAS): " << karp_rabin->hash("BALAS") << "\n";
-//	cout << "FactorsIndexV3 - Hash(BALASLA): " << karp_rabin->hash("BALASLA") << "\n";
-//	cout << "FactorsIndexV3 - Hash(BALASLALABA): " << karp_rabin->hash("BALASLALABA") << "\n";
-//	cout << "FactorsIndexV3 - Hash(BALASLALABAS): " << karp_rabin->hash("BALASLALABAS") << "\n";
 	
 	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
 	

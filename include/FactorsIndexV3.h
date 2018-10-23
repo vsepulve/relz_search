@@ -72,9 +72,11 @@ private:
 	bit_vector arr_b;
 	int_vector<> ez;
 /*	int_vector<> pre_x_inv;*/
-	int_vector<> pre_y;
-	int_vector<> pre_y_inv;
+/*	int_vector<> pre_y;*/
+/*	int_vector<> pre_y_inv;*/
 	int_vector<> values_wt;
+	// Simplifacion del calculo de posicion de inicio de factor en coleccion 
+	vector<unsigned int> factors_start;
 	
 	// Cache de iteradores
 	unordered_map<unsigned int, FactorsIterator> mapa_iterators;
