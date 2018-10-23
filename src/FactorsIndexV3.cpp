@@ -388,6 +388,7 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 	
 	size_t m = pattern.size();
 	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
+	occs_a += occs;
 	vector<int_vector<64>> arr_locations;
 	if( occs > 0 ){
 		arr_locations.push_back(locate(fm_index, pattern.begin(), pattern.begin()+m));
@@ -455,6 +456,7 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 			unsigned int f = arr_y[point.second];
 			unsigned int pu = select1_b(f + 1);
 			results.push_back(pu - i);
+			++occs_c;
 		}
 		querytime_p4 += timer.getNanosec();
 		
@@ -552,6 +554,7 @@ void FactorsIndexV3::recursive_rmq(unsigned int ini, unsigned int fin, unsigned 
 	else{
 //		cout << " -> Adding " << (pu + (occ_ref - tu)) << "\n";
 		results.push_back(pu + (occ_ref - tu));
+		++occs_b;
 	}
 	
 	if( (pos_max > 0) && (ini < pos_max) ){
