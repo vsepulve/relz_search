@@ -128,32 +128,19 @@ int main(int argc, char* argv[]){
 	double total_milisec = timer.getMilisec();
 	cout << "----- Queries finished in " << total_milisec << " ms (" << (total_milisec / total_occ) << " ms/occ, " << queries.size() << " queries, " << total_occ << " occs) -----\n";
 	
-	unsigned long long total_nano = index.querytime_p1 + index.querytime_p2 + index.querytime_p3 + index.querytime_p4;
-	double f1 = (double)(((long double)index.querytime_p1/total_nano));
-	double f2 = (double)(((long double)index.querytime_p2/total_nano));
-	double f3 = (double)(((long double)index.querytime_p3/total_nano));
-	double f4 = (double)(((long double)index.querytime_p4/total_nano));
-	
 	cout << "Occs A: " << index.occs_a << "\n";
 	cout << "Occs B: " << index.occs_b << "\n";
 	cout << "Occs C: " << index.occs_c << "\n";
-	double total_occ_ref = index.occs_a + index.occs_b + index.occs_c;
+//	double total_occ_ref = index.occs_a + index.occs_b + index.occs_c;
+	unsigned long long total_nano = index.querytime_p1 + index.querytime_p2 + index.querytime_p3 + index.querytime_p4;
 	
-	cout << "Fm_index: " << (f1 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f1 * 100 << " \%)\n";
-	cout << "Recursive RMQ: " << (f2 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f2 * 100 << " \%)\n";
-	cout << "getRange: " << (f3 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f3 * 100 << " \%)\n";
-	cout << "WT: " << (f4 * total_milisec * 1000 / total_occ_ref) << " microsec / occ (" << f4 * 100 << " \%)\n";
-	
-//	cout << "Nanosec recursive_rmq: " << index.querytime_p2 << " (" << ((long double)index.querytime_p2/total_nano)*100 << " \%)\n";
-//	cout << "Nanosec getRange: " << index.querytime_p3 << " (" << ((long double)index.querytime_p3/total_nano)*100 << " \%)\n";
-//	cout << "Nanosec wt: " << index.querytime_p4 << " (" << ((long double)index.querytime_p4/total_nano)*100 << " \%)\n";
-//	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
-	
+	cout << "Fm_index: " << ((long double)(index.querytime_p1))/(total_occ * 1000) << " microsec/occ (" << ((long double)index.querytime_p1/total_nano)*100 << " \%)\n";
+	cout << "Recursive RMQ: " << ((long double)(index.querytime_p2))/(total_occ * 1000) << " microsec/occ (" << ((long double)index.querytime_p2/total_nano)*100 << " \%)\n";
+	cout << "getRange: " << ((long double)(index.querytime_p3))/(total_occ * 1000) << " microsec/occ (" << ((long double)index.querytime_p3/total_nano)*100 << " \%)\n";
+	cout << "WT: " << ((long double)(index.querytime_p4))/(total_occ * 1000) << " microsec/occ (" << ((long double)index.querytime_p4/total_nano)*100 << " \%)\n";
+	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
 	
 	delete reference;
-
-
-
 
 }
 
