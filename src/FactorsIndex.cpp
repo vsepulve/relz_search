@@ -240,41 +240,28 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 			p1_rev += p1[ p1.length() - 1 - k ];
 		}
 		string p2 = pattern.substr(i, pattern.length() - i);
-//		cout << "FactorsIndex::findTimes - p1_rev: " << p1_rev << ", p2: " << p2 << "\n";
+		
 		// Rango X
-//		cout << "----- RangeX v1 ----- \n";
 //		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
 		pair<unsigned int, unsigned int> r1 = getRangeXv2(p1_rev.c_str());
-//		cout << "----- RangeX v2 ----- \n";
-//		pair<unsigned int, unsigned int> r1v2 = getRangeXv2(p1_rev.c_str());
-//		cout << "----- ----- \n";
-//		if( r1.first != r1v2.first || r1.second != r1v2.second ){
-//			cout << "FactorsIndex::findTimes - Error en getRangeX ([" << r1.first << ", " << r1.second << "] vs [" << r1v2.first << ", " << r1v2.second << "])\n";
-//			exit(0);
-//		}
+		querytime_p3 += timer.getNanosec();
+		timer.reset();
 		
 		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
 //			cout << "FactorsIndex::findTimes - getRangeX invalido, omitiendo\n";
 			continue;
 		}
+		
 		// Rango Y
-//		cout << "----- RangeY v1 ----- \n";
 //		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
 		pair<unsigned int, unsigned int> r2 = getRangeYv2(p2.c_str());
-//		cout << "----- RangeY v2 ----- \n";
-//		pair<unsigned int, unsigned int> r2v2 = getRangeYv2(p2.c_str());
-//		cout << "-----  ----- \n";
-//		if( r2.first != r2v2.first || r2.second != r2v2.second ){
-//			cout << "FactorsIndex::findTimes - Error en getRangeY ([" << r2.first << ", " << r2.second << "] vs [" << r2v2.first << ", " << r2v2.second << "])\n";
-//			exit(0);
-//		}
+		querytime_p3 += timer.getNanosec();
+		timer.reset();
 		
 		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 //			cout << "FactorsIndex::findTimes - getRangeY invalido, omitiendo\n";
 			continue;
 		}
-		querytime_p3 += timer.getNanosec();
-		timer.reset();
 		
 //		cout << "FactorsIndex::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
