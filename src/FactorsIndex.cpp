@@ -242,8 +242,7 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 		string p2 = pattern.substr(i, pattern.length() - i);
 		
 		// Rango X
-//		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
-		pair<unsigned int, unsigned int> r1 = getRangeXv2(p1_rev.c_str());
+		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
 		querytime_p3 += timer.getNanosec();
 		timer.reset();
 		
@@ -253,8 +252,7 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 		}
 		
 		// Rango Y
-//		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
-		pair<unsigned int, unsigned int> r2 = getRangeYv2(p2.c_str());
+		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
 		querytime_p3 += timer.getNanosec();
 		timer.reset();
 		
@@ -276,73 +274,6 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 		querytime_p4 += timer.getNanosec();
 	}
 //	cout << "FactorsIndex::findTimes - End\n";
-	
-}
-
-void FactorsIndex::find(const string &pattern, vector<unsigned int> &results){
-
-//	cout << "FactorsIndex::find - Start (\"" << pattern << "\")\n";
-	
-//	cout << "FactorsIndex::find - Section A, reference\n";
-	
-	size_t m = pattern.size();
-//	cout << "FactorsIndex::find - 1\n";
-	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
-//	cout << "FactorsIndex::find - 2\n";
-	if( occs > 0 ){
-		auto locations = locate(fm_index, pattern.begin(), pattern.begin()+m);
-//		cout << "FactorsIndex::find - 3\n";
-		sort(locations.begin(), locations.end());
-		for( unsigned int i = 0; i < occs; ++i ){
-			unsigned int occ_i = locations[i];
-			// Comprobar los factores que cuben esta ocurrencia (el string ref[occ_i, occ_i + m - 1])
-			unsigned int select = select0_s(occ_i + 1);
-			unsigned int pos_ez = select - 1 - occ_i;
-			// Now the recursive search in rmq (0 - pos_ez)
-//			cout << "FactorsIndex::find - 4 (occ_i: " << occ_i << ", select: " << select << ", pos_ez: " << pos_ez << ")\n";
-			if( occ_i >= select ){
-				continue;
-			}
-			recursive_rmq(0, pos_ez, (occ_i + m), occ_i, results);
-//			cout << "FactorsIndex::find - 5\n";
-		}
-	}
-	
-//	cout << "FactorsIndex::find - Section B, ranges\n";
-	for(unsigned int i = 1; i < pattern.length(); ++i){
-		string p1 = pattern.substr(0, i);
-		string p1_rev = "";
-		for( unsigned int k = 0; k < p1.length(); ++k ){
-			p1_rev += p1[ p1.length() - 1 - k ];
-		}
-		string p2 = pattern.substr(i, pattern.length() - i);
-//		cout << "-----  getRangeX (" << p1_rev << ") -----\n";
-		pair<unsigned int, unsigned int> r1 = getRangeX(p1_rev.c_str());
-//		cout << "-----\n";
-		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
-			continue;
-		}
-
-
-//		cout << "-----  getRangeY (" << p1_rev << ") -----\n";
-		pair<unsigned int, unsigned int> r2 = getRangeY(p2.c_str());
-//		cout << "-----\n";
-		
-		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
-			continue;
-		}
-		
-//		cout << "FactorsIndex::find - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
-		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
-		for (auto point : res.second){
-			unsigned int f = arr_y[point.second];
-			unsigned int pu = select1_b(f + 1);
-//			cout << " -> Adding " << (pu - p1.length()) << "\n";
-			results.push_back(pu - p1.length());
-		}
-		
-	}
-//	cout << "FactorsIndex::find - End\n";
 	
 }
 
@@ -443,13 +374,6 @@ bool FactorsIndex::factorLess(unsigned int factor, const char *pattern, unsigned
 	}
 	it.setMaxLength(len);
 	
-//	cout << "FactorsIndex::factorLess - (" << it.length() << ") ";
-//	while( it.hasNext() ){
-//		cout << it.next();
-//	}
-//	cout << "\n";
-//	it.reset();
-	
 	char c1 = it.next();
 	unsigned int pos = 0;
 	char c2 = pattern[pos++];
@@ -485,93 +409,6 @@ bool FactorsIndex::factorLess(unsigned int factor, const char *pattern, unsigned
 // Notar que, a diferencia de la busqueda en referencia, esta debe ser completa
 // Es decir, solo importa el rango que contiene al patron completo
 pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
-
-	unsigned int pat_len = strlen(pattern);
-	unsigned int izq = 0;
-	unsigned int der = n_factors-1;
-	unsigned int cur_pos = 0;
-	
-//	cout << "getRangeY - Inicio (pat " << pattern << ", pat_len: " << pat_len << ", izq: " << izq << ", der: " << der << ")\n";
-	
-	for( ; cur_pos < pat_len; ++cur_pos ){
-//		cout << "getRangeY - cur_pos: " << cur_pos << " (pattern[" << cur_pos << "]: " << pattern[cur_pos] << ")\n";
-		
-		unsigned int l = izq;
-		unsigned int h = der;
-		unsigned int m;
-		unsigned int fm;
-		char c;
-		unsigned int text_len;
-		
-		// Busqueda binaria del lado izquierdo
-//		cout << "getRangeY - l: " << l << ", h: " << h << "\n";
-		while(l < h){
-			m = l + ((h-l)>>1);
-			fm = arr_y[m];
-			c = getChar(fm, cur_pos, pat_len-cur_pos);
-			text_len = mapa_iterators[fm].length();
-//			cout << "getRangeY - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
-			if( cur_pos > text_len || (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
-//				cout << "getRangeY - caso 1: l = " << (m+1) << "\n";
-				l = m+1;
-			}
-			else{
-//				cout << "getRangeY - caso 2: h = " << m << "\n";
-				h = m;
-			}
-		}
-		izq = h;
-		fm = arr_y[izq];
-		c = getChar(fm, cur_pos, pat_len-cur_pos);
-		text_len = mapa_iterators[fm].length();
-		if( (cur_pos < pat_len) && (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
-			++izq;
-		}
-//		cout << "getRangeY - izq: " << izq << "\n";
-//		cout << "getRangeY - -----\n";
-		
-		// Busqueda binaria del lado derecho
-		l = izq;
-		h = der;
-//		cout << "getRangeY - l: " << l << ", h: " << h << "\n";
-		while(l < h){
-			m = l + ((h-l)>>1);
-			fm = arr_y[m];
-			c = getChar(fm, cur_pos);
-			text_len = mapa_iterators[fm].length();
-//			cout << "getRangeY - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
-			if( cur_pos > text_len || (unsigned char)(c) <= (unsigned char)(pattern[cur_pos]) ){
-//				cout << "getRangeY - caso 1: l = " << (m+1) << "\n";
-				l = m+1;
-			}
-			else{
-//				cout << "getRangeY - caso 2: h = " << m << "\n";
-				h = m;
-			}
-		}
-		der = h;
-		fm = arr_y[der];
-		c = getChar(fm, cur_pos);
-		text_len = mapa_iterators[fm].length();
-		if( (cur_pos < pat_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
-			--der;
-		}
-//		cout << "getRangeY - der: " << der << "\n";
-//		cout << "getRangeY - -----\n";
-		
-		if( der == (unsigned int)(-1) || der < izq ){
-			break;
-		}
-		
-	}
-	
-//	cout << "getRangeY - result: (" << izq << ", " << der << ")\n";
-	return pair<unsigned int, unsigned int>(izq, der);
-}
-
-// Notar que, a diferencia de la busqueda en referencia, esta debe ser completa
-// Es decir, solo importa el rango que contiene al patron completo
-pair<unsigned int, unsigned int> FactorsIndex::getRangeYv2(const char *pattern){
 	
 	// Version de Revision completa
 	
@@ -637,97 +474,6 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeYv2(const char *pattern){
 }
 
 pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
-
-	// Version de rango dinamico
-	
-	unsigned int pat_len = strlen(pattern);
-	unsigned int izq = 0;
-	unsigned int der = n_factors-1;
-	unsigned int cur_pos = 0;
-	
-//	cout << "getRangeX - Inicio (pat " << pattern << ", pat_len: " << pat_len << ", izq: " << izq << ", der: " << der << ")\n";
-	
-	for( ; cur_pos < pat_len; ++cur_pos ){
-//		cout << "getRangeX - cur_pos: " << cur_pos << " (pattern[" << cur_pos << "]: " << pattern[cur_pos] << ")\n";
-		
-		unsigned int l = izq;
-		unsigned int h = der;
-		unsigned int m;
-		unsigned int fm;
-		char c;
-		unsigned int text_len;
-		
-		// Busqueda binaria del lado izquierdo
-//		cout << "getRangeX - l: " << l << ", h: " << h << "\n";
-		while(l < h){
-			m = l + ((h-l)>>1);
-//			cout << "getRangeX - l: arr_x[" << m << "]...\n";
-			fm = arr_x[m];
-//			cout << "getRangeX - l: getCharRev(" << (fm-1) << ", " << cur_pos << ")\n";
-			c = getCharRev(fm-1, cur_pos, pat_len-cur_pos);
-			text_len = mapa_iterators_rev[fm-1].length();
-//			cout << "getRangeX - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
-			if( cur_pos > text_len || (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
-//				cout << "getRangeX - caso 1: l = " << (m+1) << "\n";
-				l = m+1;
-			}
-			else{
-//				cout << "getRangeX - caso 2: h = " << m << "\n";
-				h = m;
-			}
-		}
-//		cout << "getRangeX - end h: " << h << "\n";
-		izq = h;
-		fm = arr_x[izq];
-		c = getCharRev(fm-1, cur_pos, pat_len-cur_pos);
-		text_len = mapa_iterators_rev[fm-1].length();
-//		cout << "getRangeX - cur_pos: " << cur_pos << "/" << pat_len << ", " << (unsigned char)c << " (" << (unsigned int)c << ") < " << (unsigned char)(pattern[cur_pos]) << " ?\n";
-		if( (cur_pos < pat_len) && (unsigned char)(c) < (unsigned char)(pattern[cur_pos]) ){
-			++izq;
-		}
-//		cout << "getRangeX - izq: " << izq << "\n";
-//		cout << "getRangeX - -----\n";
-		
-		// Busqueda binaria del lado derecho
-		l = izq;
-		h = der;
-//		cout << "getRangeX - l: " << l << ", h: " << h << "\n";
-		while(l < h){
-			m = l + ((h-l)>>1);
-			fm = arr_x[m];
-			c = getCharRev(fm-1, cur_pos);
-			text_len = mapa_iterators_rev[fm-1].length();
-//			cout << "getRangeX - m: " << m << ", fm: " << fm << ", c: " << c << ", text_len: " << text_len << "\n";
-			if( cur_pos > text_len || (unsigned char)(c) <= (unsigned char)(pattern[cur_pos]) ){
-//				cout << "getRangeX - caso 1: l = " << (m+1) << "\n";
-				l = m+1;
-			}
-			else{
-//				cout << "getRangeX - caso 2: h = " << m << "\n";
-				h = m;
-			}
-		}
-		der = h;
-		fm = arr_x[der];
-		c = getCharRev(fm-1, cur_pos);
-		text_len = mapa_iterators_rev[fm-1].length();
-		if( (der > 0) && (cur_pos < pat_len) && (unsigned char)(c) > (unsigned char)(pattern[cur_pos]) ){
-			--der;
-		}
-//		cout << "getRangeX - der: " << der << "\n";
-//		cout << "getRangeX - -----\n";
-		
-		if( der < izq ){
-			break;
-		}
-		
-	}
-	
-//	cout << "getRangeX - result: (" << izq << ", " << der << ")\n";
-	return pair<unsigned int, unsigned int>(izq, der);
-}
-
-pair<unsigned int, unsigned int> FactorsIndex::getRangeXv2(const char *pattern){
 	
 	// Version de Revision completa
 	

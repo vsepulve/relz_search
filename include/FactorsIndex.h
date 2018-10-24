@@ -60,32 +60,25 @@ private:
 	vector<unsigned int> arr_pu;
 	vector<unsigned int> arr_lu;
 	
-	// Cache de iteradores
-	unordered_map<unsigned int, FactorsIterator> mapa_iterators;
-	unordered_map<unsigned int, FactorsIteratorReverse> mapa_iterators_rev;
-	
-	// Falta la estructura para agregar efectivamente los resultados, quiza un vector de posiciones
 	void recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results);
-	
-	char getChar(unsigned int factor, unsigned int pos, unsigned int max_len = 100);
-	
-	char getCharRev(unsigned int factor, unsigned int pos, unsigned int max_len = 100);
 			
 	pair<unsigned int, unsigned int> getRangeY(const char *pattern);
-	pair<unsigned int, unsigned int> getRangeYv2(const char *pattern);
-	
 	pair<unsigned int, unsigned int> getRangeX(const char *pattern);
-	pair<unsigned int, unsigned int> getRangeXv2(const char *pattern);
 	
 	template <typename ItereatorType>
 	bool factorLess(unsigned int factor, const char *pattern, unsigned int len, bool equal = false);
+	
+	// Testing methods, just to debbug
+	char getChar(unsigned int factor, unsigned int pos, unsigned int max_len = 100);
+	char getCharRev(unsigned int factor, unsigned int pos, unsigned int max_len = 100);
+	// Iterators for getChar, just to debbug
+	unordered_map<unsigned int, FactorsIterator> mapa_iterators;
+	unordered_map<unsigned int, FactorsIteratorReverse> mapa_iterators_rev;
 	
 public: 
 	FactorsIndex();
 	FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool _omit_text = false);
 	~FactorsIndex();
-	
-	void find(const string &pattern, vector<unsigned int> &results);
 	
 	void findTimes(const string &pattern, vector<unsigned int> &results);
 	
