@@ -97,13 +97,11 @@ public:
 	unsigned int min_factor_pos;
 	
 	// To simplify tge code, I add the text to evaluate prefix hash
-	// Obviously this text can be accesed from the reference in querytime
+	// Obviously this text can be accesed from the reference at querytime (its only 1 factor)
 	string text;
 	
 	// Structure for chidls, indexed by first char
 	unordered_map<char, shared_ptr<HashTrieCharRevNode>> childs;
-	
-	unsigned int getMaxComp(const char *str_1, unsigned int len_1, const char *str_2, unsigned int len_2);
 	
 	HashTrieCharRevNode();
 	~HashTrieCharRevNode();
