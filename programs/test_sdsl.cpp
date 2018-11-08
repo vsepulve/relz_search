@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <random>
 
 #include <iostream>
 #include <sstream>
@@ -142,14 +143,43 @@ int main() {
 	}
 	
 	
+	unsigned int n_ints = 100000;
+	unsigned int max_int = 100000;
+	cout << "n_ints: " << n_ints << ", max_int: " << max_int << "\n";
 	
+	int_vector<32> arr_32(n_ints);
+	cout << "size(arr_32): " << size_in_bytes(arr_32) << " bytes (" << ((double)(size_in_bytes(arr_32))*8.0/n_ints) << " bits/int)\n";
+	
+	int_vector<30> arr_30(n_ints);
+	cout << "size(arr_30): " << size_in_bytes(arr_30) << " bytes (" << ((double)(size_in_bytes(arr_30))*8.0/n_ints) << " bits/int)\n";
+	
+	int_vector<28> arr_28(n_ints);
+	cout << "size(arr_28): " << size_in_bytes(arr_28) << " bytes (" << ((double)(size_in_bytes(arr_28))*8.0/n_ints) << " bits/int)\n";
+	
+	int_vector<15> arr_15(n_ints);
+	cout << "size(arr_15): " << size_in_bytes(arr_15) << " bytes (" << ((double)(size_in_bytes(arr_15))*8.0/n_ints) << " bits/int)\n";
 
-
-
-
-
-
-
+	
+	int_vector<> arr(n_ints);
+	
+	random_device seed;
+	mt19937 generator(seed());
+	uniform_int_distribution<> dist(0, max_int - 1);
+	
+	for(unsigned int i = 0; i < n_ints; ++i){
+		arr[i] = dist(generator);
+	}
+	
+	cout << "size(arr): " << size_in_bytes(arr) << " bytes (" << ((double)(size_in_bytes(arr))*8.0/n_ints) << " bits/int)\n";
+	for(unsigned int i = 0; i < ( (n_ints<10)?n_ints:10 ); ++i){
+		cout << "arr[" << i << "]: " << arr[i] << "\n";
+	}
+	
+	sdsl::util::bit_compress(arr);
+	cout << "size(arr): " << size_in_bytes(arr) << " bytes (" << ((double)(size_in_bytes(arr))*8.0/n_ints) << " bits/int)\n";
+	for(unsigned int i = 0; i < ( (n_ints<10)?n_ints:10 ); ++i){
+		cout << "arr[" << i << "]: " << arr[i] << "\n";
+	}
 
 }
 
