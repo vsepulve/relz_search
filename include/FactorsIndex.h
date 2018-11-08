@@ -46,13 +46,13 @@ private:
 	bits_b_type::select_1_type select1_b;
 	bits_b_type::select_0_type select0_b;
 	
+	wt_type wt;
+	
 	int_vector<> pi;
 	int_vector<> pi_inv;
 	
 	int_vector<> arr_x;
 	int_vector<> arr_y;
-	
-	wt_type wt;
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
 	static const bool precompute_rmq = false;
@@ -71,6 +71,7 @@ private:
 	// Testing methods, just to debbug
 	char getChar(unsigned int factor, unsigned int pos, unsigned int max_len = 100);
 	char getCharRev(unsigned int factor, unsigned int pos, unsigned int max_len = 100);
+	
 	// Iterators for getChar, just to debbug
 	unordered_map<unsigned int, FactorsIterator> mapa_iterators;
 	unordered_map<unsigned int, FactorsIteratorReverse> mapa_iterators_rev;

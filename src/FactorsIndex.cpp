@@ -187,6 +187,12 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 		}
 	}
 	
+	// Compactacion de arreglos descomprimidos
+	sdsl::util::bit_compress(pi);
+	sdsl::util::bit_compress(pi_inv);
+	sdsl::util::bit_compress(arr_x);
+	sdsl::util::bit_compress(arr_y);
+	
 	cout << "FactorsIndex - End\n";
 	
 }
