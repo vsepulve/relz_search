@@ -456,27 +456,37 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 			unsigned int f = arr_y[point.second];
 			unsigned int pu = select1_b(f + 1);
 			
-			
 			// Verificacion
+			bool omit = false;
 			
-			string pat_x = pattern_rev.substr(kr_pat_rev_vector.size() - 1 - i, i);
-			cout << "pat_x: \"" << pat_x << "\"\n";
 			FactorsIteratorReverse it_x(f-1, n_factors, &select1_s, &select1_b, &select0_b, &pi, &pi_inv, ref_text, &fm_index, len_text);
-			cout << "text_x: \"";
+			cout << "text_x: ";
 			for(unsigned int pos = 0; pos < i; ++pos){
-				cout << it_x.next();
+				char c = it_x.next();
+				cout << c << "|" << pattern[ i - 1 - pos ] << " ";
+				if( c != pattern[ i - 1 - pos ] ){
+					omit = true;
+					break;
+				}
 			}
-			cout << "\"\n";
+			cout << "\n";
 			
-			string pat_y = pattern.substr(i, pattern.length() - i);
-			cout << "pat_y: \"" << pat_y << "\"\n";
 			FactorsIterator it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi, &pi_inv, ref_text, &fm_index, len_text);
-			cout << "text_y: \"";
-			for(unsigned int pos = i; pos < pattern.length(); ++pos){
-				cout << it_y.next();
+			cout << "text_y: ";
+			for(unsigned int pos = 0; pos < pattern.length()-i; ++pos){
+				char c = it_y.next();
+				cout << c << "|" << pattern[ i + pos ] << " ";
+				if( c != pattern[ i + pos ] ){
+					omit = true;
+					break;
+				}
 			}
-			cout << "\"\n";
+			cout << "\n";
 			
+			if( omit ){
+				cout << "FactorsIndexV3::findTimes - Omiting bad result.\n";
+				continue;
+			}
 			
 			results.push_back(pu - i);
 			++occs_c;
