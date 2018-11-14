@@ -54,10 +54,6 @@ private:
 	int_vector<> arr_x;
 	int_vector<> arr_y;
 	
-/*	inv_perm_support<> perm_x;*/
-//	inv_perm_support<> perm_y;
-//	inv_perm_support<> perm_y_inv;
-	
 	wt_type wt;
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
@@ -70,9 +66,6 @@ private:
 	bit_vector arr_s;
 	bit_vector arr_b;
 	int_vector<> ez;
-/*	int_vector<> pre_x_inv;*/
-/*	int_vector<> pre_y;*/
-/*	int_vector<> pre_y_inv;*/
 	int_vector<> values_wt;
 	// Simplifacion del calculo de posicion de inicio de factor en coleccion 
 	vector<unsigned int> factors_start;
