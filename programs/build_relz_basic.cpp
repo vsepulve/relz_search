@@ -40,24 +40,41 @@ int main(int argc, char* argv[]){
 	
 	ReferenceIndex *reference = new ReferenceIndexBasic();
 	reference->load(ref_file);
+	TextFilter *filter = new TextFilterFull();
 	
 	// Preparar Compresor
-	TextFilter *filter = new TextFilterFull();
 	Compressor compressor(
 		NULL, 
 		new CoderBlocksRelz(reference), 
 		new DecoderBlocksRelz(reference->getText()), 
 		filter
 	);
+	vector<pair<unsigned int, unsigned int> > factors;
+	unsigned long long len_text = 0;
+	char *text = compressor.compressFactors(input, 1000000, len_text, &factors);
+	cout << "Full text loaded of " << len_text << " chars\n";
+	
+	/*
+	// Preparar Compresor
+	CompressorSingleBuffer compressor(
+		"output.tmp.relz", 
+		new CoderBlocksRelz(reference), 
+		new DecoderBlocksRelz(reference->getText()), 
+		filter
+	);
 	
 	vector<pair<unsigned int, unsigned int> > factors;
-	compressor.compressFactors(input, 1000000, &factors);
-	
+	compressor.compress(input, 1, 1000000, 0, &factors);
 	
 	// Recargo el texto de la entrada, solo para acelerar la construccion
-	unsigned long long len_text = 0;
-	char *text = filter->readText(input, len_text);
-	cout << "Full text loaded of " << len_text << " chars\n";
+	unsigned long long real_len_text = 0;
+	char *text = filter->readText(input, real_len_text);
+	unsigned int len_text = compressor.getTextSize();
+	cout << "Full text loaded of " << len_text << " / " << real_len_text << " chars\n";
+	*/
+	
+	
+	
 	
 	const char *ref = reference->getText();
 	unsigned int len_ref = reference->getLength();
