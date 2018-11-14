@@ -61,8 +61,8 @@ char *TextFilter::readText(const char *in_file, unsigned long long &text_length,
 			// Omito chars invalidos y luego construyo lowcase run
 			// De este modo, la verificacion de up/low case es independiente del filtrado
 			char c = buff[j];
-			if( ! validChar( toupper(c) ) || c == '\n' ){
-//			if( ! validChar( toupper(c) ) ){
+//			if( ! validChar( toupper(c) ) || c == '\n' ){
+			if( ! validChar( toupper(c) ) ){
 				continue;
 			}
 			if(c < 'a' || c > 'z'){
