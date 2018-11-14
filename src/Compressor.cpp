@@ -8,19 +8,22 @@ Compressor::Compressor(){
 }
 
 Compressor::Compressor(const char *_master_file, CoderBlocks *_coder, DecoderBlocks *_decoder, TextFilter *_filter){
-	cout<<"Compressor - Inicio\n";
-	master_file = new char[strlen(_master_file) + 1];
-	strcpy(master_file, _master_file);
+	cout << "Compressor - Start\n";
+	master_file = NULL;
+	if( _master_file != NULL ){
+		master_file = new char[strlen(_master_file) + 1];
+		strcpy(master_file, _master_file);
+	}
 	coder = _coder;
 	decoder = _decoder;
-	if(decoder != NULL){
+	if(decoder != NULL && master_file != NULL){
 		decoder->load(master_file);
 	}
 	filter = _filter;
 	if(filter == NULL){
 		filter = new TextFilterBasic();
 	}
-	cout<<"Compressor - Fin\n";
+	cout << "Compressor - End\n";
 }
 
 Compressor::~Compressor(){
@@ -50,7 +53,7 @@ long long Compressor::getTextSize(){
 }
 
 unsigned int Compressor::read(unsigned long long pos_ini, unsigned int length, char *buff){
-	cerr<<"Compressor::read - No Implementado\n";
+	cerr << "Compressor::read - No Implementado\n";
 	return 0;
 	//Calcular bloques involucrados
 	//Iterar por cada bloque
@@ -61,7 +64,7 @@ unsigned int Compressor::read(unsigned long long pos_ini, unsigned int length, c
 }
 
 unsigned int Compressor::write(const char *text, unsigned int length, unsigned long long pos_ini){
-	cerr<<"Compressor::write - No Implementado\n";
+	cerr << "Compressor::write - No Implementado\n";
 	return 0;
 	//Verificacion de seguridad
 	//Calcular bloques afectados
@@ -73,7 +76,7 @@ unsigned int Compressor::write(const char *text, unsigned int length, unsigned l
 }
 
 bool Compressor::decompress(const char *out_file, unsigned int line_size){
-	cerr<<"Compressor::decompress - No Implementado\n";
+	cerr << "Compressor::decompress - No Implementado\n";
 	//Verificacion de seguridad
 	//Descompresion
 	return false;
@@ -82,8 +85,8 @@ bool Compressor::decompress(const char *out_file, unsigned int line_size){
 bool Compressor::compress(const char *in_file, unsigned int n_threads, unsigned int block_size, bool use_metadata, vector<pair<unsigned int, unsigned int> > *external_factors){
 	//Verificacion de seguridad
 	//Ojo con strlen(in_file) que debe soportar 64 bits para ser valido
-	if(coder == NULL || decoder == NULL || in_file == NULL || strlen(in_file) < 1 || master_file == NULL || strlen(master_file) < 1){
-		cerr<<"Compressor::compress - Datos incorrectos\n";
+	if(filter == NULL || coder == NULL || decoder == NULL || in_file == NULL || strlen(in_file) < 1 || master_file == NULL || strlen(master_file) < 1){
+		cerr << "Compressor::compress - Datos incorrectos\n";
 		return false;
 	}
 	lock_guard<mutex> lock(mutex_interno);
@@ -101,8 +104,6 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 	
 	//Verificacion de Seguridad
 	if( data == NULL
-		|| strlen(data->file_headers) == 0
-		|| strlen(data->file_data) == 0
 		|| data->block_size == 0
 		|| data->coder == NULL
 		|| data->shared_pos == NULL
@@ -112,7 +113,7 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 		|| data->vector_bytes_data == NULL
 		|| data->vector_thread_block == NULL 
 		){
-		cerr<<"Compressor::thread_compress - Error en Datos\n";
+		cerr << "Compressor::thread_compress - Error en Datos\n";
 		return;
 	}
 	
@@ -127,24 +128,29 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 	vector<unsigned int> *vector_thread_block = data->vector_thread_block;
 	
 	shared_mutex->lock();
-	cout<<"Compressor::Thread ["<<data->id<<"] - Inicio\n";
+	cout << "Compressor::Thread ["<<data->id<<"] - Start\n";
 	shared_mutex->unlock();
 	
 	//Archivos del thread
-//	cout<<"Compressor::Thread ["<<data->id<<"] - Creando file_headers y file_data del thread\n";
-	fstream file_headers(data->file_headers, fstream::trunc | fstream::binary | fstream::out);
-	fstream file_data(data->file_data, fstream::trunc | fstream::binary | fstream::out);
+//	cout << "Compressor::Thread ["<<data->id<<"] - Creando file_headers y file_data del thread\n";
 	
-	if( (! file_headers.good()) || (! file_data.good()) ){
-		shared_mutex->lock();
-		cerr<<"Compressor::Thread ["<<data->id<<"] - Error al abrir archivos\n";
-		shared_mutex->unlock();
-		return;
+	fstream *file_headers = NULL;
+	fstream *file_data = NULL;
+	
+	if( (strlen(data->file_headers) > 0) && (strlen(data->file_data) > 0) ){
+		file_headers = new fstream(data->file_headers, fstream::trunc | fstream::binary | fstream::out);
+		file_data = new fstream(data->file_data, fstream::trunc | fstream::binary | fstream::out);
+		if( (! file_headers->good()) || (! file_data->good()) ){
+			shared_mutex->lock();
+			cerr << "Compressor::Thread [" << data->id << "] - Error al abrir archivos\n";
+			shared_mutex->unlock();
+			return;
+		}
 	}
 	
 	unsigned int buffer_size = coder->codingBufferSize(data->block_size);
 	//Se crea este buffer en lugar de dejarlo interno en coder porque puede ser bastante grande
-//	cout<<"Compressor::Thread ["<<data->id<<"] - Preparando buffer de tamaño "<<buffer_size<<"\n";
+//	cout << "Compressor::Thread ["<<data->id<<"] - Preparando buffer de tamaño "<<buffer_size<<"\n";
 	char *full_buffer = new char[buffer_size];
 	
 	unsigned int block = 0;
@@ -159,7 +165,7 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 		
 		shared_mutex->lock();
 		block = (*shared_pos)++;
-		cout<<"Compressor::Thread ["<<data->id<<"] - Procesando block "<<block<<" (salir? "<<(block >= data->n_blocks)<<")\n";
+		cout << "Compressor::Thread ["<<data->id<<"] - Procesando block "<<block<<" (salir? "<<(block >= data->n_blocks)<<")\n";
 		shared_mutex->unlock();
 		if(block >= data->n_blocks){
 			break;
@@ -170,8 +176,7 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 		
 		bytes_headers = 0;
 		bytes_data = 0;
-//		cout<<"Compressor::Thread ["<<data->id<<"] - coder->codeBlock...\n";
-		coder->codeBlock(text, text_size, &file_headers, &file_data, bytes_headers, bytes_data, full_buffer, external_factors);
+		coder->codeBlock(text, text_size, file_headers, file_data, bytes_headers, bytes_data, full_buffer, external_factors);
 		
 		(*vector_bytes_headers)[block] = bytes_headers;
 		(*vector_bytes_data)[block] = bytes_data;
@@ -179,22 +184,101 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 		++proc_blocks;
 		
 	}
-	
-	file_headers.close();
-	file_data.close();
+	if( file_headers != NULL ){
+		file_headers->close();
+		delete file_headers;
+	}
+	if( file_data != NULL ){
+		file_data->close();
+		delete file_data;
+	}
 	delete [] full_buffer;
 	delete coder;
 	
 	shared_mutex->lock();
-	cout<<"Compressor::Thread ["<<data->id<<"] - Fin ("<<proc_blocks<<" bloques procesados)\n";
+	cout << "Compressor::Thread ["<<data->id<<"] - End ("<<proc_blocks<<" blocks)\n";
 	shared_mutex->unlock();
 	
 	return;
 }
 
+void Compressor::compressFactors(const char *in_file, unsigned int block_size, vector<pair<unsigned int, unsigned int> > *external_factors){
+	if( filter == NULL || coder == NULL || decoder == NULL || in_file == NULL || strlen(in_file) < 1 ){
+		cerr << "Compressor::compressFactors - Datos incorrectos\n";
+		return;
+	}
+	lock_guard<mutex> lock(mutex_interno);
+	
+	cout << "Compressor::compressFactors - Start (from \"" << in_file << "\", block_size: " << block_size << ")\n";
+	
+	char *text = NULL;
+	unsigned long long text_length = 0;
+	
+	text = filter->readText(in_file, text_length, NULL);
+	
+	
+	unsigned int n_blocks = (unsigned int)(text_length / block_size);
+	if( (unsigned long long)n_blocks * block_size < text_length ){
+		++n_blocks;
+	}
+	
+	cout << "Compressor::compressFactors - text_length: " << block_size << ", n_blocks: " << n_blocks << "\n";
+	
+	vector< pair<char *, unsigned int> > lista_textos;
+	
+	unsigned long long stored_text = 0;
+	unsigned int largo_local = 0;
+	for(unsigned int block = 0; block < n_blocks; ++block){
+		if( text_length - stored_text < (unsigned long long)block_size ){
+			largo_local = (unsigned int)(text_length - stored_text);
+		}
+		else{
+			largo_local = block_size;
+		}
+		lista_textos.push_back(pair<char *, unsigned int>(text + stored_text, largo_local));
+		stored_text += largo_local;
+	}
+	
+//	vector<std::thread> compress_threads;
+	//mutex para acceso concurrente de los threads
+	mutex shared_mutex;
+	//posicion del proximo bloque a ser tomado (por algun thread)
+	unsigned int shared_pos = 0;
+	//Tamaño en bytes de headers/data para cada bloque
+	vector<unsigned int> vector_bytes_headers(n_blocks);
+	vector<unsigned int> vector_bytes_data(n_blocks);
+	//id del thread que procesa cada bloque
+	vector<unsigned int> vector_thread_block(n_blocks);
+	
+	ThreadCompressData datos_thread;
+	
+	datos_thread.n_blocks = n_blocks;
+	datos_thread.block_size = block_size;
+	
+	datos_thread.coder = coder;
+	datos_thread.shared_pos = &shared_pos;
+	
+	datos_thread.shared_mutex = &shared_mutex;
+	datos_thread.lista_textos = &lista_textos;
+	datos_thread.vector_bytes_headers = &vector_bytes_headers;
+	datos_thread.vector_bytes_data = &vector_bytes_data;
+	datos_thread.vector_thread_block = &vector_thread_block;
+	
+	cout << "Compressor::compressFactors - Iniciando Threads de Compresion\n";
+	NanoTimer timer;
+	std::thread compress_thread(thread_compress, &datos_thread, external_factors);
+	compress_thread.join();
+	
+	lista_textos.clear();
+	delete [] text;
+	
+	cout << "Compressor::compressFactors - End (" << timer.getMilisec() << " ms)\n";
+	
+}
+
 bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsigned int block_size, bool use_metadata, vector<pair<unsigned int, unsigned int> > *external_factors){
 	
-	cout<<"Compressor::realCompress - Inicio (en \""<<master_file<<"\", desde \""<<in_file<<"\", n_threads: "<<n_threads<<", block_size: "<<block_size<<", use_metadata: "<<use_metadata<<")\n";
+	cout << "Compressor::realCompress - Start (in \""<<master_file<<"\", from \""<<in_file<<"\", n_threads: "<<n_threads<<", block_size: "<<block_size<<", use_metadata: "<<use_metadata<<")\n";
 	unsigned long long text_length = 0;
 	char *text = NULL;
 	vector< pair<unsigned long long, unsigned long long> > *lowcase_runs = NULL;
@@ -210,7 +294,7 @@ bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsig
 		text_length = filter->filterNewLines(text, text_length, nl_pos);
 	}
 	if( text == NULL ){
-		cerr<<"Compressor::realCompress - Error en carga de texto\n";
+		cerr << "Compressor::realCompress - Error en carga de texto\n";
 		if(lowcase_runs != NULL){
 			delete lowcase_runs;
 		}
@@ -220,10 +304,10 @@ bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsig
 		return false;
 	}
 	
-//	cout<<"Compressor::realCompress - Texto de "<<text_length<<" chars\n";
-//	cout<<"Compressor::realCompress - Texto: \""<<text<<"\" ("<<text_length<<")\n";
+//	cout << "Compressor::realCompress - Texto de "<<text_length<<" chars\n";
+//	cout << "Compressor::realCompress - Texto: \""<<text<<"\" ("<<text_length<<")\n";
 	if( use_metadata ){
-		cout<<"Compressor::realCompress - lowcase_runs: "<<lowcase_runs->size()<<", nl_pos: "<<nl_pos->size()<<"\n";
+		cout << "Compressor::realCompress - lowcase_runs: "<<lowcase_runs->size()<<", nl_pos: "<<nl_pos->size()<<"\n";
 	}
 	
 	unsigned int n_blocks = (unsigned int)(text_length / block_size);
@@ -278,7 +362,7 @@ bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsig
 		
 	}
 	
-	cout<<"Compressor::realCompress - Iniciando Threads de Compresion\n";
+	cout << "Compressor::realCompress - Iniciando Threads de Compresion\n";
 	NanoTimer timer;
 	for(unsigned int i = 0; i < n_threads; ++i){
 		compress_threads.push_back( std::thread(thread_compress, &(datos_threads[i]), external_factors ) );
@@ -288,7 +372,7 @@ bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsig
 	}
 	lista_textos.clear();
 	delete [] text;
-	cout<<"Compressor::realCompress - Threads terminados en "<<timer.getMilisec()<<" ms, iniciando Merge\n";
+	cout << "Compressor::realCompress - Threads terminados en "<<timer.getMilisec()<<" ms, iniciando Merge\n";
 	
 	//Merge en el archivo maestro
 	
@@ -298,7 +382,7 @@ bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsig
 	memset(bytes_headers_thread, 0, n_threads * sizeof(int));
 	memset(bytes_data_thread, 0, n_threads * sizeof(int));
 	
-	cout<<"Compressor::realCompress - Preparando nuevo header\n";
+	cout << "Compressor::realCompress - Preparando nuevo header\n";
 	//Escritura de headers en el master (headers es del tipo de decoder->headers)
 	BlockHeaders *headers = decoder->getNewHeaders(text_length, block_size, new Metadata(META_SAVE_VBYTE, lowcase_runs, nl_pos) );
 	
@@ -307,7 +391,7 @@ bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsig
 	char *buff_lectura = new char[buffer_size];
 	fstream lector;
 	
-	cout<<"Compressor::realCompress - Cargando Headers\n";
+	cout << "Compressor::realCompress - Cargando Headers\n";
 	for(unsigned int block = 0; block < n_blocks; ++block){
 		unsigned int thread_id = vector_thread_block[block];
 		
@@ -317,7 +401,7 @@ bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsig
 		//Lectura de archivo del thread
 		lector.open(datos_threads[thread_id].file_headers, fstream::binary | fstream::in);
 		if( (! lector.good()) || (! lector.is_open()) ){
-			cerr<<"Compressor::realCompress - Error en lectura de \""<<datos_threads[thread_id].file_headers<<"\"\n";
+			cerr << "Compressor::realCompress - Error en lectura de \""<<datos_threads[thread_id].file_headers<<"\"\n";
 			break;
 		}
 		lector.seekg(bytes_headers_thread[thread_id], lector.beg);
@@ -329,15 +413,15 @@ bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsig
 	//Escritura de data en el master (luego de la escritura puede borrarse el objeto headers)
 	fstream escritor(master_file, fstream::trunc | fstream::binary | fstream::out);
 	headers->prepare();
-//	cout<<"Compressor::realCompress - Escribiendo Headers en \""<<master_file<<"\"\n";
+//	cout << "Compressor::realCompress - Escribiendo Headers en \""<<master_file<<"\"\n";
 //	headers->save(&escritor);
 	BlockHeadersFactory::save(headers, &escritor);
 	delete headers;
-//	cout<<"Compressor::realCompress - Agregando Datos\n";
+//	cout << "Compressor::realCompress - Agregando Datos\n";
 	for(unsigned int block = 0; block < n_blocks; ++block){
 		unsigned int thread_id = vector_thread_block[block];
 		
-//		cout<<"Compressor::realCompress - Leyendo Bloque "<<block<<" / "<<n_blocks<<"\n";
+//		cout << "Compressor::realCompress - Leyendo Bloque "<<block<<" / "<<n_blocks<<"\n";
 		//Copiar data en archivo del thread desde bytes_data_thread al master
 		unsigned int bytes_data = vector_bytes_data[block];
 		if(bytes_data + 1 > buffer_size){
@@ -348,34 +432,34 @@ bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsig
 		//Lectura de archivo del thread
 		lector.open(datos_threads[thread_id].file_data, fstream::binary | fstream::in);
 		if( (! lector.good()) || (! lector.is_open()) ){
-			cerr<<"Compressor::realCompress - Error en lectura de \""<<datos_threads[thread_id].file_data<<"\"\n";
+			cerr << "Compressor::realCompress - Error en lectura de \""<<datos_threads[thread_id].file_data<<"\"\n";
 			break;
 		}
-//		cout<<"Compressor::realCompress - seekg...\n";
+//		cout << "Compressor::realCompress - seekg...\n";
 		lector.seekg(bytes_data_thread[thread_id], lector.beg);
-//		cout<<"Compressor::realCompress - read...\n";
+//		cout << "Compressor::realCompress - read...\n";
 		lector.read(buff_lectura, bytes_data);
-//		cout<<"Compressor::realCompress - close...\n";
+//		cout << "Compressor::realCompress - close...\n";
 		lector.close();
 		//escritura de bytes
-//		cout<<"Compressor::realCompress - Escribiendo\n";
+//		cout << "Compressor::realCompress - Escribiendo\n";
 		escritor.write(buff_lectura, bytes_data);
 		bytes_data_thread[thread_id] += bytes_data;
-//		cout<<"Compressor::realCompress - Ok\n";
+//		cout << "Compressor::realCompress - Ok\n";
 		
 	}
 	
 	delete [] buff_lectura;
-//	cout<<"Compressor::realCompress - close...\n";
+//	cout << "Compressor::realCompress - close...\n";
 	escritor.close();
 	
-//	cout<<"Compressor::realCompress - Borrando Archivos\n";
+//	cout << "Compressor::realCompress - Borrando Archivos\n";
 	//Eliminacion de archivos de threads
 	for(unsigned int i = 0; i < n_threads; ++i){
 		remove(datos_threads[i].file_headers);
 		remove(datos_threads[i].file_data);
 	}
-	cout<<"Compressor::realCompress - Fin\n";
+	cout << "Compressor::realCompress - End\n";
 	return true;
 	
 }
