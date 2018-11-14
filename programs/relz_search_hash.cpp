@@ -75,26 +75,6 @@ int main(int argc, char* argv[]){
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index.printSize();
 	
-//	cout << "----- Probando Carga de Arboles\n";
-//	string index_y(input, strlen(input));
-//	index_y += ".index.y";
-//	string index_x(input, strlen(input));
-//	index_x += ".index.x";
-//	HashTrie arbol_y;
-//	arbol_y.load(&karp_rabin, kr_factors, index_y);
-//	arbol_y.print();
-//	arbol_y.prepareChilds();
-	
-//	HashTrieRev arbol_x;
-//	arbol_x.load(&karp_rabin, kr_factors, index_x);
-//	arbol_x.print();
-//	arbol_x.prepareChilds();
-	
-//	cout << "----- Query de Prueba -----\n";
-//	index.find("CATC", results);
-//	cout << "-----     -----\n";
-//	results.clear();
-	
 	cout << "----- Loading Queries from \"" << queries_file << "\" -----\n";
 	vector<string> queries;
 	unsigned int max_line = 1000000;
