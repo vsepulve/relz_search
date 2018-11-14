@@ -16,8 +16,11 @@ unsigned int CoderBlocksRelz::codingBufferSize(unsigned int block_size){
 
 void CoderBlocksRelz::codeBlock(const char *text, unsigned int text_size, fstream *file_headers, fstream *file_data, unsigned int &bytes_headers, unsigned int &bytes_data, char *full_buffer, vector<pair<unsigned int, unsigned int> > *external_factors){
 	
-	if(file_headers == NULL || file_data == NULL || (! file_headers->good()) || (! file_data->good()) || referencia == NULL){
-		cerr<<"CoderBlocksRelz::codeBlock - Error en fstreams\n";
+	if( file_headers == NULL || file_data == NULL ){
+		cout << "CoderBlocksRelz::codeBlock - Omiting Files\n";
+	}
+	if( referencia == NULL){
+		cerr << "CoderBlocksRelz::codeBlock - Reference not Found\n";
 		return;
 	}
 	if(text == NULL || text_size == 0){
@@ -69,19 +72,18 @@ void CoderBlocksRelz::codeBlock(const char *text, unsigned int text_size, fstrea
 		
 	}//while... procesar factores
 	
-//	cout<<"CoderBlocksRelz::codeBlock - Escribiendo datos\n";
-	
-	//Escribir datos
-	unsigned int bytes_pos = inner_pos_coder.encodeBlockMaxBits(buff_pos, n_factores, inner_utils.n_bits(max_pos), file_data);
-	unsigned int bytes_len = inner_len_coder.encodeBlockGolomb(buff_len, n_factores, file_data);
-	bytes_data = bytes_pos + bytes_len;
-	
-//	cout<<"CoderBlocksRelz::codeBlock - Escribiendo header\n";
-	
-	//Escribir header
-	BlockHeadersRelz::HeaderRelz header(n_factores, bytes_pos, bytes_len);
-	header.save(file_headers);
-	bytes_headers = header.size();
+	if( file_headers != NULL && file_headers->good() && file_data != NULL && file_data->good() ){
+//		cout<<"CoderBlocksRelz::codeBlock - Escribiendo datos\n";
+		//Escribir datos
+		unsigned int bytes_pos = inner_pos_coder.encodeBlockMaxBits(buff_pos, n_factores, inner_utils.n_bits(max_pos), file_data);
+		unsigned int bytes_len = inner_len_coder.encodeBlockGolomb(buff_len, n_factores, file_data);
+		bytes_data = bytes_pos + bytes_len;
+//		cout<<"CoderBlocksRelz::codeBlock - Escribiendo header\n";
+		//Escribir header
+		BlockHeadersRelz::HeaderRelz header(n_factores, bytes_pos, bytes_len);
+		header.save(file_headers);
+		bytes_headers = header.size();
+	}
 	
 }
 
