@@ -23,7 +23,7 @@
 
 using namespace std;
 
-class HashTrieCharNode{
+class HashTrieNode{
 
 public: 
 
@@ -36,10 +36,10 @@ public:
 	unsigned int min_factor_pos;
 	
 	// Structure for chidls, indexed by first char
-	map<char, shared_ptr<HashTrieCharNode>> childs;
+	map<char, shared_ptr<HashTrieNode>> childs;
 	
-	HashTrieCharNode();
-	~HashTrieCharNode();
+	HashTrieNode();
+	~HashTrieNode();
 	
 	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int min, unsigned int max, unsigned int processed_len);
 	
@@ -55,18 +55,18 @@ public:
 	
 };
 
-class HashTrieChar{
+class HashTrie{
 
 private: 
 	KarpRabin *karp_rabin;
 	KarpRabinFactorsSuffixes *kr_factors;
 	
 public: 
-	HashTrieCharNode root;
+	HashTrieNode root;
 	
-	HashTrieChar();
-	HashTrieChar(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
-	virtual ~HashTrieChar();
+	HashTrie();
+	HashTrie(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
+	virtual ~HashTrie();
 	
 	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	
@@ -84,7 +84,7 @@ public:
 	
 };
 
-class HashTrieCharRevNode{
+class HashTrieRevNode{
 
 public: 
 
@@ -101,10 +101,10 @@ public:
 	string text;
 	
 	// Structure for chidls, indexed by first char
-	unordered_map<char, shared_ptr<HashTrieCharRevNode>> childs;
+	unordered_map<char, shared_ptr<HashTrieRevNode>> childs;
 	
-	HashTrieCharRevNode();
-	~HashTrieCharRevNode();
+	HashTrieRevNode();
+	~HashTrieRevNode();
 	
 	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_x, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int min, unsigned int max, unsigned int processed_len);
 	
@@ -120,18 +120,18 @@ public:
 	
 };
 
-class HashTrieCharRev{
+class HashTrieRev{
 
 private: 
 	KarpRabin *karp_rabin;
 	KarpRabinFactorsSuffixes *kr_factors;
 	
 public: 
-	HashTrieCharRevNode root;
+	HashTrieRevNode root;
 	
-	HashTrieCharRev();
-	HashTrieCharRev(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_x, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
-	virtual ~HashTrieCharRev();
+	HashTrieRev();
+	HashTrieRev(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_x, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
+	virtual ~HashTrieRev();
 	
 	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_x, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
 	
