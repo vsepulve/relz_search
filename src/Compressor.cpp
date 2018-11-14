@@ -202,20 +202,19 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 	return;
 }
 
-void Compressor::compressFactors(const char *in_file, unsigned int block_size, vector<pair<unsigned int, unsigned int> > *external_factors){
+char * Compressor::compressFactors(const char *in_file, unsigned int block_size, unsigned long long &text_length, vector<pair<unsigned int, unsigned int> > *external_factors){
 	if( filter == NULL || coder == NULL || decoder == NULL || in_file == NULL || strlen(in_file) < 1 ){
 		cerr << "Compressor::compressFactors - Datos incorrectos\n";
-		return;
+		return NULL;
 	}
 	lock_guard<mutex> lock(mutex_interno);
 	
 	cout << "Compressor::compressFactors - Start (from \"" << in_file << "\", block_size: " << block_size << ")\n";
 	
 	char *text = NULL;
-	unsigned long long text_length = 0;
-	
+	text_length = 0;
 	text = filter->readText(in_file, text_length, NULL);
-	
+	text_length = filter->filterNewLines(text, text_length, NULL);
 	
 	unsigned int n_blocks = (unsigned int)(text_length / block_size);
 	if( (unsigned long long)n_blocks * block_size < text_length ){
@@ -270,10 +269,10 @@ void Compressor::compressFactors(const char *in_file, unsigned int block_size, v
 	compress_thread.join();
 	
 	lista_textos.clear();
-	delete [] text;
 	
 	cout << "Compressor::compressFactors - End (" << timer.getMilisec() << " ms)\n";
 	
+	return text;
 }
 
 bool Compressor::realCompress(const char *in_file, unsigned int n_threads, unsigned int block_size, bool use_metadata, vector<pair<unsigned int, unsigned int> > *external_factors){

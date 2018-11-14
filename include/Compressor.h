@@ -123,7 +123,10 @@ public:
 	// Retorna true en exito, false en caso de fallo
 	virtual bool compress(const char *in_file, unsigned int n_threads = 4, unsigned int block_size = 1000000, bool use_metadata = true, vector<pair<unsigned int, unsigned int> > *external_factors = NULL);
 	
-	void compressFactors(const char *in_file, unsigned int block_size, vector<pair<unsigned int, unsigned int> > *external_factors);
+	// Compress only to produce the factors
+	// This method also returns the processed text and stores its length in text_length
+	// This because the method removes newlines and potentially other special characters
+	char * compressFactors(const char *in_file, unsigned int block_size, unsigned long long &text_length, vector<pair<unsigned int, unsigned int> > *external_factors);
 	
 	// Este metodo debe recargar al decoder y dejar al compresor en estado inicial
 	// Eso puede implicar resetear buffers y otras variables de estado
