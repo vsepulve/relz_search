@@ -1,6 +1,6 @@
-#include "FactorsIndexV3.h"
+#include "RelzIndexHash.h"
 
-FactorsIndexV3::FactorsIndexV3(){
+RelzIndexHash::RelzIndexHash(){
 	len_text = 0;
 	ref_text = NULL;
 	len_ref = 0;
@@ -8,9 +8,9 @@ FactorsIndexV3::FactorsIndexV3(){
 	karp_rabin = NULL;
 }
 
-//FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *kr_frases_file, bool load_kr_frases){
+//RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *kr_frases_file, bool load_kr_frases){
 
-FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *index_base_file){
+RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *index_base_file){
 	
 	len_text = _len_text;
 	ref_text = _ref_text;
@@ -20,11 +20,11 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	
 	NanoTimer timer;
 	
-	cout << "FactorsIndexV3 - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
-//	cout << "FactorsIndexV3 - Ref: " << ref_text << "\n";
-//	cout << "FactorsIndexV3 - Text: " << full_text << "\n";
+	cout << "RelzIndexHash - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
+//	cout << "RelzIndexHash - Ref: " << ref_text << "\n";
+//	cout << "RelzIndexHash - Text: " << full_text << "\n";
 	
-	cout << "FactorsIndexV3 - Preparing Factors\n";
+	cout << "RelzIndexHash - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
 	vector<pair<unsigned int, pair<unsigned int, unsigned int> > > factors_sort;
 //	vector<unsigned int> factors_start;
@@ -41,7 +41,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		cur_start += factor.second;
 	}
 	sort(factors_sort.begin(), factors_sort.end());
-	cout << "FactorsIndexV3 - Factors Sorted prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHash - Factors Sorted prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 //	cout << "Factors Sorted: \n";
 //	for( unsigned int i = 0; i < factors_sort.size(); ++i ){
@@ -49,7 +49,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 //	}
 	
 	// Bit vector S
-	cout << "FactorsIndexV3 - Preparing Vector S\n";
+	cout << "RelzIndexHash - Preparing Vector S\n";
 	bit_vector _arr_s(len_ref + n_factors, 0);
 	arr_s = _arr_s;
 	unsigned cur_ref = 0;
@@ -65,7 +65,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 			--i;
 		}
 	}
-	cout << "FactorsIndexV3 - Vector S prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHash - Vector S prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	bits_s = bits_s_type(arr_s);
@@ -73,7 +73,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	select0_s = bits_s_type::select_0_type(&bits_s);
 	
 	// Permutacion 
-	cout << "FactorsIndexV3 - Preparing Permutation PI\n";
+	cout << "RelzIndexHash - Preparing Permutation PI\n";
 	pi = int_vector<>(n_factors);
 	pi_inv = int_vector<>(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -81,7 +81,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		pi_inv[ factors_sort[i].second.second ] = i;
 	}
 	
-	cout << "FactorsIndexV3 - PI prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHash - PI prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Posiciones finales Ez
@@ -93,7 +93,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	rmq = rmq_type(&ez);
 	
 	// Bit vector B (inicio de las frases en texto)
-	cout << "FactorsIndexV3 - Preparing Vector B\n";
+	cout << "RelzIndexHash - Preparing Vector B\n";
 	bit_vector _arr_b(len_text, 0);
 	arr_b = _arr_b;
 	unsigned int pos_text = 0;
@@ -102,7 +102,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		arr_b[ pos_text ] = 1;
 		pos_text += len;
 	}
-	cout << "FactorsIndexV3 - Vector B prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHash - Vector B prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	bits_b = bits_b_type(arr_b);
@@ -111,13 +111,13 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	
 	// Construccion del FM Index (aunque use el SA original para la compresion, esto es para la busqueda)
 	// Construccion con datos en memoria, en un string
-	cout << "FactorsIndexV3 - Preparing fm_index\n";
+	cout << "RelzIndexHash - Preparing fm_index\n";
 	construct_im(fm_index, ref_text, 1);
-	cout << "FactorsIndexV3 - fm_index prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHash - fm_index prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Preparacion de permutaciones X e Y
-	cout << "FactorsIndexV3 - Preparing arr X\n";
+	cout << "RelzIndexHash - Preparing arr X\n";
 	vector<unsigned int> arr_x_original(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_x_original[i] = i;
@@ -138,7 +138,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	}
 	cout << "-----\n";
 	
-	cout << "FactorsIndexV3 - Preparing arr Y\n";
+	cout << "RelzIndexHash - Preparing arr Y\n";
 	vector<unsigned int> arr_y_original(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_y_original[i] = i;
@@ -163,10 +163,10 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	}
 	cout << "-----\n";
 
-	cout << "FactorsIndexV3 - X & Y prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHash - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-	cout << "FactorsIndexV3 - Preparing WT\n";
+	cout << "RelzIndexHash - Preparing WT\n";
 	int_vector<> _values_wt(n_factors);
 	values_wt = _values_wt;
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -174,7 +174,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	}
 	
 	construct_im(wt, values_wt);
-	cout << "FactorsIndexV3 - WT prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHash - WT prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
@@ -189,14 +189,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		}
 	}
 	
-	cout << "FactorsIndexV3 - Preparing KarpRobin Structures\n";
+	cout << "RelzIndexHash - Preparing KarpRobin Structures\n";
 	
 	// En principio se necesita un arreglo de un hash por cada log(n) caracteres de la referencia
 	// Ademas necesito la firma de cada sufijo de factor quizas?
 	
 	BitsUtils bits_utils;
 	unsigned int log_n = bits_utils.n_bits(len_ref);
-	cout << "FactorsIndexV3 - Adding hash for Reference prefixes\n";
+	cout << "RelzIndexHash - Adding hash for Reference prefixes\n";
 	cout << "log_n: " << log_n << " de " << len_ref << "\n";
 	arr_kr_ref.push_back( karp_rabin->hash(ref_text, log_n) );
 	unsigned int processed_text = log_n;
@@ -220,7 +220,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	// Notar que el arreglo almacena los has de los PREFIJOS de cada frase
 	// factors_start almacena la posicion de inicio de cada frase (=> los caracteres ANTERIORES forman el prefijo)
 	// Por eso agrego un 0 para la primera frase (prefijo nulo)
-	cout << "FactorsIndexV3 - Adding hash for Frases prefixes\n";
+	cout << "RelzIndexHash - Adding hash for Frases prefixes\n";
 	arr_kr_s.push_back(0);
 	for(unsigned int i = 1; i < factors_start.size(); ++i){
 		unsigned int word_len = factors_start[i] - factors_start[i-1];
@@ -229,7 +229,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 		unsigned long long kr_total = karp_rabin->concat(kr1, kr2, word_len);
 		
 //		string s(full_text, factors_start[i]);
-//		cout << "FactorsIndexV3 - Adding hash de \"" << s << "\" " << kr_total << " / " << karp_rabin->hash(s) << "\n";
+//		cout << "RelzIndexHash - Adding hash de \"" << s << "\" " << kr_total << " / " << karp_rabin->hash(s) << "\n";
 		
 		arr_kr_s.push_back(kr_total);
 	}
@@ -241,7 +241,7 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	unsigned long long kr_total = karp_rabin->concat(kr1, kr2, word_len);
 	arr_kr_s.push_back(kr_total);
 	
-	cout << "FactorsIndexV3 - KarpRobin prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHash - KarpRobin prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
@@ -251,14 +251,14 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	kr_factors->hashFast(1, 3, 9);
 	cout << "-----\n";
 	const char *test_str = "ALASLALAB";
-	cout << "FactorsIndexV3 - Testing KarpRabinFactorsSuffixes, hash: " << karp_rabin->hash(test_str, strlen(test_str)) << "\n";
+	cout << "RelzIndexHash - Testing KarpRabinFactorsSuffixes, hash: " << karp_rabin->hash(test_str, strlen(test_str)) << "\n";
 	
 	
 	string index_y(index_base_file, strlen(index_base_file));
 	index_y += ".index.y";
 	string index_x(index_base_file, strlen(index_base_file));
 	index_x += ".index.x";
-	cout << "FactorsIndexV3 - Preparing Trees (files " << index_y << " and " << index_x << ")\n";
+	cout << "RelzIndexHash - Preparing Trees (files " << index_y << " and " << index_x << ")\n";
 	
 	timer.reset();
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
@@ -276,24 +276,24 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	}
 	load_y = false;
 	if( load_y ){
-		cout << "FactorsIndexV3 - Loading Tree Y\n";
+		cout << "RelzIndexHash - Loading Tree Y\n";
 //		tree_y.load(karp_rabin, kr_factors, index_y);
 		tree_y.load(karp_rabin, kr_factors, index_y, factors_start, full_text);
 	}
 	else{
-		cout << "FactorsIndexV3 - Building Tree Y\n";
+		cout << "RelzIndexHash - Building Tree Y\n";
 		tree_y.build(full_text, len_text, factors_start, arr_y_original, karp_rabin, kr_factors);
 		tree_y.save(index_y);
 	}
-	cout << "FactorsIndexV3 - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
+	cout << "RelzIndexHash - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
 	tree_y.print();
 //	tree_y.prepareChilds();
 //	tree_y.printSize();
 	
-	cout << "FactorsIndexV3 - Building Tree X\n";
+	cout << "RelzIndexHash - Building Tree X\n";
 	timer.reset();
 	tree_x.build(full_text, len_text, factors_start, arr_x_original, karp_rabin, kr_factors);
-	cout << "FactorsIndexV3 - Tree X finished in (" << timer.getMilisec() << " ms)\n";
+	cout << "RelzIndexHash - Tree X finished in (" << timer.getMilisec() << " ms)\n";
 	tree_x.print();
 //	tree_x.save(index_x);
 //	tree_x.prepareChilds();
@@ -302,58 +302,58 @@ FactorsIndexV3::FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factor
 	vector<unsigned long long> pat_vector;
 	karp_rabin->hashPrefixes("ALABARDA", pat_vector);
 	
-	cout << "FactorsIndexV3 - Trees prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHash - Trees prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-	cout << "FactorsIndexV3 - End\n";
+	cout << "RelzIndexHash - End\n";
 	
 }
 
-FactorsIndexV3::~FactorsIndexV3(){
+RelzIndexHash::~RelzIndexHash(){
 	
 }
 
-void FactorsIndexV3::printSize(){
+void RelzIndexHash::printSize(){
 	double total_bytes = 0;
 	
 	// texto descomprimido
 //	if( ! omit_text ){
 //		total_bytes += len_ref;
-//		cout << "FactorsIndexV3::printSize - Reference Text: " << (len_ref/(1024*1024)) << " MB\n";
+//		cout << "RelzIndexHash::printSize - Reference Text: " << (len_ref/(1024*1024)) << " MB\n";
 //	}
 	
 //	if( precompute_rmq ){
 //		// 3 integers => 12 bytes per factor
 //		total_bytes += n_factors * 12;
-//		cout << "FactorsIndexV3::printSize - Factors: " << (n_factors*12/(1024*1024)) << " MB\n";
+//		cout << "RelzIndexHash::printSize - Factors: " << (n_factors*12/(1024*1024)) << " MB\n";
 //	}
 	
 	total_bytes += size_in_bytes(fm_index);
-	cout << "FactorsIndexV3::printSize - fm_index: " << (8.0*size_in_bytes(fm_index)/len_text) << " bps\n";
+	cout << "RelzIndexHash::printSize - fm_index: " << (8.0*size_in_bytes(fm_index)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(rmq);
-	cout << "FactorsIndexV3::printSize - rmq: " << (8.0*size_in_bytes(rmq)/len_text) << " bps\n";
+	cout << "RelzIndexHash::printSize - rmq: " << (8.0*size_in_bytes(rmq)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(bits_s);
-	cout << "FactorsIndexV3::printSize - bits_s: " << (8.0*size_in_bytes(bits_s)/len_text) << " bps\n";
+	cout << "RelzIndexHash::printSize - bits_s: " << (8.0*size_in_bytes(bits_s)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(bits_b);
-	cout << "FactorsIndexV3::printSize - bits_b: " << (8.0*size_in_bytes(bits_b)/len_text) << " bps\n";
+	cout << "RelzIndexHash::printSize - bits_b: " << (8.0*size_in_bytes(bits_b)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(pi);
-	cout << "FactorsIndexV3::printSize - pi: " << (8.0*size_in_bytes(pi)/len_text) << " bps\n";
+	cout << "RelzIndexHash::printSize - pi: " << (8.0*size_in_bytes(pi)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(pi_inv);
-	cout << "FactorsIndexV3::printSize - pi_inv: " << (8.0*size_in_bytes(pi_inv)/len_text) << " bps\n";
+	cout << "RelzIndexHash::printSize - pi_inv: " << (8.0*size_in_bytes(pi_inv)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(arr_x);
-	cout << "FactorsIndexV3::printSize - arr_x: " << (8.0*size_in_bytes(arr_x)/len_text) << " bps\n";
+	cout << "RelzIndexHash::printSize - arr_x: " << (8.0*size_in_bytes(arr_x)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(arr_y);
-	cout << "FactorsIndexV3::printSize - arr_y: " << (8.0*size_in_bytes(arr_y)/len_text) << " bps\n";
+	cout << "RelzIndexHash::printSize - arr_y: " << (8.0*size_in_bytes(arr_y)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(wt);
-	cout << "FactorsIndexV3::printSize - wt: " << (8.0*size_in_bytes(wt)/len_text) << " bps\n";
+	cout << "RelzIndexHash::printSize - wt: " << (8.0*size_in_bytes(wt)/len_text) << " bps\n";
 	
 //	tree_y
 	unsigned int max_len = 0;
@@ -362,8 +362,8 @@ void FactorsIndexV3::printSize(){
 	unsigned int total_childs = 0;
 	total_childs = tree_y.root.totalChilds(max_len, max_childs, max_height, 0);
 	total_bytes += ((double)total_childs)*12.625;
-//	cout << "FactorsIndexV3::printSize - tree_y: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
-	cout << "FactorsIndexV3::printSize - tree_y: " << (8.0*((double)total_childs)*12.625/(len_text)) << " bps (total_childs: " << total_childs << ", max_len: " << max_len << ", max_childs: " << max_childs << ", max_height: " << max_height << ")\n";
+//	cout << "RelzIndexHash::printSize - tree_y: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
+	cout << "RelzIndexHash::printSize - tree_y: " << (8.0*((double)total_childs)*12.625/(len_text)) << " bps (total_childs: " << total_childs << ", max_len: " << max_len << ", max_childs: " << max_childs << ", max_height: " << max_height << ")\n";
 	
 //	tree_x
 	max_len = 0;
@@ -372,19 +372,19 @@ void FactorsIndexV3::printSize(){
 	total_childs = 0;
 	total_childs = tree_x.root.totalChilds(max_len, max_childs, max_height, 0);
 	total_bytes += ((double)total_childs)*12.625;
-//	cout << "FactorsIndexV3::printSize - tree_x: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
-	cout << "FactorsIndexV3::printSize - tree_x: " << (8.0*((double)total_childs)*12.625/(len_text)) << " bps (total_childs: " << total_childs << ", max_len: " << max_len << ", max_childs: " << max_childs << ", max_height: " << max_height << ")\n";
+//	cout << "RelzIndexHash::printSize - tree_x: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
+	cout << "RelzIndexHash::printSize - tree_x: " << (8.0*((double)total_childs)*12.625/(len_text)) << " bps (total_childs: " << total_childs << ", max_len: " << max_len << ", max_childs: " << max_childs << ", max_height: " << max_height << ")\n";
 	
-	cout << "FactorsIndexV3::printSize - Total " << total_bytes << " (" << (total_bytes/(1024*1024)) << " MB)\n";
+	cout << "RelzIndexHash::printSize - Total " << total_bytes << " (" << (total_bytes/(1024*1024)) << " MB)\n";
 	
 }
 
-void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &results){
+void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &results){
 	
-	cout << "FactorsIndexV3::findTimes - Start (\"" << pattern << "\")\n";
+	cout << "RelzIndexHash::findTimes - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
 	
-	cout << "FactorsIndexV3::findTimes - Section A, reference\n";
+	cout << "RelzIndexHash::findTimes - Section A, reference\n";
 	
 	size_t m = pattern.size();
 	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
@@ -412,7 +412,7 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 	}
 	querytime_p2 += timer.getNanosec();
 	
-	cout << "FactorsIndexV3::findTimes - Section B, ranges\n";
+	cout << "RelzIndexHash::findTimes - Section B, ranges\n";
 	
 	vector<unsigned long long> kr_pat_vector;
 	vector<unsigned long long> kr_pat_rev_vector;
@@ -449,9 +449,9 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 			continue;
 		}
 		
-		cout << "FactorsIndexV3::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+		cout << "RelzIndexHash::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
-		cout << "FactorsIndexV3::findTimes - Adding " << res.second.size() << " points\n";
+		cout << "RelzIndexHash::findTimes - Adding " << res.second.size() << " points\n";
 		for (auto point : res.second){
 			unsigned int f = arr_y[point.second];
 			unsigned int pu = select1_b(f + 1);
@@ -484,7 +484,7 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 			cout << "\n";
 			
 			if( omit ){
-				cout << "FactorsIndexV3::findTimes - Omiting bad result.\n";
+				cout << "RelzIndexHash::findTimes - Omiting bad result.\n";
 				continue;
 			}
 			
@@ -495,16 +495,16 @@ void FactorsIndexV3::findTimes(const string &pattern, vector<unsigned int> &resu
 		
 	}
 	
-	cout << "FactorsIndexV3::findTimes - End\n";
+	cout << "RelzIndexHash::findTimes - End\n";
 	
 }
 
 /*
-void FactorsIndexV3::find(const string &pattern, vector<unsigned int> &results){
+void RelzIndexHash::find(const string &pattern, vector<unsigned int> &results){
 
-//	cout << "FactorsIndexV3::find - Start\n";
+//	cout << "RelzIndexHash::find - Start\n";
 	
-//	cout << "FactorsIndexV3::find - Section A, reference\n";
+//	cout << "RelzIndexHash::find - Section A, reference\n";
 	
 	size_t m = pattern.size();
 	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
@@ -524,7 +524,7 @@ void FactorsIndexV3::find(const string &pattern, vector<unsigned int> &results){
 		}
 	}
 	
-//	cout << "FactorsIndexV3::find - Section B, ranges\n";
+//	cout << "RelzIndexHash::find - Section B, ranges\n";
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		string p1 = pattern.substr(0, i);
 		string p1_rev = "";
@@ -537,11 +537,11 @@ void FactorsIndexV3::find(const string &pattern, vector<unsigned int> &results){
 		
 		if( r1.second == (unsigned int)(-1) || r1.second < r1.first
 			|| r2.second == (unsigned int)(-1) || r2.second < r2.first ){
-//			cout << "FactorsIndexV3::find - Invalid ranges, omitting...\n";
+//			cout << "RelzIndexHash::find - Invalid ranges, omitting...\n";
 			continue;
 		}
 		
-//		cout << "FactorsIndexV3::find - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+//		cout << "RelzIndexHash::find - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
 			unsigned int f = arr_y[point.second];
@@ -551,13 +551,13 @@ void FactorsIndexV3::find(const string &pattern, vector<unsigned int> &results){
 		}
 		
 	}
-//	cout << "FactorsIndexV3::find - End\n";
+//	cout << "RelzIndexHash::find - End\n";
 	
 }
 */
 
-void FactorsIndexV3::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results){
-//	cout << "FactorsIndexV3::recursive_rmq - " << ini << ", " << fin << "\n";
+void RelzIndexHash::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results){
+//	cout << "RelzIndexHash::recursive_rmq - " << ini << ", " << fin << "\n";
 	
 	unsigned int pos_max = rmq(ini, fin);
 	
@@ -577,7 +577,7 @@ void FactorsIndexV3::recursive_rmq(unsigned int ini, unsigned int fin, unsigned 
 		lu = select1_b(pi[pos_max] + 2) - pu;
 	}
 	
-//	cout << "FactorsIndexV3::recursive_rmq - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
+//	cout << "RelzIndexHash::recursive_rmq - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 	
 	if( tu + lu < min_pos ){
 		return;
@@ -596,7 +596,7 @@ void FactorsIndexV3::recursive_rmq(unsigned int ini, unsigned int fin, unsigned 
 	}
 }
 
-char FactorsIndexV3::getChar(unsigned int factor, unsigned int pos){
+char RelzIndexHash::getChar(unsigned int factor, unsigned int pos){
 	
 	// Iterators cache
 	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
@@ -617,7 +617,7 @@ char FactorsIndexV3::getChar(unsigned int factor, unsigned int pos){
 	return c;
 }
 
-char FactorsIndexV3::getCharRev(unsigned int factor, unsigned int pos){
+char RelzIndexHash::getCharRev(unsigned int factor, unsigned int pos){
 	
 	if( factor == (unsigned int)(-1) ){
 		return 0;

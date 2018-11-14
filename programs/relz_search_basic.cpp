@@ -21,7 +21,7 @@
 #include "DecoderBlocksRelz.h"
 #include "TextFilterFull.h"
 
-#include "FactorsIndex.h"
+#include "RelzIndex.h"
 #include "FactorsIterator.h"
 
 using namespace sdsl;
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]){
 	NanoTimer timer;
 	vector<unsigned int> results;
 	bool delete_text = true;
-	FactorsIndex index_built(factors, text, len_text, ref, len_ref, delete_text);
+	RelzIndex index_built(factors, text, len_text, ref, len_ref, delete_text);
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index_built.printSize();
 	
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]){
 	index_built.save("test/index");
 	
 	cout << "----- Testing load -----\n";
-	FactorsIndex index;
+	RelzIndex index;
 	index.load("test/index");
 	index.printSize();
 //	

@@ -1,5 +1,5 @@
-#ifndef _FACTORS_INDEX_H
-#define _FACTORS_INDEX_H
+#ifndef _RELZ_INDEX_H
+#define _RELZ_INDEX_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +24,7 @@
 using namespace sdsl;
 using namespace std;
 
-class FactorsIndex {
+class RelzIndex {
 
 private: 
 	
@@ -77,9 +77,9 @@ private:
 	unordered_map<unsigned int, FactorsIteratorReverse> mapa_iterators_rev;
 	
 public: 
-	FactorsIndex();
-	FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool _omit_text = false);
-	~FactorsIndex();
+	RelzIndex();
+	RelzIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool _omit_text = false);
+	~RelzIndex();
 	
 	void findTimes(const string &pattern, vector<unsigned int> &results);
 	
@@ -107,4 +107,4 @@ public:
 
 
 
-#endif //_FACTORS_INDEX_H
+#endif //_RELZ_INDEX_H

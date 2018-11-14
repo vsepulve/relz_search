@@ -1,6 +1,6 @@
-#include "FactorsIndex.h"
+#include "RelzIndex.h"
 
-FactorsIndex::FactorsIndex(){
+RelzIndex::RelzIndex(){
 	len_text = 0;
 	ref_text = NULL;
 	len_ref = 0;
@@ -8,7 +8,7 @@ FactorsIndex::FactorsIndex(){
 	omit_text = false;
 }
 
-FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool _omit_text){
+RelzIndex::RelzIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool _omit_text){
 	
 	len_text = _len_text;
 	len_ref = _len_ref;
@@ -25,9 +25,9 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	
 	NanoTimer timer;
 	
-	cout << "FactorsIndex - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
+	cout << "RelzIndex - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
 	
-	cout << "FactorsIndex - Preparing Factors\n";
+	cout << "RelzIndex - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
 	vector<pair<unsigned int, pair<unsigned int, unsigned int> > > factors_sort;
 	vector<unsigned int> factors_start;
@@ -44,7 +44,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 		cur_start += factor.second;
 	}
 	sort(factors_sort.begin(), factors_sort.end());
-	cout << "FactorsIndex - Factors Sorted prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndex - Factors Sorted prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 //	cout << "Factors Sorted: \n";
 //	for( pair<unsigned int, pair<unsigned int, unsigned int> > factor : factors_sort ){
@@ -52,7 +52,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 //	}
 	
 	// Bit vector S
-	cout << "FactorsIndex - Preparing Vector S\n";
+	cout << "RelzIndex - Preparing Vector S\n";
 	bit_vector arr_s = bit_vector(len_ref + n_factors, 0);
 	unsigned cur_ref = 0;
 	cur_pos = 0;
@@ -67,7 +67,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 			--i;
 		}
 	}
-	cout << "FactorsIndex - Vector S prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndex - Vector S prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	bits_s = bits_s_type(arr_s);
@@ -75,7 +75,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	select0_s = bits_s_type::select_0_type(&bits_s);
 	
 	// Permutacion 
-	cout << "FactorsIndex - Preparing Permutation PI\n";
+	cout << "RelzIndex - Preparing Permutation PI\n";
 	pi = int_vector<>(n_factors);
 	pi_inv = int_vector<>(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -83,7 +83,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 		pi_inv[ factors_sort[i].second.second ] = i;
 	}
 	
-	cout << "FactorsIndex - PI prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndex - PI prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Posiciones finales Ez
@@ -94,7 +94,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	rmq = rmq_type(&ez);
 	
 	// Bit vector B (inicio de las frases en texto)
-	cout << "FactorsIndex - Preparing Vector B\n";
+	cout << "RelzIndex - Preparing Vector B\n";
 	bit_vector arr_b(len_text, 0);
 	unsigned int pos_text = 0;
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -102,7 +102,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 		arr_b[ pos_text ] = 1;
 		pos_text += len;
 	}
-	cout << "FactorsIndex - Vector B prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndex - Vector B prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 
 	bits_b = bits_b_type(arr_b);
@@ -111,13 +111,13 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	
 	// Construccion del FM Index (aunque use el SA original para la compresion, esto es para la busqueda)
 	// Construccion con datos en memoria, en un string
-	cout << "FactorsIndex - Preparing fm_index\n";
+	cout << "RelzIndex - Preparing fm_index\n";
 	construct_im(fm_index, _ref_text, 1);
-	cout << "FactorsIndex - fm_index prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndex - fm_index prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Preparacion de permutaciones X e Y
-	cout << "FactorsIndex - Preparing arr X\n";
+	cout << "RelzIndex - Preparing arr X\n";
 	vector<unsigned int> arr_x_original(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_x_original[i] = i;
@@ -138,7 +138,7 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 //	}
 //	cout << "-----\n";
 	
-	cout << "FactorsIndex - Preparing arr Y\n";
+	cout << "RelzIndex - Preparing arr Y\n";
 	
 	vector<unsigned int> arr_y_original(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -163,16 +163,16 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 //	}
 //	cout << "-----\n";
 
-	cout << "FactorsIndex - X & Y prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndex - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-	cout << "FactorsIndex - Preparing WT\n";
+	cout << "RelzIndex - Preparing WT\n";
 	int_vector<> values_wt(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		values_wt[i] = arr_y_inv[ arr_x[ i ] ];
 	}
 	construct_im(wt, values_wt);
-	cout << "FactorsIndex - WT prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndex - WT prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
@@ -193,23 +193,23 @@ FactorsIndex::FactorsIndex(vector<pair<unsigned int, unsigned int> > &factors, c
 	sdsl::util::bit_compress(arr_x);
 	sdsl::util::bit_compress(arr_y);
 	
-	cout << "FactorsIndex - End\n";
+	cout << "RelzIndex - End\n";
 	
 }
 
-FactorsIndex::~FactorsIndex(){
+RelzIndex::~RelzIndex(){
 	if( ! omit_text && ref_text != NULL ){
 		delete [] ref_text;
 		ref_text = NULL;
 	}
 }
 
-void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &results){
+void RelzIndex::findTimes(const string &pattern, vector<unsigned int> &results){
 
-//	cout << "FactorsIndex::findTimes - Start (\"" << pattern << "\")\n";
+//	cout << "RelzIndex::findTimes - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
 	
-//	cout << "FactorsIndex::findTimes - Section A, reference\n";
+//	cout << "RelzIndex::findTimes - Section A, reference\n";
 	
 	size_t m = pattern.size();
 	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
@@ -237,7 +237,7 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 	}
 	querytime_p2 += timer.getNanosec();
 	
-//	cout << "FactorsIndex::findTimes - Section B, ranges\n";
+//	cout << "RelzIndex::findTimes - Section B, ranges\n";
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
 		string p1 = pattern.substr(0, i);
@@ -253,7 +253,7 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 		timer.reset();
 		
 		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
-//			cout << "FactorsIndex::findTimes - getRangeX invalido, omitiendo\n";
+//			cout << "RelzIndex::findTimes - getRangeX invalido, omitiendo\n";
 			continue;
 		}
 		
@@ -263,32 +263,32 @@ void FactorsIndex::findTimes(const string &pattern, vector<unsigned int> &result
 		timer.reset();
 		
 		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
-//			cout << "FactorsIndex::findTimes - getRangeY invalido, omitiendo\n";
+//			cout << "RelzIndex::findTimes - getRangeY invalido, omitiendo\n";
 			continue;
 		}
 		
-//		cout << "FactorsIndex::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+//		cout << "RelzIndex::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
 		for (auto point : res.second){
 			unsigned int f = arr_y[point.second];
 			unsigned int pu = select1_b(f + 1);
-//			cout << "FactorsIndex::findTimes - Adding pos " << (pu - p1.length()) << "\n";
+//			cout << "RelzIndex::findTimes - Adding pos " << (pu - p1.length()) << "\n";
 			results.push_back(pu - p1.length());
 			++occs_c;
 		}
 		
 		querytime_p4 += timer.getNanosec();
 	}
-//	cout << "FactorsIndex::findTimes - End\n";
+//	cout << "RelzIndex::findTimes - End\n";
 	
 }
 
-void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results){
-//	cout << "FactorsIndex::recursive_rmq - " << ini << ", " << fin << "\n";
+void RelzIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results){
+//	cout << "RelzIndex::recursive_rmq - " << ini << ", " << fin << "\n";
 	
 	unsigned int pos_max = rmq(ini, fin);
 	
-//	cout << "FactorsIndex::recursive_rmq - Computing factor\n";
+//	cout << "RelzIndex::recursive_rmq - Computing factor\n";
 	assert(pos_max < n_factors);
 	unsigned int tu = 0;
 	unsigned int pu = 0;
@@ -304,7 +304,7 @@ void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned in
 		lu = select1_b(pi[pos_max] + 2) - pu;
 	}
 	
-//	cout << "FactorsIndex::recursive_rmq - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
+//	cout << "RelzIndex::recursive_rmq - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 	
 	if( tu + lu < min_pos ){
 		return;
@@ -323,7 +323,7 @@ void FactorsIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned in
 	}
 }
 
-char FactorsIndex::getChar(unsigned int factor, unsigned int pos, unsigned int max_len){
+char RelzIndex::getChar(unsigned int factor, unsigned int pos, unsigned int max_len){
 	
 	// Iterators cache
 	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
@@ -344,7 +344,7 @@ char FactorsIndex::getChar(unsigned int factor, unsigned int pos, unsigned int m
 	return c;
 }
 
-char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos, unsigned int max_len){
+char RelzIndex::getCharRev(unsigned int factor, unsigned int pos, unsigned int max_len){
 	
 	if( factor == (unsigned int)(-1) ){
 		return 0;
@@ -370,7 +370,7 @@ char FactorsIndex::getCharRev(unsigned int factor, unsigned int pos, unsigned in
 }
 
 template <typename ItereatorType>
-bool FactorsIndex::factorLess(unsigned int factor, const char *pattern, unsigned int len, bool equal){
+bool RelzIndex::factorLess(unsigned int factor, const char *pattern, unsigned int len, bool equal){
 	if( factor == (unsigned int)(-1) ){
 		return true;
 	}
@@ -384,7 +384,7 @@ bool FactorsIndex::factorLess(unsigned int factor, const char *pattern, unsigned
 	unsigned int pos = 0;
 	char c2 = pattern[pos++];
 	bool next = true;
-//	cout << "FactorsIndex::factorLess - " << c1 << " vs " << c2 << "\n";
+//	cout << "RelzIndex::factorLess - " << c1 << " vs " << c2 << "\n";
 	while( next && (c1 == c2) ){
 		if( it.hasNext() ){
 			c1 = it.next();
@@ -400,21 +400,21 @@ bool FactorsIndex::factorLess(unsigned int factor, const char *pattern, unsigned
 			c2 = 0;
 			next = false;
 		}
-//		cout << "FactorsIndex::factorLess - " << c1 << " vs " << c2 << "\n";
+//		cout << "RelzIndex::factorLess - " << c1 << " vs " << c2 << "\n";
 	}
 	if( equal && (c2 == 0) ){
-//		cout << "FactorsIndex::factorLess - res " << (c1 <= c2) << "\n";
+//		cout << "RelzIndex::factorLess - res " << (c1 <= c2) << "\n";
 		return true;
 	}
 	else{
-//		cout << "FactorsIndex::factorLess - res " << (c1 < c2) << "\n";
+//		cout << "RelzIndex::factorLess - res " << (c1 < c2) << "\n";
 		return (c1 < c2);
 	}
 }
 
 // Notar que, a diferencia de la busqueda en referencia, esta debe ser completa
 // Es decir, solo importa el rango que contiene al patron completo
-pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
+pair<unsigned int, unsigned int> RelzIndex::getRangeY(const char *pattern){
 	
 	// Version de Revision completa
 	
@@ -479,7 +479,7 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeY(const char *pattern){
 	return pair<unsigned int, unsigned int>(izq, der);
 }
 
-pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
+pair<unsigned int, unsigned int> RelzIndex::getRangeX(const char *pattern){
 	
 	// Version de Revision completa
 	
@@ -544,48 +544,48 @@ pair<unsigned int, unsigned int> FactorsIndex::getRangeX(const char *pattern){
 	return pair<unsigned int, unsigned int>(izq, der);
 }
 
-void FactorsIndex::printSize(){
+void RelzIndex::printSize(){
 	double total_bytes = 0;
 	
 	// texto descomprimido
 	if( ! omit_text ){
 		total_bytes += len_ref;
-		cout << "FactorsIndex::printSize - Reference Text: " << (8.0*len_ref/len_text) << " bps\n";
+		cout << "RelzIndex::printSize - Reference Text: " << (8.0*len_ref/len_text) << " bps\n";
 	}
 	
 	total_bytes += size_in_bytes(fm_index);
-	cout << "FactorsIndex::printSize - fm_index: " << (8.0*size_in_bytes(fm_index)/len_text) << " bps\n";
+	cout << "RelzIndex::printSize - fm_index: " << (8.0*size_in_bytes(fm_index)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(rmq);
-	cout << "FactorsIndex::printSize - rmq: " << (8.0*size_in_bytes(rmq)/len_text) << " bps\n";
+	cout << "RelzIndex::printSize - rmq: " << (8.0*size_in_bytes(rmq)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(bits_s);
-	cout << "FactorsIndex::printSize - bits_s: " << (8.0*size_in_bytes(bits_s)/len_text) << " bps\n";
+	cout << "RelzIndex::printSize - bits_s: " << (8.0*size_in_bytes(bits_s)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(bits_b);
-	cout << "FactorsIndex::printSize - bits_b: " << (8.0*size_in_bytes(bits_b)/len_text) << " bps\n";
+	cout << "RelzIndex::printSize - bits_b: " << (8.0*size_in_bytes(bits_b)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(pi);
-	cout << "FactorsIndex::printSize - pi: " << (8.0*size_in_bytes(pi)/len_text) << " bps\n";
+	cout << "RelzIndex::printSize - pi: " << (8.0*size_in_bytes(pi)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(pi_inv);
-	cout << "FactorsIndex::printSize - pi_inv: " << (8.0*size_in_bytes(pi_inv)/len_text) << " bps\n";
+	cout << "RelzIndex::printSize - pi_inv: " << (8.0*size_in_bytes(pi_inv)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(arr_x);
-	cout << "FactorsIndex::printSize - arr_x: " << (8.0*size_in_bytes(arr_x)/len_text) << " bps\n";
+	cout << "RelzIndex::printSize - arr_x: " << (8.0*size_in_bytes(arr_x)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(arr_y);
-	cout << "FactorsIndex::printSize - arr_y: " << (8.0*size_in_bytes(arr_y)/len_text) << " bps\n";
+	cout << "RelzIndex::printSize - arr_y: " << (8.0*size_in_bytes(arr_y)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(wt);
-	cout << "FactorsIndex::printSize - wt: " << (8.0*size_in_bytes(wt)/len_text) << " bps\n";
+	cout << "RelzIndex::printSize - wt: " << (8.0*size_in_bytes(wt)/len_text) << " bps\n";
 	
-	cout << "FactorsIndex::printSize - Total " << total_bytes/(1024*1024) << " MB (" << (8.0*total_bytes/len_text) << " bps)\n";
+	cout << "RelzIndex::printSize - Total " << total_bytes/(1024*1024) << " MB (" << (8.0*total_bytes/len_text) << " bps)\n";
 	
 }
 
-void FactorsIndex::save(const string &file_base){
-	cout << "FactorsIndex::save - Start (base \"" << file_base << "\")\n";
+void RelzIndex::save(const string &file_base){
+	cout << "RelzIndex::save - Start (base \"" << file_base << "\")\n";
 	
 	// Base
 	string index_basic_file = file_base + ".base";
@@ -644,11 +644,11 @@ void FactorsIndex::save(const string &file_base){
 	string wt_file = file_base + ".wt";
 	store_to_file(wt, wt_file);
 	
-	cout << "FactorsIndex::save - End\n";
+	cout << "RelzIndex::save - End\n";
 }
 
-void FactorsIndex::load(const string &file_base){
-	cout << "FactorsIndex::load - Start (base \"" << file_base << "\")\n";
+void RelzIndex::load(const string &file_base){
+	cout << "RelzIndex::load - Start (base \"" << file_base << "\")\n";
 	
 	// Base
 	string index_basic_file = file_base + ".base";
@@ -657,7 +657,7 @@ void FactorsIndex::load(const string &file_base){
 	unsigned char version = 0;
 	reader.read((char*)&version, 1);
 	if( version != 1 ){
-		cout << "FactorsIndex::load - Wrong Version\n";
+		cout << "RelzIndex::load - Wrong Version\n";
 		return;
 	}
 	// len_text
@@ -678,24 +678,24 @@ void FactorsIndex::load(const string &file_base){
 	reader.close();
 	
 	// fm_index
-	cout << "FactorsIndex::load - fm_index\n";
+	cout << "RelzIndex::load - fm_index\n";
 	string fm_index_file = file_base + ".fm";
 	load_from_file(fm_index, fm_index_file);
 	
 	// rmq
-	cout << "FactorsIndex::load - rmq\n";
+	cout << "RelzIndex::load - rmq\n";
 	string rmq_file = file_base + ".rmq";
 	load_from_file(rmq, rmq_file);
 	
 	// bits_s
-	cout << "FactorsIndex::load - bits_s\n";
+	cout << "RelzIndex::load - bits_s\n";
 	string bits_s_file = file_base + ".arrs";
 	load_from_file(bits_s, bits_s_file);
 	select1_s = bits_s_type::select_1_type(&bits_s);
 	select0_s = bits_s_type::select_0_type(&bits_s);
 	
 	// bits_b
-	cout << "FactorsIndex::load - bits_b\n";
+	cout << "RelzIndex::load - bits_b\n";
 	string bits_b_file = file_base + ".arrb";
 	load_from_file(bits_b, bits_b_file);
 	select1_b = bits_b_type::select_1_type(&bits_b);
@@ -718,7 +718,7 @@ void FactorsIndex::load(const string &file_base){
 	load_from_file(arr_y, y_file);
 	
 	// wt
-	cout << "FactorsIndex::load - wt\n";
+	cout << "RelzIndex::load - wt\n";
 	string wt_file = file_base + ".wt";
 	load_from_file(wt, wt_file);
 	
@@ -733,7 +733,7 @@ void FactorsIndex::load(const string &file_base){
 		}
 	}
 	
-	cout << "FactorsIndex::load - End\n";
+	cout << "RelzIndex::load - End\n";
 	
 }
 

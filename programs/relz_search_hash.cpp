@@ -21,9 +21,8 @@
 #include "DecoderBlocksRelz.h"
 #include "TextFilterFull.h"
 
-#include "FactorsIndexV3.h"
+#include "RelzIndexHash.h"
 #include "FactorsIterator.h"
-#include "HashTrie.h"
 
 using namespace sdsl;
 using namespace std;
@@ -71,7 +70,7 @@ int main(int argc, char* argv[]){
 	unsigned int mod = 15485863;
 	KarpRabin karp_rabin(bits, mod, 1100000000);
 	vector<unsigned int> results;
-	FactorsIndexV3 index(factors, text, len_text, ref, len_ref, &karp_rabin, input);
+	RelzIndexHash index(factors, text, len_text, ref, len_ref, &karp_rabin, input);
 //	KarpRabinFactorsSuffixes *kr_factors = index.getKRFactors();
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index.printSize();

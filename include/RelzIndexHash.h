@@ -1,5 +1,5 @@
-#ifndef _FACTORS_INDEX_V3_H
-#define _FACTORS_INDEX_V3_H
+#ifndef _RELZ_INDEX_HASH_H
+#define _RELZ_INDEX_HASH_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,14 +21,13 @@
 
 #include "BitsUtils.h"
 #include "KarpRabin.h"
-#include "HashTrie.h"
 #include "HashTrieChar.h"
 #include "KarpRabinFactorsSuffixes.h"
 
 using namespace sdsl;
 using namespace std;
 
-class FactorsIndexV3 {
+class RelzIndexHash {
 
 private: 
 	
@@ -90,9 +89,9 @@ private:
 	char getCharRev(unsigned int factor, unsigned int pos);
 	
 public: 
-	FactorsIndexV3();
-	FactorsIndexV3(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *index_base_file);
-	~FactorsIndexV3();
+	RelzIndexHash();
+	RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *index_base_file);
+	~RelzIndexHash();
 	
 	// void find(const string &pattern, vector<unsigned int> &results);
 	void findTimes(const string &pattern, vector<unsigned int> &results);
@@ -114,8 +113,6 @@ public:
 	KarpRabin *karp_rabin;
 	vector<unsigned long long> arr_kr_ref;
 	vector<unsigned long long> arr_kr_s;
-/*	HashTrie tree_y;*/
-/*	HashTrieRev tree_x;*/
 	HashTrieChar tree_y;
 	HashTrieCharRev tree_x;
 	KarpRabinFactorsSuffixes *kr_factors;
@@ -134,4 +131,4 @@ public:
 
 
 
-#endif //_FACTORS_INDEX_H
+#endif //_RELZ_INDEX_HASH_H
