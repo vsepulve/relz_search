@@ -64,14 +64,16 @@ int main(int argc, char* argv[]){
 	reader.seekg (0, reader.beg);
 	reader.close();
 	
-	text = new char[text_len + 1];
+	// I add the \n character by hand (so the additional +1)
+	text = new char[text_len + 1 + 1];
 	
 	// The first version only loads ACGT
-//	text_size += filter->readReference(reference_text, text + text_size);
-	text_size += filter->readReferenceFull(reference_text, text + text_size);
+	text_size = filter->readReferenceFull(reference_text, text);
 	
 	// Additional text could be added (N's, the full alphabet, etc)
 	// ...
+	text[text_size] = '\n';
+	++text_size;
 	
 	cout << "Building Reference with " << text_size << " chars\n";
 	timer.reset();
