@@ -30,7 +30,7 @@ using namespace std;
 int main(int argc, char* argv[]){
 
 	if(argc != 3){
-		cout<<"\nUsage: relz_search index_directory queries_file\n";
+		cout<<"\nUsage: ./bin/relz_search_basic index_directory queries_file\n";
 		return 0;
 	}
 	
