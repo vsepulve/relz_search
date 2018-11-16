@@ -30,7 +30,7 @@ using namespace std;
 int main(int argc, char* argv[]){
 
 	if(argc != 4){
-		cout<<"\nUsage: relz_search serialized_ref sequence_file index_directory\n";
+		cout<<"\nUsage: ./bin/build_relz_basic serialized_ref sequence_file index_directory\n";
 		return 0;
 	}
 	
