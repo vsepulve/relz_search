@@ -29,66 +29,26 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-	if(argc != 5){
-		cout<<"\nUsage: relz_search serialized_ref sequence_file output_relz queries_file\n";
+	if(argc != 3){
+		cout<<"\nUsage: relz_search index_directory queries_file\n";
 		return 0;
 	}
 	
-	const char *ref_file = argv[1];
-	const char *input = argv[2];
-	const char *output = argv[3];
-	const char *queries_file = argv[4];
+	const char *index_directory = argv[1];
+	const char *queries_file = argv[2];
 	
-	ReferenceIndex *reference = new ReferenceIndexBasic();
-	reference->load(ref_file);
-	
-	// Preparar Compresor
-	TextFilter *filter = new TextFilterFull();
-	CompressorSingleBuffer compressor(
-		output, 
-		new CoderBlocksRelz(reference), 
-		new DecoderBlocksRelz(reference->getText()), 
-		filter
-	);
-	
-	vector<pair<unsigned int, unsigned int> > factors;
-	compressor.compress(input, 1, 1000000, 0, &factors);
-	
-	// Recargo el texto de la entrada, solo para acelerar la construccion
-	unsigned long long real_len_text = 0;
-	char *text = filter->readText(input, real_len_text);
-	unsigned int len_text = compressor.getTextSize();
-	cout << "Full text loaded of " << len_text << " / " << real_len_text << " chars\n";
-	
-	const char *ref = reference->getText();
-	unsigned int len_ref = reference->getLength();
-	
-	cout << "----- Building index -----\n";
-	NanoTimer timer;
-	vector<unsigned int> results;
-	bool delete_text = true;
-	RelzIndex index_built(factors, text, len_text, ref, len_ref, delete_text);
-	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
-	index_built.printSize();
-	
-	
-	cout << "----- Testing save -----\n";
-	index_built.save("test/index");
+	string output_path(index_directory);
+	if( output_path.back() != '/' ){
+		output_path += "/";
+	}
+	output_path += "index_basic";
 	
 	cout << "----- Testing load -----\n";
+	NanoTimer timer;
+	vector<unsigned int> results;
 	RelzIndex index;
-	index.load("test/index");
+	index.load(output_path);
 	index.printSize();
-//	
-//	cout << "----- Test Query -----\n";
-//	index.find("CATC", results);
-//	cout << "-----     -----\n";
-//	results.clear();
-	
-//	cout << "----- Test Query -----\n";
-//	index.find("BA", results);
-//	cout << "-----     -----\n";
-//	results.clear();
 	
 	cout << "----- Loading Queries from \"" << queries_file << "\" -----\n";
 	vector<string> queries;
@@ -140,7 +100,6 @@ int main(int argc, char* argv[]){
 	cout << "WT: " << ((long double)(index.querytime_p4))/(total_occ * 1000) << " microsec/occ (" << ((long double)index.querytime_p4/total_nano)*100 << " \%)\n";
 	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
 	
-	delete reference;
 
 }
 
