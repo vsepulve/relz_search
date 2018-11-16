@@ -669,6 +669,10 @@ void RelzIndex::load(const string &file_base){
 	// len_ref
 	reader.read((char*)&len_ref, sizeof(int));
 	// Reference Text
+	if( ref_text != NULL ){
+		delete [] ref_text;
+		ref_text = NULL;
+	}
 	if( ! omit_text ){
 		ref_text = new char[len_ref + 1];
 		reader.read((char*)ref_text, len_ref);
