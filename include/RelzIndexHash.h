@@ -48,13 +48,13 @@ private:
 	bits_b_type::select_1_type select1_b;
 	bits_b_type::select_0_type select0_b;
 	
+	wt_type wt;
+	
 	int_vector<> pi;
 	int_vector<> pi_inv;
 	
 	int_vector<> arr_x;
 	int_vector<> arr_y;
-	
-	wt_type wt;
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
 	static const bool precompute_rmq = true;
@@ -63,10 +63,10 @@ private:
 	vector<unsigned int> arr_lu;
 	
 	// Solo para pruebas
-	bit_vector arr_s;
-	bit_vector arr_b;
-	int_vector<> ez;
-	int_vector<> values_wt;
+//	bit_vector arr_s;
+//	bit_vector arr_b;
+//	int_vector<> ez;
+//	int_vector<> values_wt;
 	// Simplifacion del calculo de posicion de inicio de factor en coleccion 
 	vector<unsigned int> factors_start;
 	
@@ -83,6 +83,7 @@ private:
 	
 public: 
 	RelzIndexHash();
+	RelzIndexHash(KarpRabin *_karp_rabin);
 	RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *index_base_file);
 	~RelzIndexHash();
 	

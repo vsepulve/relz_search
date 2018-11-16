@@ -6,9 +6,17 @@ RelzIndexHash::RelzIndexHash(){
 	len_ref = 0;
 	n_factors = 0;
 	karp_rabin = NULL;
+	karp_rabin = NULL;
 }
 
-//RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *kr_frases_file, bool load_kr_frases){
+RelzIndexHash::RelzIndexHash(KarpRabin *_karp_rabin){
+	len_text = 0;
+	ref_text = NULL;
+	len_ref = 0;
+	n_factors = 0;
+	karp_rabin = NULL;
+	karp_rabin = _karp_rabin;
+}
 
 RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *index_base_file){
 	
@@ -50,8 +58,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	
 	// Bit vector S
 	cout << "RelzIndexHash - Preparing Vector S\n";
-	bit_vector _arr_s(len_ref + n_factors, 0);
-	arr_s = _arr_s;
+	bit_vector arr_s(len_ref + n_factors, 0);
 	unsigned cur_ref = 0;
 	cur_pos = 0;
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -85,8 +92,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	timer.reset();
 	
 	// Posiciones finales Ez
-	int_vector<> _ez(n_factors);
-	ez = _ez;
+	int_vector<> ez(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		ez[i] = factors_sort[i].second.first;
 	}
@@ -94,8 +100,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	
 	// Bit vector B (inicio de las frases en texto)
 	cout << "RelzIndexHash - Preparing Vector B\n";
-	bit_vector _arr_b(len_text, 0);
-	arr_b = _arr_b;
+	bit_vector arr_b(len_text, 0);
 	unsigned int pos_text = 0;
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		unsigned int len = factors[i].second;
@@ -167,8 +172,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	timer.reset();
 	
 	cout << "RelzIndexHash - Preparing WT\n";
-	int_vector<> _values_wt(n_factors);
-	values_wt = _values_wt;
+	int_vector<> values_wt(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		values_wt[i] = arr_y_inv[ arr_x[ i ] ];
 	}
@@ -217,7 +221,6 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 //		}
 	}
 	
-	// Notar que el arreglo almacena los has de los PREFIJOS de cada frase
 	// factors_start almacena la posicion de inicio de cada frase (=> los caracteres ANTERIORES forman el prefijo)
 	// Por eso agrego un 0 para la primera frase (prefijo nulo)
 	cout << "RelzIndexHash - Adding hash for Frases prefixes\n";
