@@ -8,7 +8,6 @@ KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(){
 	select1_s = NULL;
 	select1_b = NULL;
 	select0_b = NULL;
-	pi = NULL;
 	pi_inv = NULL;
 	factors_start = NULL;
 }
@@ -20,7 +19,6 @@ KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(unsigned int _n_factors,
 		bits_s_type::select_1_type *_select1_s, 
 		bits_b_type::select_1_type *_select1_b, 
 		bits_b_type::select_0_type *_select0_b, 
-		int_vector<> *_pi,
 		int_vector<> *_pi_inv, 
 		vector<unsigned int> *_factors_start){
 	n_factors = _n_factors;
@@ -33,7 +31,6 @@ KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(unsigned int _n_factors,
 	select1_s = _select1_s;
 	select1_b = _select1_b;
 	select0_b = _select0_b;
-	pi = _pi;
 	pi_inv = _pi_inv;
 	factors_start = _factors_start;
 }
@@ -58,8 +55,8 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 		cout << "a\n";
 		cur_pi = (*pi_inv)[factor_cur];
 		tu = select1_s->operator()(cur_pi + 1) - cur_pi;
-		pu = select1_b->operator()( (*pi)[cur_pi] + 1);
-		lu = select1_b->operator()( (*pi)[cur_pi] + 2) - pu;
+		pu = select1_b->operator()(factor_cur + 1);
+		lu = select1_b->operator()(factor_cur + 2) - pu;
 		cout << "b (tu: " << tu << ", pu: " << pu << ", lu: " << lu << ")\n";
 		if( cur_len + lu >= length ){
 			break;
@@ -101,8 +98,8 @@ unsigned long long KarpRabinFactorsSuffixesv2::hashFast(unsigned int factor_ini,
 	
 	unsigned int cur_perm = (*pi_inv)[factor_cur];
 	tu = select1_s->operator()(cur_perm + 1) - cur_perm;
-	unsigned int pu = select1_b->operator()( (*pi)[cur_perm] + 1);
-	unsigned int lu = select1_b->operator()( (*pi)[cur_perm] + 2) - pu;
+	unsigned int pu = select1_b->operator()(factor_cur + 1);
+	unsigned int lu = select1_b->operator()(factor_cur + 2) - pu;
 	
 	while( cur_len + lu < length ){
 		// Agregar factor completo y continuar
@@ -112,8 +109,8 @@ unsigned long long KarpRabinFactorsSuffixesv2::hashFast(unsigned int factor_ini,
 		
 		cur_perm = (*pi_inv)[factor_cur];
 		tu = select1_s->operator()(cur_perm + 1) - cur_perm;
-		pu = select1_b->operator()( (*pi)[cur_perm] + 1);
-		lu = select1_b->operator()( (*pi)[cur_perm] + 2) - pu;
+		pu = select1_b->operator()(factor_cur + 1);
+		lu = select1_b->operator()(factor_cur + 2) - pu;
 		
 	}
 	*/
@@ -125,8 +122,8 @@ unsigned long long KarpRabinFactorsSuffixesv2::hashFast(unsigned int factor_ini,
 	
 	unsigned int cur_perm_bin = (*pi_inv)[factor_cur_bin];
 	unsigned int tu_bin = select1_s->operator()(cur_perm_bin + 1) - cur_perm_bin;
-//	unsigned int pu_bin = select1_b->operator()( (*pi)[cur_perm_bin] + 1);
-//	unsigned int lu_bin = select1_b->operator()( (*pi)[cur_perm_bin] + 2) - pu_bin;
+//	unsigned int pu_bin = select1_b->operator()(factor_cur_bin + 1);
+//	unsigned int lu_bin = select1_b->operator()(factor_cur_bin + 2) - pu_bin;
 	
 //	cout << "1\n";
 	while(l < h){
@@ -212,8 +209,8 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 	// Primero omito los factores completos previos a offset
 	unsigned int cur_perm = (*pi_inv)[factor_cur];
 	unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
-	unsigned int pu = select1_b->operator()( (*pi)[cur_perm] + 1);
-	unsigned int lu = select1_b->operator()( (*pi)[cur_perm] + 2) - pu;
+	unsigned int pu = select1_b->operator()(factor_cur + 1);
+	unsigned int lu = select1_b->operator()(factor_cur + 2) - pu;
 	
 	while( lu < offset ){
 //		cout << "KarpRabinFactorsSuffixesv2::hash - Ommiting factor " << factor_cur << "\n";
@@ -222,8 +219,8 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 		
 		cur_perm = (*pi_inv)[factor_cur];
 		tu = select1_s->operator()(cur_perm + 1) - cur_perm;
-		pu = select1_b->operator()( (*pi)[cur_perm] + 1);
-		lu = select1_b->operator()( (*pi)[cur_perm] + 2) - pu;
+		pu = select1_b->operator()(factor_cur + 1);
+		lu = select1_b->operator()(factor_cur + 2) - pu;
 		
 	}
 	
@@ -233,8 +230,8 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 		
 		cur_perm = (*pi_inv)[factor_cur];
 		tu = select1_s->operator()(cur_perm + 1) - cur_perm;
-		pu = select1_b->operator()( (*pi)[cur_perm] + 1);
-		lu = select1_b->operator()( (*pi)[cur_perm] + 2) - pu;
+		pu = select1_b->operator()(factor_cur + 1);
+		lu = select1_b->operator()(factor_cur + 2) - pu;
 		
 	}
 	
@@ -268,8 +265,8 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 	
 	cur_perm = (*pi_inv)[factor_cur];
 	tu = select1_s->operator()(cur_perm + 1) - cur_perm;
-	pu = select1_b->operator()( (*pi)[cur_perm] + 1);
-	lu = select1_b->operator()( (*pi)[cur_perm] + 2) - pu;
+	pu = select1_b->operator()(factor_cur + 1);
+	lu = select1_b->operator()(factor_cur + 2) - pu;
 	
 	// Ahora agrego el hash de cada frase completa contenida
 	while( lu < length ){
@@ -287,8 +284,8 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 		
 		cur_perm = (*pi_inv)[factor_cur];
 		tu = select1_s->operator()(cur_perm + 1) - cur_perm;
-		pu = select1_b->operator()( (*pi)[cur_perm] + 1);
-		lu = select1_b->operator()( (*pi)[cur_perm] + 2) - pu;
+		pu = select1_b->operator()(factor_cur + 1);
+		lu = select1_b->operator()(factor_cur + 2) - pu;
 	}
 	
 //	cout << "KarpRabinFactorsSuffixesv2::hash - Preparing to add last prefix (length: " << length << ")\n";

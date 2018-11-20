@@ -38,8 +38,7 @@ protected:
 	bits_b_type::select_1_type *select1_b;
 	bits_b_type::select_0_type *select0_b;
 	
-	// Permutation to turn posicional factors to its id and vice versa
-	int_vector<> *pi;
+	// Permutation to turn positional factors to its id
 	int_vector<> *pi_inv;
 	
 	vector<unsigned int> *factors_start;
@@ -55,7 +54,6 @@ public:
 			bits_s_type::select_1_type *_select1_s, 
 			bits_b_type::select_1_type *_select1_b, 
 			bits_b_type::select_0_type *_select0_b, 
-			int_vector<> *_pi,
 			int_vector<> *_pi_inv, 
 			vector<unsigned int> *_factors_start);
 			
