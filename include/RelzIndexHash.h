@@ -34,9 +34,9 @@ class RelzIndexHash {
 private: 
 	
 	unsigned int len_text;
-	const char *ref_text;
-	unsigned int len_ref;
 	unsigned int n_factors;
+	unsigned int len_ref;
+	char *ref_text;
 	
 	fm_index_type fm_index;
 	
@@ -59,7 +59,7 @@ private:
 	int_vector<> arr_y;
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
-	static const bool precompute_rmq = true;
+	static const bool precompute_rmq = false;
 	vector<unsigned int> arr_tu;
 	vector<unsigned int> arr_pu;
 	vector<unsigned int> arr_lu;
@@ -109,6 +109,9 @@ public:
 	
 	void printSize();
 	
+	void save(const string &file_base);
+	
+	void load(const string &file_base, KarpRabin *_karp_rabin);
 	
 	
 	

@@ -2,29 +2,35 @@
 
 RelzIndexHash::RelzIndexHash(){
 	len_text = 0;
-	ref_text = NULL;
 	len_ref = 0;
 	n_factors = 0;
 	karp_rabin = NULL;
-	karp_rabin = NULL;
+	ref_text = NULL;
 }
 
 RelzIndexHash::RelzIndexHash(KarpRabin *_karp_rabin){
 	len_text = 0;
-	ref_text = NULL;
 	len_ref = 0;
 	n_factors = 0;
-	karp_rabin = NULL;
 	karp_rabin = _karp_rabin;
+	ref_text = NULL;
 }
 
 RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *index_base_file){
 	
 	len_text = _len_text;
-	ref_text = _ref_text;
 	len_ref = _len_ref;
 	n_factors = factors.size();
 	karp_rabin = _karp_rabin;
+	
+//	if( omit_text ){
+//		ref_text = (char*)_ref_text;
+//	}
+//	else{
+		ref_text = new char[_len_ref + 1];
+		memcpy(ref_text, _ref_text, _len_ref);
+		ref_text[_len_ref] = 0;
+//	}
 	
 	NanoTimer timer;
 	
@@ -117,7 +123,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	// Construccion del FM Index (aunque use el SA original para la compresion, esto es para la busqueda)
 	// Construccion con datos en memoria, en un string
 	cout << "RelzIndexHash - Preparing fm_index\n";
-	construct_im(fm_index, ref_text, 1);
+	construct_im(fm_index, _ref_text, 1);
 	cout << "RelzIndexHash - fm_index prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -277,8 +283,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 //	load_y = false;
 	if( load_y ){
 		cout << "RelzIndexHash - Loading Tree Y\n";
-//		tree_y.load(karp_rabin, kr_factors, index_y);
-		tree_y.load(karp_rabin, kr_factors, index_y, factors_start, full_text);
+		tree_y.load(karp_rabin, kr_factors, index_y);
 	}
 	else{
 		cout << "RelzIndexHash - Building Tree Y\n";
@@ -310,7 +315,10 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 }
 
 RelzIndexHash::~RelzIndexHash(){
-	
+//	if( ! omit_text && ref_text != NULL ){
+		delete [] ref_text;
+		ref_text = NULL;
+//	}
 }
 
 void RelzIndexHash::printSize(){
@@ -639,6 +647,196 @@ char RelzIndexHash::getCharRev(unsigned int factor, unsigned int pos){
 		c = it.next();
 	}
 	return c;
+}
+
+void RelzIndexHash::save(const string &file_base){
+	cout << "RelzIndexHash::save - Start (base \"" << file_base << "\")\n";
+	
+	// Base
+	string index_basic_file = file_base + ".base";
+	fstream writer(index_basic_file, fstream::out | fstream::trunc);
+	// Version of the index
+	unsigned char version = 3;
+	writer.write((char*)&version, 1);
+	// len_text
+	writer.write((char*)&len_text, sizeof(int));
+	// n_factors
+	writer.write((char*)&n_factors, sizeof(int));
+	// omit_text
+//	writer.write((char*)&omit_text, 1);
+	// len_ref
+	writer.write((char*)&len_ref, sizeof(int));
+	// Reference Text
+//	if( ! omit_text ){
+		writer.write((char*)ref_text, len_ref);
+//	}
+	// Close Base
+	writer.close();
+	
+	// fm_index
+	string fm_index_file = file_base + ".fm";
+	store_to_file(fm_index, fm_index_file);
+	
+	// rmq
+	string rmq_file = file_base + ".rmq";
+	store_to_file(rmq, rmq_file);
+	
+	// bits_s
+	string bits_s_file = file_base + ".arrs";
+	store_to_file(bits_s, bits_s_file);
+	
+	// bits_b
+	string bits_b_file = file_base + ".arrb";
+	store_to_file(bits_b, bits_b_file);
+	
+	// wt
+	string wt_file = file_base + ".wt";
+	store_to_file(wt, wt_file);
+	
+	// pi
+	string pi_file = file_base + ".pi";
+	store_to_file(pi, pi_file);
+	
+	// pi_inv
+	string pi_inv_file = file_base + ".pi_inv";
+	store_to_file(pi_inv, pi_inv_file);
+	
+	// arr_x
+	string x_file = file_base + ".x";
+	store_to_file(arr_x, x_file);
+	
+	// arr_y
+	string y_file = file_base + ".y";
+	store_to_file(arr_y, y_file);
+	
+	
+	// KarpRabinFactorsSuffixes
+	string krs_file = file_base + ".krsuffixes";
+//	kr_factors->save(krs_file);
+	
+	// tree_x
+	string tree_x_file = file_base + ".index.x";
+	tree_x.save(tree_x_file);
+	
+	// tree_y
+	string tree_y_file = file_base + ".index.y";
+	tree_y.save(tree_y_file);
+	
+	
+	
+	cout << "RelzIndexHash::save - End\n";
+}
+
+void RelzIndexHash::load(const string &file_base, KarpRabin *_karp_rabin){
+	cout << "RelzIndexHash::load - Start (base \"" << file_base << "\")\n";
+	
+	// Base
+	string index_basic_file = file_base + ".base";
+	fstream reader(index_basic_file, fstream::in);
+	// Version of the index
+	unsigned char version = 0;
+	reader.read((char*)&version, 1);
+	if( version != 3 ){
+		cout << "RelzIndexHash::load - Wrong Version\n";
+		return;
+	}
+	// len_text
+	reader.read((char*)&len_text, sizeof(int));
+	// n_factors
+	reader.read((char*)&n_factors, sizeof(int));
+	// omit_text
+//	reader.read((char*)&omit_text, 1);
+	// len_ref
+	reader.read((char*)&len_ref, sizeof(int));
+	// Reference Text
+	if( ref_text != NULL ){
+		delete [] ref_text;
+		ref_text = NULL;
+	}
+//	if( ! omit_text ){
+		ref_text = new char[len_ref + 1];
+		reader.read((char*)ref_text, len_ref);
+		ref_text[len_ref] = 0;
+//	}
+	// Close Base
+	reader.close();
+	
+	// fm_index
+	cout << "RelzIndexHash::load - fm_index\n";
+	string fm_index_file = file_base + ".fm";
+	load_from_file(fm_index, fm_index_file);
+	
+	// rmq
+	cout << "RelzIndexHash::load - rmq\n";
+	string rmq_file = file_base + ".rmq";
+	load_from_file(rmq, rmq_file);
+	
+	// bits_s
+	cout << "RelzIndexHash::load - bits_s\n";
+	string bits_s_file = file_base + ".arrs";
+	load_from_file(bits_s, bits_s_file);
+	select1_s = bits_s_type::select_1_type(&bits_s);
+	select0_s = bits_s_type::select_0_type(&bits_s);
+	
+	// bits_b
+	cout << "RelzIndexHash::load - bits_b\n";
+	string bits_b_file = file_base + ".arrb";
+	load_from_file(bits_b, bits_b_file);
+	select1_b = bits_b_type::select_1_type(&bits_b);
+	select0_b = bits_b_type::select_0_type(&bits_b);
+	
+	// pi
+	string pi_file = file_base + ".pi";
+	load_from_file(pi, pi_file);
+	
+	// pi_inv
+	string pi_inv_file = file_base + ".pi_inv";
+	load_from_file(pi_inv, pi_inv_file);
+	
+	// arr_x
+	string x_file = file_base + ".x";
+	load_from_file(arr_x, x_file);
+	
+	// arr_y
+	string y_file = file_base + ".y";
+	load_from_file(arr_y, y_file);
+	
+	// wt
+	cout << "RelzIndexHash::load - wt\n";
+	string wt_file = file_base + ".wt";
+	load_from_file(wt, wt_file);
+	
+	if(precompute_rmq){
+		for( unsigned int i = 0; i < n_factors; ++i ){
+			unsigned int tu = select1_s(i + 1) - i;
+			unsigned int pu = select1_b(pi[i] + 1);
+			unsigned int lu = select1_b(pi[i] + 2) - pu;
+			arr_tu.push_back(tu);
+			arr_pu.push_back(pu);
+			arr_lu.push_back(lu);
+		}
+	}
+	
+	// KarpRabin (from parameter)
+	karp_rabin = _karp_rabin;
+	
+	// KarpRabinFactorsSuffixes
+	string krs_file = file_base + ".krsuffixes";
+	kr_factors = new KarpRabinFactorsSuffixesv2();
+//	kr_factors->load(krs_file);
+	
+	// tree_x
+	string tree_x_file = file_base + ".index.x";
+	tree_x.load(karp_rabin, kr_factors, tree_x_file);
+	
+	// tree_y
+	string tree_y_file = file_base + ".index.y";
+	tree_y.load(karp_rabin, kr_factors, tree_y_file);
+	
+	
+	
+	cout << "RelzIndexHash::load - End\n";
+	
 }
 
 
