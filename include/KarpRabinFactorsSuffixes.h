@@ -58,6 +58,8 @@ public:
 	}
 	
 	unsigned long long kr_nano;
+	unsigned int max_offset;
+	unsigned int max_length;
 	
 };
 
