@@ -23,6 +23,8 @@
 #include "KarpRabin.h"
 #include "HashTrie.h"
 #include "KarpRabinFactorsSuffixes.h"
+#include "KarpRabinFactorsSuffixesv1.h"
+#include "KarpRabinFactorsSuffixesv2.h"
 
 using namespace sdsl;
 using namespace std;
