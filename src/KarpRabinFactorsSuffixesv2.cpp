@@ -10,6 +10,8 @@ KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(){
 	select0_b = NULL;
 	pi_inv = NULL;
 	factors_start = NULL;
+	max_offset = 0;
+	max_length = 0;
 }
 
 KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(unsigned int _n_factors, 
@@ -33,6 +35,8 @@ KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(unsigned int _n_factors,
 	select0_b = _select0_b;
 	pi_inv = _pi_inv;
 	factors_start = _factors_start;
+	max_offset = 0;
+	max_length = 0;
 }
 
 KarpRabinFactorsSuffixesv2::~KarpRabinFactorsSuffixesv2(){
@@ -194,6 +198,15 @@ unsigned long long KarpRabinFactorsSuffixesv2::hashFast(unsigned int factor_ini,
 }
 
 unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, unsigned int offset, unsigned int length){
+
+	// Solo para debug y estadisticas
+	if( offset > max_offset ){
+		max_offset = offset;
+	}
+	if( length > max_length ){
+		max_length = length;
+	}
+	
 	if( offset < karp_rabin->getTableSize() && length < karp_rabin->getTableSize() ){
 		return hashFast(factor_ini, offset, length);
 	}
