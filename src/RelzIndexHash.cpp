@@ -459,7 +459,7 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 			// Verificacion
 			bool omit = false;
 			
-			FactorsIteratorReverse it_x(f-1, n_factors, &select1_s, &select1_b, &select0_b, &pi, &pi_inv, ref_text, &fm_index, len_text);
+			FactorsIteratorReverse it_x(f-1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
 			cout << "text_x: ";
 			for(unsigned int pos = 0; pos < i; ++pos){
 				char c = it_x.next();
@@ -471,7 +471,7 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 			}
 			cout << "\n";
 			
-			FactorsIterator it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi, &pi_inv, ref_text, &fm_index, len_text);
+			FactorsIterator it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
 			cout << "text_y: ";
 			for(unsigned int pos = 0; pos < pattern.length()-i; ++pos){
 				char c = it_y.next();
@@ -600,7 +600,7 @@ char RelzIndexHash::getChar(unsigned int factor, unsigned int pos){
 	
 	// Iterators cache
 	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
-		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &pi, &pi_inv, ref_text, &fm_index, len_text);
+		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
 	}
 	FactorsIterator it = mapa_iterators[factor];
 	if( pos >= it.length() ){
@@ -625,7 +625,7 @@ char RelzIndexHash::getCharRev(unsigned int factor, unsigned int pos){
 	
 	// Iterators cache
 	if( mapa_iterators_rev.find(factor) == mapa_iterators_rev.end() ){
-		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &pi, &pi_inv, ref_text, &fm_index, len_text);
+		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
 	}
 	FactorsIteratorReverse it = mapa_iterators_rev[factor];
 	if( pos >= it.length() ){
