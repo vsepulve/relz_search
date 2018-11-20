@@ -22,14 +22,9 @@ class FactorsIterator {
 
 private: 
 	
-	// Valores y estructuras globales, compartidas entre iteradores
 	bits_s_type::select_1_type *select1_s;
-	
 	bits_b_type::select_1_type *select1_b;
 	bits_b_type::select_0_type *select0_b;
-	
-	// Permutaciones unc
-	int_vector<> *pi;
 	int_vector<> *pi_inv;
 	
 	// Texto de la referencia descomprimido
@@ -69,7 +64,6 @@ public:
 			bits_s_type::select_1_type *_select1_s, 
 			bits_b_type::select_1_type *_select1_b, 
 			bits_b_type::select_0_type *_select0_b, 
-			int_vector<> *_pi,
 			int_vector<> *_pi_inv,
 			const char *_ref_text,
 			fm_index_type *_fm_index,
@@ -95,14 +89,9 @@ class FactorsIteratorReverse {
 
 private: 
 	
-	// Valores y estructuras globales, compartidas entre iteradores
 	bits_s_type::select_1_type *select1_s;
-	
 	bits_b_type::select_1_type *select1_b;
 	bits_b_type::select_0_type *select0_b;
-	
-	// Permutaciones unc
-	int_vector<> *pi;
 	int_vector<> *pi_inv;
 	
 	const char *ref_text;
@@ -141,7 +130,6 @@ public:
 			bits_s_type::select_1_type *_select1_s, 
 			bits_b_type::select_1_type *_select1_b, 
 			bits_b_type::select_0_type *_select0_b, 
-			int_vector<> *_pi,
 			int_vector<> *_pi_inv,
 			const char *_ref_text,
 			fm_index_type *_fm_index,

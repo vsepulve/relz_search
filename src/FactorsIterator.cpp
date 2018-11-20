@@ -12,8 +12,8 @@ void FactorsIterator::loadFactor(unsigned int f, bool reset){
 	
 	unsigned int cur_pi = (*pi_inv)[cur_f];
 	unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
-	unsigned int pu = select1_b->operator()( (*pi)[cur_pi] + 1);
-	unsigned int lu = select1_b->operator()( (*pi)[cur_pi] + 2) - pu;
+	unsigned int pu = select1_b->operator()(cur_f + 1);
+	unsigned int lu = select1_b->operator()(cur_f + 2) - pu;
 	
 //	cout << "FactorsIterator::loadFactor - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 	cur_f_ini = tu;
@@ -33,7 +33,6 @@ FactorsIterator::FactorsIterator(){
 	select1_s = NULL;
 	select1_b = NULL;
 	select0_b = NULL;
-	pi = NULL;
 	pi_inv = NULL;
 	ref_text = NULL;
 	fm_index = NULL;
@@ -52,7 +51,6 @@ FactorsIterator::FactorsIterator( unsigned int _start_f, unsigned int _n_factors
 		bits_s_type::select_1_type *_select1_s, 
 		bits_b_type::select_1_type *_select1_b, 
 		bits_b_type::select_0_type *_select0_b,
-		int_vector<> *_pi,
 		int_vector<> *_pi_inv,
 		const char *_ref_text,
 		fm_index_type *_fm_index,
@@ -62,7 +60,6 @@ FactorsIterator::FactorsIterator( unsigned int _start_f, unsigned int _n_factors
 	select1_s = _select1_s;
 	select1_b = _select1_b;
 	select0_b = _select0_b;
-	pi = _pi;
 	pi_inv = _pi_inv;
 	ref_text = _ref_text;
 	fm_index = _fm_index;
@@ -130,8 +127,8 @@ void FactorsIteratorReverse::loadFactor(unsigned int f, bool reset){
 	
 	unsigned int cur_pi = (*pi_inv)[cur_f];
 	unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
-	unsigned int pu = select1_b->operator()( (*pi)[cur_pi] + 1);
-	unsigned int lu = select1_b->operator()( (*pi)[cur_pi] + 2) - pu;
+	unsigned int pu = select1_b->operator()(cur_f + 1);
+	unsigned int lu = select1_b->operator()(cur_f + 2) - pu;
 	
 //	cout << "FactorsIteratorReverse::loadFactor - cur_pi: " << cur_pi << ", tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 	cur_f_ini = tu;
@@ -159,7 +156,6 @@ FactorsIteratorReverse::FactorsIteratorReverse(){
 	select1_s = NULL;
 	select1_b = NULL;
 	select0_b = NULL;
-	pi = NULL;
 	pi_inv = NULL;
 	ref_text = NULL;
 	fm_index = NULL;
@@ -178,7 +174,6 @@ FactorsIteratorReverse::FactorsIteratorReverse( unsigned int _start_f, unsigned 
 		bits_s_type::select_1_type *_select1_s, 
 		bits_b_type::select_1_type *_select1_b, 
 		bits_b_type::select_0_type *_select0_b, 
-		int_vector<> *_pi,
 		int_vector<> *_pi_inv,
 		const char *_ref_text,
 		fm_index_type *_fm_index,
@@ -188,7 +183,6 @@ FactorsIteratorReverse::FactorsIteratorReverse( unsigned int _start_f, unsigned 
 	select1_s = _select1_s;
 	select1_b = _select1_b;
 	select0_b = _select0_b;
-	pi = _pi;
 	pi_inv = _pi_inv;
 	ref_text = _ref_text;
 	fm_index = _fm_index;
