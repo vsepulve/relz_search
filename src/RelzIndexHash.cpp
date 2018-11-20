@@ -247,14 +247,21 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	cout << "RelzIndexHash - KarpRobin prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
+	// Original
+	kr_factors = new KarpRabinFactorsSuffixesv1(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
 	
-	kr_factors->hash(1, 3, 9);
-	cout << "-----\n";
-	kr_factors->hashFast(1, 3, 9);
-	cout << "-----\n";
-	const char *test_str = "ALASLALAB";
-	cout << "RelzIndexHash - Testing KarpRabinFactorsSuffixes, hash: " << karp_rabin->hash(test_str, strlen(test_str)) << "\n";
+	// New
+//	kr_factors = new KarpRabinFactorsSuffixesv2(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &factors_start);
+	
+	
+	
+//	kr_factors->hash(1, 3, 9);
+//	cout << "-----\n";
+//	kr_factors->hashFast(1, 3, 9);
+//	cout << "-----\n";
+//	const char *test_str = "ALASLALAB";
+//	cout << "RelzIndexHash - Testing KarpRabinFactorsSuffixes, hash: " << karp_rabin->hash(test_str, strlen(test_str)) << "\n";
+	
 	
 	
 	string index_y(index_base_file, strlen(index_base_file));
@@ -277,7 +284,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 			load_y = true;
 		}
 	}
-	load_y = false;
+//	load_y = false;
 	if( load_y ){
 		cout << "RelzIndexHash - Loading Tree Y\n";
 //		tree_y.load(karp_rabin, kr_factors, index_y);
