@@ -265,7 +265,7 @@ void HashTrieNode::save(fstream &writer){
 	
 }
 
-void HashTrieNode::load(fstream &reader, unsigned int processed, vector<unsigned int> &factors_start, const char *full_text){
+void HashTrieNode::load(fstream &reader){
 	
 	reader.read((char*)&len, sizeof(int));
 	reader.read((char*)&min, sizeof(int));
@@ -279,7 +279,7 @@ void HashTrieNode::load(fstream &reader, unsigned int processed, vector<unsigned
 		char child_first_char = 0;
 		reader.read((char*)&child_first_char, 1);
 		childs[child_first_char] = std::make_shared<HashTrieNode>();
-		childs[child_first_char]->load(reader, processed, factors_start, full_text);
+		childs[child_first_char]->load(reader);
 	}
 
 }
@@ -292,12 +292,12 @@ void HashTrie::save(const string &file){
 	cout << "HashTrie::save - End\n";
 }
 
-void HashTrie::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file, vector<unsigned int> &factors_start, const char *full_text){
+void HashTrie::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file){
 	cout << "HashTrie::load - Start (" << file << ")\n";
 	karp_rabin = _karp_rabin;
 	kr_factors = _kr_factors;
 	fstream reader(file, fstream::in);
-	root.load(reader, 0, factors_start, full_text);
+	root.load(reader);
 	reader.close();
 	cout << "HashTrie::load - End\n";
 }

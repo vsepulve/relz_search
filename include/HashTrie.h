@@ -51,7 +51,7 @@ public:
 	
 	void save(fstream &writer);
 	
-	void load(fstream &reader, unsigned int processed, vector<unsigned int> &factors_start, const char *full_text);
+	void load(fstream &reader);
 	
 };
 
@@ -78,7 +78,7 @@ public:
 	
 	void save(const string &file);
 	
-	void load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file, vector<unsigned int> &factors_start, const char *full_text);
+	void load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file);
 	
 	unsigned long long hash_nano;
 	
