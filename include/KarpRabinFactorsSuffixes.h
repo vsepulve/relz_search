@@ -20,49 +20,42 @@
 using namespace std;
 using namespace sdsl;
 
-class KarpRabinFactorsSuffixes{
+// For now this class is just an interface
+
+class KarpRabinFactorsSuffixes {
 
 protected: 
-	unsigned int n_factors;
-	// Estructura con los hash de cada prefijo, ordenado posicionalmente por factor
-	// Asi, el primer hash es 0, y el ultimmo (en la posicion *n_factors*) tiene el hash de la coleccion completa
-	vector<unsigned long long> *arr_kr_s;
-	KarpRabin *karp_rabin;
-	
-	// Reference text
-	// This should be replaced by the KarpRabinReference object
-	const char *ref_text;
-	
-	// Permutation to turn posicional factors to its id in the other data structures
-/*	inv_perm_support<> *perm_inv;*/
-	int_vector<> *pi_inv;
-	
-	// Si usamos la aceleracion de factores
-	vector<unsigned int> *arr_tu;
-	vector<unsigned int> *arr_pu;
-	vector<unsigned int> *arr_lu;
-	
-	vector<unsigned int> *factors_start;
 	
 public: 
 	
-	KarpRabinFactorsSuffixes();
-	KarpRabinFactorsSuffixes(unsigned int _n_factors, vector<unsigned long long> *_arr_kr_s, KarpRabin *_karp_rabin, const char *_ref_text, int_vector<> *_pi_inv, vector<unsigned int> *_arr_tu, vector<unsigned int> *_arr_pu, vector<unsigned int> *_arr_lu, vector<unsigned int> *_factors_start);
-	virtual ~KarpRabinFactorsSuffixes();
+	KarpRabinFactorsSuffixes(){}
+	virtual ~KarpRabinFactorsSuffixes(){}
 	
 	// Returns the hash from a suffix from a factor (positional), offset and length
-	unsigned long long hash(unsigned int factor_ini, unsigned int offset, unsigned int length);
+	virtual unsigned long long hash(unsigned int factor_ini, unsigned int offset, unsigned int length){
+		cerr << "KarpRabinFactorsSuffixes::hash - Not Implemented.\n";
+		return 0;
+	}
 	
 	// REturns the hash from the start of factor_ini (positional) of length length
-	unsigned long long hash(unsigned int factor_ini, unsigned int length);
+	virtual unsigned long long hash(unsigned int factor_ini, unsigned int length){
+		cerr << "KarpRabinFactorsSuffixes::hash - Not Implemented.\n";
+		return 0;
+	}
 	
 	// Returns the hash from a suffix from a factor (positional), offset and length
 	// Fast version, only valid for offset and length < karp_rabin->getTableSize()
-	unsigned long long hashFast(unsigned int factor_ini, unsigned int offset, unsigned int length);
+	virtual unsigned long long hashFast(unsigned int factor_ini, unsigned int offset, unsigned int length){
+		cerr << "KarpRabinFactorsSuffixes::hash - Not Implemented.\n";
+		return 0;
+	}
 	
 	// REturns the hash from the start of factor_ini (positional) of length length
 	// Fast version, only valid for offset and length < karp_rabin->getTableSize()
-	unsigned long long hashFast(unsigned int factor_ini, unsigned int length);
+	virtual unsigned long long hashFast(unsigned int factor_ini, unsigned int length){
+		cerr << "KarpRabinFactorsSuffixes::hash - Not Implemented.\n";
+		return 0;
+	}
 	
 	unsigned long long kr_nano;
 	
@@ -71,10 +64,7 @@ public:
 
 
 
-
-
-
-#endif //_TEXT_FILTER_H
+#endif 
 
 
 
