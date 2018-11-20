@@ -64,24 +64,17 @@ private:
 	vector<unsigned int> arr_pu;
 	vector<unsigned int> arr_lu;
 	
-	// Solo para pruebas
-//	bit_vector arr_s;
-//	bit_vector arr_b;
-//	int_vector<> ez;
-//	int_vector<> values_wt;
 	// Simplifacion del calculo de posicion de inicio de factor en coleccion 
 	vector<unsigned int> factors_start;
 	
-	// Cache de iteradores
-	unordered_map<unsigned int, FactorsIterator> mapa_iterators;
-	unordered_map<unsigned int, FactorsIteratorReverse> mapa_iterators_rev;
-	
-	// Falta la estructura para agregar efectivamente los resultados, quiza un vector de posiciones
 	void recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results);
 	
+	// Only for debug and only while building
 	char getChar(unsigned int factor, unsigned int pos);
-	
 	char getCharRev(unsigned int factor, unsigned int pos);
+	// Iterators cache for getChar
+	unordered_map<unsigned int, FactorsIterator> mapa_iterators;
+	unordered_map<unsigned int, FactorsIteratorReverse> mapa_iterators_rev;
 	
 public: 
 	RelzIndexHash();

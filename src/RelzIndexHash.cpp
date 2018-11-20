@@ -248,20 +248,10 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	timer.reset();
 	
 	// Original
-	kr_factors = new KarpRabinFactorsSuffixesv1(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
+//	kr_factors = new KarpRabinFactorsSuffixesv1(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
 	
 	// New
-//	kr_factors = new KarpRabinFactorsSuffixesv2(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &factors_start);
-	
-	
-	
-//	kr_factors->hash(1, 3, 9);
-//	cout << "-----\n";
-//	kr_factors->hashFast(1, 3, 9);
-//	cout << "-----\n";
-//	const char *test_str = "ALASLALAB";
-//	cout << "RelzIndexHash - Testing KarpRabinFactorsSuffixes, hash: " << karp_rabin->hash(test_str, strlen(test_str)) << "\n";
-	
+	kr_factors = new KarpRabinFactorsSuffixesv2(n_factors, &arr_kr_s, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv, &factors_start);
 	
 	
 	string index_y(index_base_file, strlen(index_base_file));
