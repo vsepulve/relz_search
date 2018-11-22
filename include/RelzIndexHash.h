@@ -79,7 +79,7 @@ private:
 public: 
 	RelzIndexHash();
 	RelzIndexHash(KarpRabin *_karp_rabin);
-	RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin, const char *index_base_file);
+	RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin);
 	~RelzIndexHash();
 	
 	// void find(const string &pattern, vector<unsigned int> &results);
