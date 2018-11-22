@@ -3,6 +3,7 @@
 KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(){
 	n_factors = 0;
 	arr_kr_s = NULL;
+	delete_krs = false;
 	karp_rabin = NULL;
 	ref_text = NULL;
 	select1_s = NULL;
@@ -10,6 +11,8 @@ KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(){
 	select0_b = NULL;
 	pi_inv = NULL;
 	factors_start = NULL;
+	delete_start = false;
+	
 	max_offset = 0;
 	max_length = 0;
 }
@@ -25,6 +28,7 @@ KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(unsigned int _n_factors,
 		vector<unsigned int> *_factors_start){
 	n_factors = _n_factors;
 	arr_kr_s = _arr_kr_s;
+	delete_krs = false;
 	karp_rabin = _karp_rabin;
 	if( arr_kr_s->size() < n_factors+1 ){
 		cout << "KarpRabinFactorsSuffixesv2 - Warning (insufficient prefixes, must include one for the whole collection)\n";
@@ -35,13 +39,50 @@ KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(unsigned int _n_factors,
 	select0_b = _select0_b;
 	pi_inv = _pi_inv;
 	factors_start = _factors_start;
+	delete_start = false;
+	
+	max_offset = 0;
+	max_length = 0;
+}
+
+KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(const string &file, 
+		KarpRabin *_karp_rabin, 
+		const char *_ref_text, 
+		bits_s_type::select_1_type *_select1_s, 
+		bits_b_type::select_1_type *_select1_b, 
+		bits_b_type::select_0_type *_select0_b, 
+		int_vector<> *_pi_inv){
+	// Basic variables loaded from file
+	n_factors = 0;
+	arr_kr_s = 0;
+	delete_krs = false;
+	factors_start = NULL;
+	delete_start = false;
+	load(file);
+	// External variables
+	karp_rabin = _karp_rabin;
+	ref_text = _ref_text;
+	select1_s = _select1_s;
+	select1_b = _select1_b;
+	select0_b = _select0_b;
+	pi_inv = _pi_inv;
+	
 	max_offset = 0;
 	max_length = 0;
 }
 
 KarpRabinFactorsSuffixesv2::~KarpRabinFactorsSuffixesv2(){
 	n_factors = 0;
+	if( delete_krs && arr_kr_s != NULL ){
+		arr_kr_s->clear();
+		delete arr_kr_s;
+	}
 	arr_kr_s = NULL;
+	if( delete_start && factors_start != NULL){
+		factors_start->clear();
+		delete factors_start;
+	}
+	factors_start = NULL;
 	karp_rabin = NULL;
 	ref_text = NULL;
 }
@@ -309,6 +350,120 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 	
 //	cout << "KarpRabinFactorsSuffixesv2::hash - End (kr_total: " << kr_total << ")\n";
 	return kr_total;
+	
+}
+
+void KarpRabinFactorsSuffixesv2::save(const string &file){
+//	n_factors = 0;
+//	arr_kr_s = 0;
+//	factors_start = 0;
+	
+	fstream writer(file, fstream::out | fstream::trunc);
+	
+	writer.write((char*)&n_factors, sizeof(int));
+	
+	unsigned int n_arr = arr_kr_s->size();
+	writer.write((char*)&n_arr, sizeof(int));
+	for(unsigned int i = 0; i < n_arr; ++i){
+		unsigned int kr = (unsigned int )(arr_kr_s->at(i));
+		writer.write((char*)&kr, sizeof(int));
+	}
+	
+	unsigned long long worst_case = 5 * factors_start->size();
+	unsigned char *buff = new unsigned char[ worst_case ];
+	unsigned long long cur_byte = 0;
+	BitsUtils utils;
+	unsigned int last = 0;
+	for(unsigned int i = 0; i < factors_start->size(); ++i){
+		unsigned int delta = factors_start->at(i) - last;
+		last = factors_start->at(i);
+		cur_byte += utils.write_varbyte(buff + cur_byte, delta);
+	}
+	writer.write((char*)&cur_byte, sizeof(long long));
+	writer.write((char*)buff, cur_byte);
+	
+	delete [] buff;
+	
+	writer.close();
+	
+	cout << "KarpRabinFactorsSuffixesv2::save - Verification\n";
+	cout << "n_factors: " << n_factors << " (arr_kr_s: " << arr_kr_s->size() << ", factors_start: " << factors_start->size() << ")\n";
+	for(unsigned int i = 0; i < 10; ++i){
+		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
+	}
+	for(unsigned int i = arr_kr_s->size() - 10; i < arr_kr_s->size(); ++i){
+		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
+	}
+	for(unsigned int i = 0; i < 10; ++i){
+		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
+	}
+	for(unsigned int i = factors_start->size() - 10; i < factors_start->size(); ++i){
+		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
+	}
+	cout << "KarpRabinFactorsSuffixesv2::save - Verification End\n";
+	
+	
+}
+
+void KarpRabinFactorsSuffixesv2::load(const string &file){
+//	n_factors = 0;
+//	arr_kr_s = 0;
+//	factors_start = 0;
+
+	fstream reader(file, fstream::in);
+	
+	n_factors = 0;
+	reader.read((char*)&n_factors, sizeof(int));
+	
+	delete_krs = true;
+	arr_kr_s = new vector<unsigned long long>();
+	
+	unsigned int n_arr = 0;
+	reader.read((char*)&n_arr, sizeof(int));
+	for(unsigned int i = 0; i < n_arr; ++i){
+		unsigned int kr = 0;
+		reader.read((char*)&kr, sizeof(int));
+		arr_kr_s->push_back(kr);
+	}
+	
+	unsigned long long total_bytes = 0;
+	reader.read((char*)&total_bytes, sizeof(long long));
+	
+	unsigned char *buff = new unsigned char[total_bytes];
+	reader.read((char*)buff, total_bytes);
+	
+	delete_start = true;
+	factors_start = new vector<unsigned int>();
+	
+	BitsUtils utils;
+	unsigned long long cur_byte = 0;
+	unsigned int sum = 0;
+	for(unsigned int i = 0; i < n_factors; ++i){
+		unsigned int delta = 0;
+		cur_byte += utils.read_varbyte(buff + cur_byte, delta);
+		sum += delta;
+		factors_start->push_back(sum);
+	}
+	
+	delete [] buff;
+	
+	reader.close();
+	
+	cout << "KarpRabinFactorsSuffixesv2::load - Verification\n";
+	cout << "n_factors: " << n_factors << " (arr_kr_s: " << arr_kr_s->size() << ", factors_start: " << factors_start->size() << ")\n";
+	for(unsigned int i = 0; i < 10; ++i){
+		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
+	}
+	for(unsigned int i = arr_kr_s->size() - 10; i < arr_kr_s->size(); ++i){
+		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
+	}
+	for(unsigned int i = 0; i < 10; ++i){
+		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
+	}
+	for(unsigned int i = factors_start->size() - 10; i < factors_start->size(); ++i){
+		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
+	}
+	cout << "KarpRabinFactorsSuffixesv2::load - Verification End\n";
 	
 }
 

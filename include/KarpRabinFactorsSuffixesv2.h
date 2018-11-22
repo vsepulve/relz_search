@@ -16,6 +16,7 @@
 #include "KarpRabin.h"
 #include "KarpRabinFactorsSuffixes.h"
 #include "FactorsConfig.h"
+#include "BitsUtils.h"
 
 using namespace std;
 using namespace sdsl;
@@ -27,6 +28,8 @@ protected:
 	// Estructura con los hash de cada prefijo, ordenado posicionalmente por factor
 	// Asi, el primer hash es 0, y el ultimmo (en la posicion *n_factors*) tiene el hash de la coleccion completa
 	vector<unsigned long long> *arr_kr_s;
+	bool delete_krs;
+	
 	KarpRabin *karp_rabin;
 	
 	// Reference text
@@ -42,6 +45,7 @@ protected:
 	int_vector<> *pi_inv;
 	
 	vector<unsigned int> *factors_start;
+	bool delete_start;
 	
 public: 
 	
@@ -56,6 +60,14 @@ public:
 			bits_b_type::select_0_type *_select0_b, 
 			int_vector<> *_pi_inv, 
 			vector<unsigned int> *_factors_start);
+	
+	KarpRabinFactorsSuffixesv2(const string &file, 
+			KarpRabin *_karp_rabin, 
+			const char *_ref_text, 
+			bits_s_type::select_1_type *_select1_s, 
+			bits_b_type::select_1_type *_select1_b, 
+			bits_b_type::select_0_type *_select0_b, 
+			int_vector<> *_pi_inv);
 			
 	virtual ~KarpRabinFactorsSuffixesv2();
 	
@@ -73,7 +85,9 @@ public:
 	// Fast version, only valid for offset and length < karp_rabin->getTableSize()
 	unsigned long long hashFast(unsigned int factor_ini, unsigned int length);
 	
-//	unsigned long long kr_nano;
+	void save(const string &file);
+	
+	void load(const string &file);
 	
 };
 
