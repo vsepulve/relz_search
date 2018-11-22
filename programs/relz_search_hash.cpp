@@ -68,7 +68,8 @@ int main(int argc, char* argv[]){
 	unsigned int bits = 8;
 //	unsigned int mod = 787;
 	unsigned int mod = 15485863;
-	KarpRabin karp_rabin(bits, mod, 1100000000);
+//	KarpRabin karp_rabin(bits, mod, 1100000000);
+	KarpRabin karp_rabin(bits, mod, 10000000);
 	vector<unsigned int> results;
 	RelzIndexHash index(factors, text, len_text, ref, len_ref, &karp_rabin, input);
 //	KarpRabinFactorsSuffixes *kr_factors = index.getKRFactors();
@@ -128,6 +129,9 @@ int main(int argc, char* argv[]){
 	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
 	
 	cout << "kr_factors - max_offset: " <<  index.kr_factors->max_offset << ", max_length: " <<  index.kr_factors->max_length << "\n";
+	cout << "KarpRabin max used length: " <<  karp_rabin.max_len << "\n";
+	
+	
 	
 	delete reference;
 
