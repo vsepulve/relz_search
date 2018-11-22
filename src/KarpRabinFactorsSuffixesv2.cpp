@@ -111,7 +111,7 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 		++factor_cur;
 //		cout << "KarpRabinFactorsSuffixesv2::hash - karp_rabin->subtract_prefix (lu: " << lu << ")\n";
 		unsigned long long kr_phrase = karp_rabin->subtract_prefix(arr_kr_s->at(factor_cur), arr_kr_s->at(factor_cur-1), lu);
-//		cout << "KarpRabinFactorsSuffixesv2::hash - Adding tu current hash\n";
+//		cout << "KarpRabinFactorsSuffixesv2::hash - Adding to current hash\n";
 		kr1 = karp_rabin->concat(kr1, kr_phrase, lu);
 //		cout << "KarpRabinFactorsSuffixesv2::hash - cur kr1: " << kr1 << "\n";
 		

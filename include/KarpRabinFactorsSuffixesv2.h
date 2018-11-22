@@ -32,6 +32,14 @@ protected:
 	
 	KarpRabin *karp_rabin;
 	
+	vector<unsigned int> *factors_start;
+	bool delete_start;
+	
+public: 
+	
+	
+	// Public while testing, to give easy acces to HashTrie
+	
 	// Reference text
 	// This should be replaced by the KarpRabinReference object
 	const char *ref_text;
@@ -44,10 +52,7 @@ protected:
 	// Permutation to turn positional factors to its id
 	int_vector<> *pi_inv;
 	
-	vector<unsigned int> *factors_start;
-	bool delete_start;
 	
-public: 
 	
 	KarpRabinFactorsSuffixesv2();
 	
@@ -88,6 +93,8 @@ public:
 	void save(const string &file);
 	
 	void load(const string &file);
+	
+	
 	
 };
 
