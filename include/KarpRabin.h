@@ -22,14 +22,8 @@ protected:
 	unsigned int table_size;
 	unsigned int *pow_table;
 	
-	// Direct version (*x, y times)
-	unsigned long long ullpow(unsigned long long x, unsigned int y);
-	
-	// Base 2 bits version, recursive to avoid overflow
-	unsigned long long ullpow2_rec(unsigned int bits, unsigned int y);
-	
 	// Version using precomputed table
-	unsigned long long ullpow2_table(unsigned int bits, unsigned int y);
+	unsigned long long ullpow2(unsigned int bits, unsigned int y);
 	
 	// Returns the start from the first factor greater than start, from the sorted array
 	unsigned int nextFactor(unsigned int start, vector<unsigned int> &factors_start);
@@ -63,6 +57,8 @@ public:
 	void hashPrefixes(const string &pattern, vector<unsigned long long> &kr_vector);
 	
 	void hashPrefixesRev(const string &pattern, vector<unsigned long long> &kr_rev_vector);
+	
+	unsigned int max_len;
 	
 };
 
