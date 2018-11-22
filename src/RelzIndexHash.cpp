@@ -389,10 +389,10 @@ void RelzIndexHash::printSize(){
 
 void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &results){
 	
-	cout << "RelzIndexHash::findTimes - Start (\"" << pattern << "\")\n";
+//	cout << "RelzIndexHash::findTimes - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
 	
-	cout << "RelzIndexHash::findTimes - Section A, reference\n";
+//	cout << "RelzIndexHash::findTimes - Section A, reference\n";
 	
 	size_t m = pattern.size();
 	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
@@ -420,7 +420,7 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 	}
 	querytime_p2 += timer.getNanosec();
 	
-	cout << "RelzIndexHash::findTimes - Section B, ranges\n";
+//	cout << "RelzIndexHash::findTimes - Section B, ranges\n";
 	
 	vector<unsigned long long> kr_pat_vector;
 	vector<unsigned long long> kr_pat_rev_vector;
@@ -431,35 +431,35 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 	for(unsigned int i = 0; i < pattern.length(); ++i){
 		pattern_rev += pattern[pattern.length() - 1 - i];
 	}
-	cout << "-----  pattern: " << pattern << " -----\n";
-	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
+//	cout << "-----  pattern: " << pattern << " -----\n";
+//	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
 	
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
 		
-		cout << "-----  tree_x.getRange -----\n";
+//		cout << "-----  tree_x.getRange -----\n";
 		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
 		querytime_p3x += timer.getNanosec();
 		timer.reset();
-		cout << "-----\n";
+//		cout << "-----\n";
 		
 		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
 			continue;
 		}
 		
-		cout << "-----  tree_y.getRange -----\n";
+//		cout << "-----  tree_y.getRange -----\n";
 		pair<unsigned int, unsigned int> r2 = tree_y.getRange(kr_pat_vector, i, pattern);
 		querytime_p3y += timer.getNanosec();
 		timer.reset();
-		cout << "-----\n";
+//		cout << "-----\n";
 		
 		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 			continue;
 		}
 		
-		cout << "RelzIndexHash::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+//		cout << "RelzIndexHash::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
-		cout << "RelzIndexHash::findTimes - Adding " << res.second.size() << " points\n";
+//		cout << "RelzIndexHash::findTimes - Adding " << res.second.size() << " points\n";
 		for (auto point : res.second){
 			unsigned int f = arr_y[point.second];
 			unsigned int pu = select1_b(f + 1);
@@ -468,31 +468,31 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 			bool omit = false;
 			
 			FactorsIteratorReverse it_x(f-1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
-			cout << "text_x: ";
+//			cout << "text_x: ";
 			for(unsigned int pos = 0; pos < i; ++pos){
 				char c = it_x.next();
-				cout << c << "|" << pattern[ i - 1 - pos ] << " ";
+//				cout << c << "|" << pattern[ i - 1 - pos ] << " ";
 				if( c != pattern[ i - 1 - pos ] ){
 					omit = true;
 					break;
 				}
 			}
-			cout << "\n";
+//			cout << "\n";
 			
 			FactorsIterator it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
-			cout << "text_y: ";
+//			cout << "text_y: ";
 			for(unsigned int pos = 0; pos < pattern.length()-i; ++pos){
 				char c = it_y.next();
-				cout << c << "|" << pattern[ i + pos ] << " ";
+//				cout << c << "|" << pattern[ i + pos ] << " ";
 				if( c != pattern[ i + pos ] ){
 					omit = true;
 					break;
 				}
 			}
-			cout << "\n";
+//			cout << "\n";
 			
 			if( omit ){
-				cout << "RelzIndexHash::findTimes - Omiting bad result.\n";
+//				cout << "RelzIndexHash::findTimes - Omiting bad result.\n";
 				continue;
 			}
 			
@@ -503,7 +503,7 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 		
 	}
 	
-	cout << "RelzIndexHash::findTimes - End\n";
+//	cout << "RelzIndexHash::findTimes - End\n";
 	
 }
 
@@ -712,7 +712,7 @@ void RelzIndexHash::save(const string &file_base){
 	
 	// KarpRabinFactorsSuffixes
 	string krs_file = file_base + ".krsuffixes";
-//	kr_factors->save(krs_file);
+	kr_factors->save(krs_file);
 	
 	// tree_x
 	string tree_x_file = file_base + ".index.x";
@@ -820,10 +820,11 @@ void RelzIndexHash::load(const string &file_base, KarpRabin *_karp_rabin){
 	// KarpRabin (from parameter)
 	karp_rabin = _karp_rabin;
 	
-	// KarpRabinFactorsSuffixes
+	// KarpRabinFactorsSuffixes																				
 	string krs_file = file_base + ".krsuffixes";
-	kr_factors = new KarpRabinFactorsSuffixesv2();
-//	kr_factors->load(krs_file);
+	// Instead of a load, we use a builder here to load, to pass the more specific parameters
+	// kr_factors->load(krs_file);
+	kr_factors = new KarpRabinFactorsSuffixesv2(krs_file, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
 	
 	// tree_x
 	string tree_x_file = file_base + ".index.x";
