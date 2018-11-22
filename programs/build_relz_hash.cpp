@@ -65,7 +65,7 @@ int main(int argc, char* argv[]){
 //	KarpRabin karp_rabin(bits, mod, 1100000000);
 	KarpRabin karp_rabin(bits, mod, 10000000);
 //	RelzIndex index(factors, text, len_text, ref, len_ref, delete_text);
-	RelzIndexHash index(factors, text, len_text, ref, len_ref, &karp_rabin, input);
+	RelzIndexHash index(factors, text, len_text, ref, len_ref, &karp_rabin);
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index.printSize();
 	

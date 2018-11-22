@@ -71,7 +71,7 @@ int main(int argc, char* argv[]){
 //	KarpRabin karp_rabin(bits, mod, 1100000000);
 	KarpRabin karp_rabin(bits, mod, 10000000);
 	vector<unsigned int> results;
-	RelzIndexHash index(factors, text, len_text, ref, len_ref, &karp_rabin, input);
+	RelzIndexHash index(factors, text, len_text, ref, len_ref, &karp_rabin);
 //	KarpRabinFactorsSuffixes *kr_factors = index.getKRFactors();
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index.printSize();
