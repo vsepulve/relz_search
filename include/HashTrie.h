@@ -20,6 +20,7 @@
 #include "NanoTimer.h"
 #include "KarpRabin.h"
 #include "KarpRabinFactorsSuffixes.h"
+#include "KarpRabinFactorsSuffixesv2.h"
 
 using namespace std;
 
@@ -98,7 +99,7 @@ public:
 	
 	// To simplify tge code, I add the text to evaluate prefix hash
 	// Obviously this text can be accesed from the reference at querytime (its only 1 factor)
-	string text;
+//	string text;
 	
 	// Structure for chidls, indexed by first char
 	unordered_map<char, shared_ptr<HashTrieRevNode>> childs;
