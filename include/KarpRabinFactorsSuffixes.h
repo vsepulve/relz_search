@@ -57,6 +57,14 @@ public:
 		return 0;
 	}
 	
+	virtual void save(const string &file){
+		cerr << "KarpRabinFactorsSuffixes::save - Not Implemented.\n";
+	}
+	
+	virtual void load(const string &file){
+		cerr << "KarpRabinFactorsSuffixes::save - Not Implemented.\n";
+	}
+	
 	unsigned long long kr_nano;
 	unsigned int max_offset;
 	unsigned int max_length;
