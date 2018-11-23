@@ -3,7 +3,6 @@
 RelzIndexReference::RelzIndexReference(){
 	len_text = 0;
 	ref_text = NULL;
-//	len_ref = 0;
 	n_factors = 0;
 }
 
@@ -13,10 +12,6 @@ RelzIndexReference::RelzIndexReference(vector<pair<unsigned int, unsigned int> >
 	n_factors = factors.size();
 	
 	ref_text = new CompactedText(_ref_text, _len_ref);
-//	len_ref = _len_ref;
-//	ref_text = new char[_len_ref + 1];
-//	memcpy(ref_text, _ref_text, _len_ref);
-//	ref_text[_len_ref] = 0;
 	
 	NanoTimer timer;
 	
@@ -543,17 +538,13 @@ void RelzIndexReference::save(const string &file_base){
 	string index_basic_file = file_base + ".base";
 	fstream writer(index_basic_file, fstream::out | fstream::trunc);
 	// Version of the index
-	unsigned char version = 1;
+	unsigned char version = 2;
 	writer.write((char*)&version, 1);
 	// len_text
 	writer.write((char*)&len_text, sizeof(int));
 	// n_factors
 	writer.write((char*)&n_factors, sizeof(int));
-	
-//	// len_ref
-//	writer.write((char*)&len_ref, sizeof(int));
-//	// Reference Text
-//	writer.write((char*)ref_text, len_ref);
+	// ref_text
 	ref_text->save(&writer);
 	
 	// Close Base
@@ -607,7 +598,7 @@ void RelzIndexReference::load(const string &file_base){
 	// Version of the index
 	unsigned char version = 0;
 	reader.read((char*)&version, 1);
-	if( version != 1 ){
+	if( version != 2 ){
 		cout << "RelzIndexReference::load - Wrong Version\n";
 		return;
 	}
@@ -615,20 +606,10 @@ void RelzIndexReference::load(const string &file_base){
 	reader.read((char*)&len_text, sizeof(int));
 	// n_factors
 	reader.read((char*)&n_factors, sizeof(int));
-	
-//	// len_ref
-//	reader.read((char*)&len_ref, sizeof(int));
-//	// Reference Text
-//	if( ref_text != NULL ){
-//		delete [] ref_text;
-//		ref_text = NULL;
-//	}
-//	ref_text = new char[len_ref + 1];
-//	reader.read((char*)ref_text, len_ref);
-//	ref_text[len_ref] = 0;
+	// ref_text
 	ref_text = new CompactedText();
 	ref_text->load(&reader);
-		
+	
 	// Close Base
 	reader.close();
 	
