@@ -6,6 +6,8 @@ void FactorsIterator::loadFactor(unsigned int f, bool reset){
 //	cout << "FactorsIterator::loadFactor - Cargando factor " << f << "\n";
 	cur_f = f;
 	if( cur_f == (unsigned int)(-1) || cur_f >= n_factors){
+		text_length = 0;
+		text_pos = 0;
 		return;
 	}
 	// Convertir el factor posicional creciente a la posicion EN la permutacion
@@ -97,9 +99,6 @@ char FactorsIterator::next(){
 }
 
 bool FactorsIterator::hasNext(){
-//	cout << "FactorsIterator::hasNext - " << cur_pos << " <= " << cur_f_fin << "?\n";
-//	if( cur_pos <= cur_f_fin ){
-//	if( cur_pos <= cur_f_fin && cur_f >= 0 && cur_f < n_factors ){
 	if( text_pos < text_length ){
 		return true;
 	}
@@ -120,7 +119,8 @@ void FactorsIteratorReverse::loadFactor(unsigned int f, bool reset){
 //	cout << "FactorsIteratorReverse::loadFactor - Cargando factor " << f << "\n";
 	cur_f = f;
 	if( cur_f == (unsigned int)(-1) || cur_f >= n_factors){
-//		cout << "FactorsIteratorReverse::loadFactor - Factor invalido\n";
+		text_length = 0;
+		text_pos = 0;
 		return;
 	}
 	// Convertir el factor posicional creciente a la posicion EN la permutacion 
@@ -138,15 +138,8 @@ void FactorsIteratorReverse::loadFactor(unsigned int f, bool reset){
 	if(reset){
 		// Notar que este texto INCLUYE al factor actual
 		// El llamador obviamente pide el prefijo de f inverso como (f-1)
-//		text_length = pu + lu;
 		text_length = lu;
 		text_pos = 0;
-//		unsigned int len = ((text_length<max_length)?text_length:max_length);
-//		string original = extract(*fm_index, cur_pos - len, cur_pos);
-//		str_f = "";
-//		for(unsigned int i = 0; i < len; ++i){
-//			str_f += original[len - i - 1];
-//		}
 	}
 }
 
@@ -196,7 +189,6 @@ FactorsIteratorReverse::FactorsIteratorReverse( unsigned int _start_f, unsigned 
 }
 
 void FactorsIteratorReverse::reset(){
-//	cout << "FactorsIteratorReverse::reset\n";
 	loadFactor( start_f, true );
 }
 
@@ -213,16 +205,10 @@ char FactorsIteratorReverse::next(){
 	}
 	--cur_pos;
 	++text_pos;
-//	if( (cur_pos < cur_f_ini || cur_pos == (unsigned int)(-1)) && (--cur_f != (unsigned int)(-1)) ){
-//		loadFactor(cur_f);
-//	}
 	return ret;
 }
 
 bool FactorsIteratorReverse::hasNext(){
-//	cout << "FactorsIteratorReverse::hasNext - " << text_pos << " < " << text_length << " ? \n";
-//	if( cur_f != (unsigned int)(-1) ){
-//	if( cur_f >= 0 && cur_f < n_factors ){
 	if( text_pos < text_length ){
 		return true;
 	}
