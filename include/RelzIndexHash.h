@@ -69,13 +69,6 @@ private:
 	
 	void recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results);
 	
-	// Only for debug and only while building
-	char getChar(unsigned int factor, unsigned int pos);
-	char getCharRev(unsigned int factor, unsigned int pos);
-	// Iterators cache for getChar
-	unordered_map<unsigned int, FactorsIterator> mapa_iterators;
-	unordered_map<unsigned int, FactorsIteratorReverse> mapa_iterators_rev;
-	
 public: 
 	RelzIndexHash();
 	RelzIndexHash(KarpRabin *_karp_rabin);
