@@ -1,5 +1,5 @@
-#ifndef _FACTORS_ITERATOR_H
-#define _FACTORS_ITERATOR_H
+#ifndef _FACTORS_ITERATOR_COMPACTED_H
+#define _FACTORS_ITERATOR_COMPACTED_H
 
 #include <stdio.h>
 #include <stdlib.h>
