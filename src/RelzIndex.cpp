@@ -129,14 +129,15 @@ RelzIndex::RelzIndex(vector<pair<unsigned int, unsigned int> > &factors, char *f
 		arr_x[i] = arr_x_original[i];
 	}
 	
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 20 && (c = getCharRev(arr_x[i] - 1, k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+		char c = 0;
+		FactorsIteratorReverse it(arr_x[i] - 1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
+		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
+			cout << c;
+		cout << "\n";
+	}
+	cout << "-----\n";
 	
 	cout << "RelzIndex - Preparing arr Y\n";
 	
@@ -154,15 +155,16 @@ RelzIndex::RelzIndex(vector<pair<unsigned int, unsigned int> > &factors, char *f
 		arr_y_inv[ arr_y_original[i] ] = i;
 	}
 	
-//	for( unsigned int i = 0; i < n_factors; ++i ){
-//		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
-//		char c = 0;
-//		for(unsigned int k = 0; k < 20 && (c = getChar(arr_y[i], k)) != 0; ++k ) 
-//			cout << c;
-//		cout << "\n";
-//	}
-//	cout << "-----\n";
-
+	for( unsigned int i = 0; i < n_factors; ++i ){
+		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
+		char c = 0;
+		FactorsIterator it(arr_y[i], n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
+		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
+			cout << c;
+		cout << " (" << it.length() << ")\n";
+	}
+	cout << "-----\n";
+	
 	cout << "RelzIndex - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
@@ -321,52 +323,6 @@ void RelzIndex::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int m
 	if( pos_max < fin ){
 		recursive_rmq(pos_max+1, fin, min_pos, occ_ref, results);
 	}
-}
-
-char RelzIndex::getChar(unsigned int factor, unsigned int pos, unsigned int max_len){
-	
-	// Iterators cache
-	if( mapa_iterators.find(factor) == mapa_iterators.end() ){
-		mapa_iterators[factor] = FactorsIterator(factor, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
-	}
-	FactorsIterator it = mapa_iterators[factor];
-	if( pos >= it.length() ){
-		return 0;
-	}
-	it.setMaxLength(max_len);
-	if( it.position() > pos ){
-		it.reset();
-	}
-	char c = 0;
-	while( it.position() <= pos ){
-		c = it.next();
-	}
-	return c;
-}
-
-char RelzIndex::getCharRev(unsigned int factor, unsigned int pos, unsigned int max_len){
-	
-	if( factor == (unsigned int)(-1) ){
-		return 0;
-	}
-	
-	// Iterators cache
-	if( mapa_iterators_rev.find(factor) == mapa_iterators_rev.end() ){
-		mapa_iterators_rev[factor] = FactorsIteratorReverse(factor, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
-	}
-	FactorsIteratorReverse it = mapa_iterators_rev[factor];
-	if( pos >= it.length() ){
-		return 0;
-	}
-	it.setMaxLength(max_len);
-	if( it.position() > pos ){
-		it.reset();
-	}
-	char c = 0;
-	while( it.position() <= pos ){
-		c = it.next();
-	}
-	return c;
 }
 
 template <typename ItereatorType>

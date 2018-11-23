@@ -68,14 +68,6 @@ private:
 	template <typename ItereatorType>
 	bool factorLess(unsigned int factor, const char *pattern, unsigned int len, bool equal = false);
 	
-	// Testing methods, just to debbug
-	char getChar(unsigned int factor, unsigned int pos, unsigned int max_len = 100);
-	char getCharRev(unsigned int factor, unsigned int pos, unsigned int max_len = 100);
-	
-	// Iterators for getChar, just to debbug
-	unordered_map<unsigned int, FactorsIterator> mapa_iterators;
-	unordered_map<unsigned int, FactorsIteratorReverse> mapa_iterators_rev;
-	
 public: 
 	RelzIndex();
 	RelzIndex(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, bool _omit_text = false);
