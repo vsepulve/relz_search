@@ -33,6 +33,7 @@ add_executable(relz_search_hash_v2 "${CMAKE_SOURCE_DIR}/programs/relz_search_has
 add_executable(clean_text "${CMAKE_SOURCE_DIR}/programs/clean_text.cpp")
 add_executable(generate_queries "${CMAKE_SOURCE_DIR}/programs/generate_queries.cpp")
 add_executable(test_karp_rabin "${CMAKE_SOURCE_DIR}/programs/test_karp_rabin.cpp")
+add_executable(test_compacted_text "${CMAKE_SOURCE_DIR}/programs/test_compacted_text.cpp")
 
 add_library(relz SHARED ${SOURCES})
 link_directories(${CMAKE_BINARY_DIR})
@@ -51,6 +52,7 @@ target_link_libraries(relz_search_hash_v2 relz pthread sdsl divsufsort divsufsor
 target_link_libraries(clean_text)
 target_link_libraries(generate_queries)
 target_link_libraries(test_karp_rabin relz pthread sdsl divsufsort divsufsort64)
+target_link_libraries(test_compacted_text relz pthread sdsl divsufsort divsufsort64)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "/usr/" CACHE PATH "default install path" FORCE )
