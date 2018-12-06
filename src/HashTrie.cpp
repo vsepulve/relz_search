@@ -121,13 +121,20 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 //			cout << "HashTrieNode::build - Omiting child of len 0\n";
 		}
 		else{
-			childs[first_char] = std::make_shared<HashTrieNode>();
-			childs[first_char]->len = min_text_len;
-			childs[first_char]->min = min_pos;
-			childs[first_char]->max = cur_pos;
-			childs[first_char]->hash = hash;
-//			childs[first_char]->min_factor_pos = (*arr_y)[min_pos];
-			childs[first_char]->build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
+			
+//			childs[first_char] = std::make_shared<HashTrieNode>();
+//			childs[first_char]->len = min_text_len;
+//			childs[first_char]->min = min_pos;
+//			childs[first_char]->max = cur_pos;
+//			childs[first_char]->hash = hash;
+//			childs[first_char]->build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
+			
+			childs_vector.push_back(pair<char, HashTrieNode>(first_char, HashTrieNode()));
+			childs_vector.back().second.len = min_text_len;
+			childs_vector.back().second.min = min_pos;
+			childs_vector.back().second.max = cur_pos;
+			childs_vector.back().second.hash = hash;
+			childs_vector.back().second.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
 		}
 		
 //		cout << "HashTrieNode::build - Preparing min_pos = " << cur_pos+1 << " / " << arr_y->size() << "\n";
@@ -140,6 +147,8 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 //		cout << "HashTrieNode::build - min_text_start: " << min_text_start << "\n";
 	
 	}
+	
+//	std::sort(childs_vector.begin(), childs_vector.end());
 	
 //	cout << "----- \n";
 	
@@ -195,6 +204,21 @@ pair<unsigned int, unsigned int> HashTrie::getRange(vector<unsigned long long> &
 	return root.getRange(kr_pat_vector, pos, 0, karp_rabin, kr_factors, arr_y, pattern, &hash_nano);
 }
 
+unsigned int HashTrieNode::findChild(char c){
+	
+//	if(childs_vector.size() < 1){
+//		return 0xffffffff;
+//	}
+//	// Busqueda Binaria
+	
+	for(unsigned int i = 0; i < childs_vector.size(); ++i){
+		if( c == childs_vector[i].first ){
+			return i;
+		}
+	}
+	return 0xffffffff;
+}
+
 pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, const string &pattern, unsigned long long *hash_nano){
 	
 //	cout << "HashTrieNode::getRange - Start (prefixes: " << kr_pat_vector.size() << ", pos: " << pos << ", processed: " << processed << ")\n";
@@ -212,6 +236,41 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long lon
 	string pat = pattern.substr(pos + processed, pat_len);
 //	cout << "HashTrieNode::getRange - pat: " << pat << "\n";
 	
+	unsigned int pos_child = findChild(first_char_pat);
+	if( pos_child != 0xffffffff ){
+		child_len = childs_vector[pos_child].second.len;
+		if( child_len <= pat_len ){
+//			cout << "HashTrieNode::getRange - Case 1, child_len: " << child_len << "\n";
+			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[pos + processed + child_len - 1], kr_pat_vector[pos + processed - 1], child_len);
+			string pat_cut = pattern.substr(pos + processed, child_len);
+//			cout << "HashTrieNode::getRange - pat_cut: " << pat_cut << " hash_pat: " << hash_pat << " / " << karp_rabin->hash(pat_cut) << " (processed: " << processed << ")\n";
+			if( hash_pat == childs_vector[pos_child].second.hash ){
+//				cout << "HashTrieNode::getRange - Child found -> [" << childs_vector[pos_child].second.min << ", " << childs_vector[pos_child].second.max << "]\n";
+				return childs_vector[pos_child].second.getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, pattern, hash_nano);
+			}
+		}
+		else{
+//			cout << "HashTrieNode::getRange - Case 2, child_len: " << child_len << "\n";
+			
+			unsigned int min_factor_pos = (*arr_y)[childs_vector[pos_child].second.min];
+			
+//			cout << "Node: \n";
+//			childs_vector[pos_child].second.print(0);
+			// Caso de borde detectado a veces en kr_factors->hashFast(childs_vector[pos_child].second.min_factor_pos, processed, pat_len
+			
+			unsigned long long hash = kr_factors->hashFast(min_factor_pos, processed, pat_len);
+			
+			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
+//			cout << "HashTrieNode::getRange - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
+			if( hash == hash_pat ){
+//				cout << "HashTrieNode::getRange - Child found -> [" << childs_vector[pos_child].second.min << ", " << childs_vector[pos_child].second.max << "]\n";
+				return pair<unsigned int, unsigned int>(childs_vector[pos_child].second.min, childs_vector[pos_child].second.max);
+			}
+		}
+	}
+	
+	
+	/*
 	auto it_child = childs.find(first_char_pat);
 	if(it_child != childs.end()){
 		child_len = it_child->second->len;
@@ -243,9 +302,10 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long lon
 //				cout << "HashTrieNode::getRange - Child found -> [" << it_child->second->min << ", " << it_child->second->max << "]\n";
 				return pair<unsigned int, unsigned int>(it_child->second->min, it_child->second->max);
 			}
-			
 		}
 	}
+	*/
+	
 	
 //	cout << "HashTrieNode::getRange - Pattern NOT found\n";
 	return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
@@ -283,8 +343,13 @@ void HashTrieNode::load(fstream &reader){
 	for(unsigned int i = 0; i < n_childs; ++i){
 		char child_first_char = 0;
 		reader.read((char*)&child_first_char, 1);
-		childs[child_first_char] = std::make_shared<HashTrieNode>();
-		childs[child_first_char]->load(reader);
+		
+//		childs[child_first_char] = std::make_shared<HashTrieNode>();
+//		childs[child_first_char]->load(reader);
+		
+		childs_vector.push_back(pair<char, HashTrieNode>(child_first_char, HashTrieNode()));
+		childs_vector.back().second.load(reader);
+		
 	}
 
 }

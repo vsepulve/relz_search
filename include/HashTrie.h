@@ -25,6 +25,9 @@
 using namespace std;
 
 class HashTrieNode{
+	
+	// Returns 0xffffffff in case of not found
+	unsigned int findChild(char c);
 
 public: 
 
@@ -38,6 +41,8 @@ public:
 	
 	// Structure for chidls, indexed by first char
 	map<char, shared_ptr<HashTrieNode>> childs;
+	
+	vector<pair<char, HashTrieNode>> childs_vector;
 	
 	HashTrieNode();
 	~HashTrieNode();
