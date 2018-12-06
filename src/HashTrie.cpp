@@ -34,7 +34,7 @@ HashTrieNode::HashTrieNode(){
 	min = 0;
 	max = 0;
 	hash = 0;
-	min_factor_pos = 0;
+//	min_factor_pos = 0;
 }
 
 HashTrieNode::~HashTrieNode(){
@@ -126,7 +126,7 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 			childs[first_char]->min = min_pos;
 			childs[first_char]->max = cur_pos;
 			childs[first_char]->hash = hash;
-			childs[first_char]->min_factor_pos = (*arr_y)[min_pos];
+//			childs[first_char]->min_factor_pos = (*arr_y)[min_pos];
 			childs[first_char]->build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
 		}
 		
@@ -192,10 +192,10 @@ void HashTrie::printSize(){
 }
 
 pair<unsigned int, unsigned int> HashTrie::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, const string &pattern){
-	return root.getRange(kr_pat_vector, pos, 0, karp_rabin, kr_factors, pattern, &hash_nano);
+	return root.getRange(kr_pat_vector, pos, 0, karp_rabin, kr_factors, arr_y, pattern, &hash_nano);
 }
 
-pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, const string &pattern, unsigned long long *hash_nano){
+pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, const string &pattern, unsigned long long *hash_nano){
 	
 //	cout << "HashTrieNode::getRange - Start (prefixes: " << kr_pat_vector.size() << ", pos: " << pos << ", processed: " << processed << ")\n";
 	
@@ -222,17 +222,19 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long lon
 //			cout << "HashTrieNode::getRange - pat_cut: " << pat_cut << " hash_pat: " << hash_pat << " / " << karp_rabin->hash(pat_cut) << " (processed: " << processed << ")\n";
 			if( hash_pat == it_child->second->hash ){
 //				cout << "HashTrieNode::getRange - Child found -> [" << it_child->second->min << ", " << it_child->second->max << "]\n";
-				return it_child->second->getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, pattern, hash_nano);
+				return it_child->second->getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, pattern, hash_nano);
 			}
 		}
 		else{
 //			cout << "HashTrieNode::getRange - Case 2, child_len: " << child_len << "\n";
 			
+			unsigned int min_factor_pos = (*arr_y)[it_child->second->min];
+			
 //			cout << "Node: \n";
 //			it_child->second->print(0);
 			// Caso de borde detectado a veces en kr_factors->hashFast(it_child->second->min_factor_pos, processed, pat_len
 			
-			unsigned long long hash = kr_factors->hashFast(it_child->second->min_factor_pos, processed, pat_len);
+			unsigned long long hash = kr_factors->hashFast(min_factor_pos, processed, pat_len);
 			
 			
 			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
@@ -255,7 +257,7 @@ void HashTrieNode::save(fstream &writer){
 	writer.write((char*)&min, sizeof(int));
 	writer.write((char*)&max, sizeof(int));
 	writer.write((char*)&hash, sizeof(int));
-	writer.write((char*)&min_factor_pos, sizeof(int));
+//	writer.write((char*)&min_factor_pos, sizeof(int));
 	
 	unsigned int n_childs = childs.size();
 	writer.write((char*)&n_childs, sizeof(int));
@@ -273,6 +275,7 @@ void HashTrieNode::load(fstream &reader){
 	reader.read((char*)&min, sizeof(int));
 	reader.read((char*)&max, sizeof(int));
 	reader.read((char*)&hash, sizeof(int));
+	// Lo dejo temporalmente por legacy
 	reader.read((char*)&min_factor_pos, sizeof(int));
 	
 	unsigned int n_childs = 0;
@@ -341,7 +344,7 @@ HashTrieRevNode::HashTrieRevNode(){
 	min = 0;
 	max = 0;
 	hash = 0;
-	min_factor_pos = 0;
+//	min_factor_pos = 0;
 }
 
 HashTrieRevNode::~HashTrieRevNode(){
@@ -473,7 +476,7 @@ void HashTrieRevNode::build(const char *full_text, unsigned int len_text, vector
 			childs[first_char]->min = min_pos;
 			childs[first_char]->max = cur_pos;
 			childs[first_char]->hash = hash;
-			childs[first_char]->min_factor_pos = (*arr_x)[min_pos];
+//			childs[first_char]->min_factor_pos = (*arr_x)[min_pos];
 			childs[first_char]->build(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_common_text);
 		}
 		
@@ -545,10 +548,10 @@ void HashTrieRev::printSize(){
 }
 
 pair<unsigned int, unsigned int> HashTrieRev::getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, const string &pattern_rev){
-	return root.getRange(kr_pat_rev_vector, pos, 0, karp_rabin, kr_factors, pattern_rev);
+	return root.getRange(kr_pat_rev_vector, pos, 0, karp_rabin, kr_factors, arr_x, pattern_rev);
 }
 
-pair<unsigned int, unsigned int> HashTrieRevNode::getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, const string &pattern_rev){
+pair<unsigned int, unsigned int> HashTrieRevNode::getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_x, const string &pattern_rev){
 	
 //	cout << "HashTrieRevNode::getRange - Start (prefixes: " << kr_pat_rev_vector.size() << ", pos: " << pos << ", processed: " << processed << ", pattern_rev: " << pattern_rev << ")\n";
 	
@@ -575,7 +578,7 @@ pair<unsigned int, unsigned int> HashTrieRevNode::getRange(vector<unsigned long 
 //			cout << "HashTrieRevNode::getRange - pat_cut: " << pat_cut << " hash_pat: " << hash_pat << " / " << karp_rabin->hash(pat_cut) << " (processed: " << processed << ")\n";
 			if( hash_pat == it_child->second->hash ){
 //				cout << "HashTrieRevNode::getRange - Child found -> [" << it_child->second->min << ", " << it_child->second->max << "]\n";
-				return it_child->second->getRange(kr_pat_rev_vector, pos, processed + child_len, karp_rabin, kr_factors, pattern_rev);
+				return it_child->second->getRange(kr_pat_rev_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_x, pattern_rev);
 			}
 		}
 		else{
@@ -583,13 +586,15 @@ pair<unsigned int, unsigned int> HashTrieRevNode::getRange(vector<unsigned long 
 			
 			
 			string test_text = "";
-			if( it_child->second->min_factor_pos > 0 ){
+			unsigned int min_factor_pos = (*arr_x)[it_child->second->min];
+			
+			if( min_factor_pos > 0 ){
 				KarpRabinFactorsSuffixesv2 *ptr = static_cast<KarpRabinFactorsSuffixesv2*>(kr_factors);
 				
-				unsigned int cur_pi = (*(ptr->pi_inv))[it_child->second->min_factor_pos-1];
+				unsigned int cur_pi = (*(ptr->pi_inv))[min_factor_pos-1];
 				unsigned int tu = ptr->select1_s->operator()(cur_pi + 1) - cur_pi;
-				unsigned int pu = ptr->select1_b->operator()(it_child->second->min_factor_pos-1 + 1);
-				unsigned int lu = ptr->select1_b->operator()(it_child->second->min_factor_pos-1 + 2) - pu;
+				unsigned int pu = ptr->select1_b->operator()(min_factor_pos-1 + 1);
+				unsigned int lu = ptr->select1_b->operator()(min_factor_pos-1 + 2) - pu;
 				
 				if(processed < lu){
 					unsigned int len = lu - processed;
@@ -606,7 +611,7 @@ pair<unsigned int, unsigned int> HashTrieRevNode::getRange(vector<unsigned long 
 				}
 			}
 			
-//			cout << "HashTrieRevNode::getRange - Factor (rev): " << it_child->second->min_factor_pos << "-1, length " << test_text.length() << " / " << it_child->second->len << "\n";
+//			cout << "HashTrieRevNode::getRange - Factor (rev): " << min_factor_pos << "-1, length " << test_text.length() << " / " << it_child->second->len << "\n";
 //			cout << "HashTrieRevNode::getRange - text: " << test_text << " / " << it_child->second->text << "\n";
 //			if( test_text.length() != it_child->second->text.length() ){
 //				cout << "HashTrieRevNode::getRange - Error\n";
@@ -642,11 +647,7 @@ void HashTrieRevNode::save(fstream &writer){
 	writer.write((char*)&min, sizeof(int));
 	writer.write((char*)&max, sizeof(int));
 	writer.write((char*)&hash, sizeof(int));
-	writer.write((char*)&min_factor_pos, sizeof(int));
-	
-//	unsigned int text_len = text.length();
-//	writer.write((char*)&text_len, sizeof(int));
-//	writer.write((char*)(text.c_str()), text_len);
+//	writer.write((char*)&min_factor_pos, sizeof(int));
 	
 	unsigned int n_childs = childs.size();
 	writer.write((char*)&n_childs, sizeof(int));
@@ -664,17 +665,8 @@ void HashTrieRevNode::load(fstream &reader){
 	reader.read((char*)&min, sizeof(int));
 	reader.read((char*)&max, sizeof(int));
 	reader.read((char*)&hash, sizeof(int));
+	// Lo dejo temporalmente por legacy
 	reader.read((char*)&min_factor_pos, sizeof(int));
-	
-	// Por ahora conservo la lectura de este dato
-	// Obviamente esto es temporal, ya no se guardan
-	
-//	unsigned int text_len = 0;
-//	reader.read((char*)&text_len, sizeof(int));
-//	char buff[text_len + 1];
-//	reader.read(buff, text_len);
-//	buff[text_len] = 0;
-//	text = string(buff);
 	
 	unsigned int n_childs = 0;
 	reader.read((char*)&n_childs, sizeof(int));
