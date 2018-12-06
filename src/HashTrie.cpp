@@ -5,9 +5,10 @@ HashTrie::HashTrie(){
 	kr_factors = NULL;
 }
 
-HashTrie::HashTrie(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors){
+HashTrie::HashTrie(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_y, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors){
 	karp_rabin = _karp_rabin;
 	kr_factors = _kr_factors;
+	arr_y = _arr_y;
 	build(full_text, len_text, factors_start, arr_y, _karp_rabin, _kr_factors);
 }
 
@@ -16,9 +17,10 @@ HashTrie::~HashTrie(){
 	kr_factors = NULL;
 }
 
-void HashTrie::build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors){
+void HashTrie::build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_y, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors){
 	karp_rabin = _karp_rabin;
 	kr_factors = _kr_factors;
+	arr_y = _arr_y;
 	
 	cout << "HashTrie::build - Start (full text of " << len_text << ", " << factors_start.size() << " factors)\n";
 	
@@ -39,7 +41,7 @@ HashTrieNode::~HashTrieNode(){
 
 }
 
-void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_y, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int min, unsigned int max, unsigned int processed_len){
+void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *arr_y, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int min, unsigned int max, unsigned int processed_len){
 	if( min == max ){
 //		cout << "HashTrieNode::build - Leaf\n";
 		return;
@@ -52,7 +54,7 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 //	cout << "HashTrieNode::build - Start (full text of " << len_text << ", range[" << min << ", " << max << "], processed_len: " << processed_len << ")\n";
 	
 	unsigned int min_pos = min;
-	unsigned int min_text_start = factors_start[ arr_y[min_pos] ] + processed_len;
+	unsigned int min_text_start = factors_start[ (*arr_y)[min_pos] ] + processed_len;
 	unsigned int min_text_len = 0;
 	
 	unsigned int cur_pos = 0;
@@ -71,7 +73,7 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 		unsigned int h = max;
 		while(l < h){
 			cur_pos = l + ((h-l)>>1);
-			cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
+			cur_text_start = factors_start[ (*arr_y)[cur_pos] ] + processed_len;
 			if( full_text[cur_text_start] <= full_text[min_text_start] ){
 				l = cur_pos+1;
 			}
@@ -80,10 +82,10 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 			}
 		}
 		cur_pos = h;
-		cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
+		cur_text_start = factors_start[ (*arr_y)[cur_pos] ] + processed_len;
 		if( (cur_pos > min_pos) && full_text[cur_text_start] != full_text[min_text_start] ){
 			--cur_pos;
-			cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
+			cur_text_start = factors_start[ (*arr_y)[cur_pos] ] + processed_len;
 		}
 //		cout << "HashTrieNode::build - cur_pos: " << cur_pos << "\n";
 		
@@ -111,7 +113,7 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 		char first_char = full_text[min_text_start];
 		
 		// Notar que aqui necesito la posicion del factor en la coleccion, no en el arreglo Y
-		hash = kr_factors->hash(arr_y[min_pos], processed_len, min_text_len);
+		hash = kr_factors->hash( (*arr_y)[min_pos], processed_len, min_text_len);
 //		cout << "HashTrieNode::build - Adding range [" << min_pos << ", " << cur_pos+1 << "), len " << min_text_len << ", hash: " << hash << " / " << karp_rabin->hash(s) << " (\"" << s << "\")\n";
 //		cout << "HashTrieNode::build - Adding range [" << min_pos << ", " << cur_pos+1 << "), len " << min_text_len << ", hash: " << hash << "\n";
 		// Preparar el hijo, ejecutar la llamda sobre esa instancia
@@ -124,16 +126,16 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 			childs[first_char]->min = min_pos;
 			childs[first_char]->max = cur_pos;
 			childs[first_char]->hash = hash;
-			childs[first_char]->min_factor_pos = arr_y[min_pos];
+			childs[first_char]->min_factor_pos = (*arr_y)[min_pos];
 			childs[first_char]->build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
 		}
 		
-//		cout << "HashTrieNode::build - Preparing min_pos = " << cur_pos+1 << " / " << arr_y.size() << "\n";
+//		cout << "HashTrieNode::build - Preparing min_pos = " << cur_pos+1 << " / " << arr_y->size() << "\n";
 		min_pos = cur_pos+1;
-		if(min_pos >= arr_y.size()){
+		if(min_pos >= arr_y->size()){
 			break;
 		}
-		min_text_start = factors_start[ arr_y[min_pos] ] + processed_len;
+		min_text_start = factors_start[ (*arr_y)[min_pos] ] + processed_len;
 		
 //		cout << "HashTrieNode::build - min_text_start: " << min_text_start << "\n";
 	
@@ -292,10 +294,11 @@ void HashTrie::save(const string &file){
 	cout << "HashTrie::save - End\n";
 }
 
-void HashTrie::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file){
+void HashTrie::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, int_vector<> *_arr_y, const string &file){
 	cout << "HashTrie::load - Start (" << file << ")\n";
 	karp_rabin = _karp_rabin;
 	kr_factors = _kr_factors;
+	arr_y = _arr_y;
 	fstream reader(file, fstream::in);
 	root.load(reader);
 	reader.close();
@@ -309,9 +312,10 @@ HashTrieRev::HashTrieRev(){
 	kr_factors = NULL;
 }
 
-HashTrieRev::HashTrieRev(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_x, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors){
+HashTrieRev::HashTrieRev(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_x, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors){
 	karp_rabin = _karp_rabin;
 	kr_factors = _kr_factors;
+	arr_x = _arr_x;
 	build(full_text, len_text, factors_start, arr_x, _karp_rabin, _kr_factors);
 }
 
@@ -320,9 +324,10 @@ HashTrieRev::~HashTrieRev(){
 	kr_factors = NULL;
 }
 
-void HashTrieRev::build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_x, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors){
+void HashTrieRev::build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_x, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors){
 	karp_rabin = _karp_rabin;
 	kr_factors = _kr_factors;
+	arr_x = _arr_x;
 	
 	cout << "HashTrieRev::build - Start (full text of " << len_text << ", " << factors_start.size() << " factors)\n";
 	
@@ -343,7 +348,7 @@ HashTrieRevNode::~HashTrieRevNode(){
 
 }
 
-void HashTrieRevNode::build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, vector<unsigned int> &arr_x, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int min, unsigned int max, unsigned int processed_len){
+void HashTrieRevNode::build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *arr_x, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int min, unsigned int max, unsigned int processed_len){
 	if( min == max ){
 //		cout << "HashTrieRevNode::build - Leaf\n";
 		return;
@@ -358,19 +363,19 @@ void HashTrieRevNode::build(const char *full_text, unsigned int len_text, vector
 	unsigned int min_pos = min;
 	
 	unsigned int min_text_len = 0;
-	if( arr_x[min_pos] > 0 ){
-		min_text_len = factors_start[ arr_x[min_pos] ] - factors_start[ arr_x[min_pos] - 1 ] - processed_len;
+	if( (*arr_x)[min_pos] > 0 ){
+		min_text_len = factors_start[ (*arr_x)[min_pos] ] - factors_start[ (*arr_x)[min_pos] - 1 ] - processed_len;
 	}
 	while( min_text_len == 0 && min_pos < max ){
 		++min_pos;
-		if( arr_x[min_pos] > 0 ){
-			min_text_len = factors_start[ arr_x[min_pos] ] - factors_start[ arr_x[min_pos] - 1 ] - processed_len;
+		if( (*arr_x)[min_pos] > 0 ){
+			min_text_len = factors_start[ (*arr_x)[min_pos] ] - factors_start[ (*arr_x)[min_pos] - 1 ] - processed_len;
 		}
 	}
 	
 	unsigned int min_text_start = 0;
-	if( arr_x[min_pos] > 0 ){
-		min_text_start = factors_start[ arr_x[min_pos] ] - processed_len - 1;
+	if( (*arr_x)[min_pos] > 0 ){
+		min_text_start = factors_start[ (*arr_x)[min_pos] ] - processed_len - 1;
 	}
 	
 	unsigned int cur_pos = 0;
@@ -391,13 +396,12 @@ void HashTrieRevNode::build(const char *full_text, unsigned int len_text, vector
 		unsigned int h = max;
 		while(l < h){
 			cur_pos = l + ((h-l)>>1);
-//			cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
-			cur_text_start = factors_start[ arr_x[cur_pos] ] - processed_len - 1;
-			if( arr_x[cur_pos] == 0 ){
+			cur_text_start = factors_start[ (*arr_x)[cur_pos] ] - processed_len - 1;
+			if( (*arr_x)[cur_pos] == 0 ){
 				cur_text_len = 0;
 			}
 			else{
-				cur_text_len = factors_start[ arr_x[cur_pos] ] - factors_start[ arr_x[cur_pos] - 1 ] - processed_len;
+				cur_text_len = factors_start[ (*arr_x)[cur_pos] ] - factors_start[ (*arr_x)[cur_pos] - 1 ] - processed_len;
 			}
 			if( full_text[cur_text_start] <= full_text[min_text_start] ){
 				l = cur_pos+1;
@@ -408,22 +412,21 @@ void HashTrieRevNode::build(const char *full_text, unsigned int len_text, vector
 		}
 		cur_pos = h;
 //		cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
-		cur_text_start = factors_start[ arr_x[cur_pos] ] - processed_len - 1;
-		if( arr_x[cur_pos] == 0 ){
+		cur_text_start = factors_start[ (*arr_x)[cur_pos] ] - processed_len - 1;
+		if( (*arr_x)[cur_pos] == 0 ){
 			cur_text_len = 0;
 		}
 		else{
-			cur_text_len = factors_start[ arr_x[cur_pos] ] - factors_start[ arr_x[cur_pos] - 1 ] - processed_len;
+			cur_text_len = factors_start[ (*arr_x)[cur_pos] ] - factors_start[ (*arr_x)[cur_pos] - 1 ] - processed_len;
 		}
 		if( (cur_pos > min_pos) && full_text[cur_text_start] != full_text[min_text_start] ){
 			--cur_pos;
-//			cur_text_start = factors_start[ arr_y[cur_pos] ] + processed_len;
-			cur_text_start = factors_start[ arr_x[cur_pos] ] - processed_len - 1;
-			if( arr_x[cur_pos] == 0 ){
+			cur_text_start = factors_start[ (*arr_x)[cur_pos] ] - processed_len - 1;
+			if( (*arr_x)[cur_pos] == 0 ){
 				cur_text_len = 0;
 			}
 			else{
-				cur_text_len = factors_start[ arr_x[cur_pos] ] - factors_start[ arr_x[cur_pos] - 1 ] - processed_len;
+				cur_text_len = factors_start[ (*arr_x)[cur_pos] ] - factors_start[ (*arr_x)[cur_pos] - 1 ] - processed_len;
 			}
 		}
 //		cout << "HashTrieRevNode::build - cur_pos: " << cur_pos << "\n";
@@ -469,22 +472,21 @@ void HashTrieRevNode::build(const char *full_text, unsigned int len_text, vector
 			childs[first_char]->len = min_common_text;
 			childs[first_char]->min = min_pos;
 			childs[first_char]->max = cur_pos;
-//			childs[first_char]->text = s;
 			childs[first_char]->hash = hash;
-			childs[first_char]->min_factor_pos = arr_x[min_pos];
+			childs[first_char]->min_factor_pos = (*arr_x)[min_pos];
 			childs[first_char]->build(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_common_text);
 		}
 		
-//		cout << "HashTrieRevNode::build - Preparing min_pos = " << cur_pos+1 << " / " << arr_x.size() << "\n";
+//		cout << "HashTrieRevNode::build - Preparing min_pos = " << cur_pos+1 << " / " << arr_x->size() << "\n";
 		min_pos = cur_pos+1;
-		if(min_pos >= arr_x.size()){
+		if(min_pos >= arr_x->size()){
 			break;
 		}
 		min_text_start = 0;
 		min_text_len = 0;
-		if( arr_x[min_pos] > 0 ){
-			min_text_start = factors_start[ arr_x[min_pos] ] - processed_len - 1;
-			min_text_len = factors_start[ arr_x[min_pos] ] - factors_start[ arr_x[min_pos] - 1 ] - processed_len;
+		if( (*arr_x)[min_pos] > 0 ){
+			min_text_start = factors_start[ (*arr_x)[min_pos] ] - processed_len - 1;
+			min_text_len = factors_start[ (*arr_x)[min_pos] ] - factors_start[ (*arr_x)[min_pos] - 1 ] - processed_len;
 		}
 //		cout << "HashTrieRevNode::build - min_text_start: " << min_text_start << " de len " << min_text_len << "\n";
 	
@@ -693,10 +695,11 @@ void HashTrieRev::save(const string &file){
 	cout << "HashTrieRev::save - End\n";
 }
 	
-void HashTrieRev::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, const string &file){
+void HashTrieRev::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, int_vector<> *_arr_x, const string &file){
 	cout << "HashTrieRev::load - Start (" << file << ")\n";
 	karp_rabin = _karp_rabin;
 	kr_factors = _kr_factors;
+	arr_x = _arr_x;
 	fstream reader(file, fstream::in);
 	root.load(reader);
 	reader.close();

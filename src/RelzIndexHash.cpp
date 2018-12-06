@@ -270,13 +270,15 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	
 	cout << "RelzIndexHash - Building Tree Y\n";
 	timer.reset();
-	tree_y.build(full_text, len_text, factors_start, arr_y_original, karp_rabin, kr_factors);
+//	tree_y.build(full_text, len_text, factors_start, arr_y_original, karp_rabin, kr_factors);
+	tree_y.build(full_text, len_text, factors_start, &arr_y, karp_rabin, kr_factors);
 	cout << "RelzIndexHash - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
 //	tree_y.print();
 	
 	cout << "RelzIndexHash - Building Tree X\n";
 	timer.reset();
-	tree_x.build(full_text, len_text, factors_start, arr_x_original, karp_rabin, kr_factors);
+//	tree_x.build(full_text, len_text, factors_start, arr_x_original, karp_rabin, kr_factors);
+	tree_x.build(full_text, len_text, factors_start, &arr_x, karp_rabin, kr_factors);
 	cout << "RelzIndexHash - Tree X finished in (" << timer.getMilisec() << " ms)\n";
 //	tree_x.print();
 	
@@ -688,11 +690,11 @@ void RelzIndexHash::load(const string &file_base, KarpRabin *_karp_rabin){
 	
 	// tree_x
 	string tree_x_file = file_base + ".tree.x";
-	tree_x.load(karp_rabin, kr_factors, tree_x_file);
+	tree_x.load(karp_rabin, kr_factors, &arr_x, tree_x_file);
 	
 	// tree_y
 	string tree_y_file = file_base + ".tree.y";
-	tree_y.load(karp_rabin, kr_factors, tree_y_file);
+	tree_y.load(karp_rabin, kr_factors, &arr_y, tree_y_file);
 	
 	
 	
