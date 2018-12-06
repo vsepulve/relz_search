@@ -667,11 +667,11 @@ void HashTrieRevNode::load(fstream &reader){
 	// Por ahora conservo la lectura de este dato
 	// Obviamente esto es temporal, ya no se guardan
 	
-	unsigned int text_len = 0;
-	reader.read((char*)&text_len, sizeof(int));
-	char buff[text_len + 1];
-	reader.read(buff, text_len);
-	buff[text_len] = 0;
+//	unsigned int text_len = 0;
+//	reader.read((char*)&text_len, sizeof(int));
+//	char buff[text_len + 1];
+//	reader.read(buff, text_len);
+//	buff[text_len] = 0;
 //	text = string(buff);
 	
 	unsigned int n_childs = 0;
