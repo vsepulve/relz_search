@@ -43,7 +43,7 @@ RelzIndexReference::RelzIndexReference(vector<pair<unsigned int, unsigned int> >
 	
 	// Bit vector S
 	cout << "RelzIndexReference - Preparing Vector S\n";
-	bit_vector arr_s = bit_vector(ref_text->length() + n_factors, 0);
+	bit_vector arr_s(ref_text->length() + n_factors, 0);
 	unsigned cur_ref = 0;
 	cur_pos = 0;
 	for( unsigned int i = 0; i < n_factors; ++i ){
