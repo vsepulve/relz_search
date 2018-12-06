@@ -38,11 +38,13 @@ public:
 	unsigned int hash;
 	// Position of the factor in the collection
 	unsigned int min_factor_pos;
+	char first;
 	
 	// Structure for chidls, indexed by first char
 	map<char, shared_ptr<HashTrieNode>> childs;
 	
-	vector<pair<char, HashTrieNode>> childs_vector;
+//	vector<pair<char, HashTrieNode>> childs_vector;
+	vector<HashTrieNode> childs_vector;
 	
 	HashTrieNode();
 	~HashTrieNode();
@@ -54,6 +56,8 @@ public:
 	unsigned int totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height);
 	
 	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, const string &pattern, unsigned long long *hash_nano);
+	
+//	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, unsigned int cur_max, const string &pattern, unsigned long long *hash_nano);
 	
 	void save(fstream &writer);
 	

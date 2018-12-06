@@ -129,12 +129,13 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 //			childs[first_char]->hash = hash;
 //			childs[first_char]->build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
 			
-			childs_vector.push_back(pair<char, HashTrieNode>(first_char, HashTrieNode()));
-			childs_vector.back().second.len = min_text_len;
-			childs_vector.back().second.min = min_pos;
-			childs_vector.back().second.max = cur_pos;
-			childs_vector.back().second.hash = hash;
-			childs_vector.back().second.build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
+			childs_vector.push_back(HashTrieNode());
+			childs_vector.back().first = first_char;
+			childs_vector.back().len = min_text_len;
+			childs_vector.back().min = min_pos;
+			childs_vector.back().max = cur_pos;
+			childs_vector.back().hash = hash;
+			childs_vector.back().build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
 		}
 		
 //		cout << "HashTrieNode::build - Preparing min_pos = " << cur_pos+1 << " / " << arr_y->size() << "\n";
@@ -148,7 +149,9 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 	
 	}
 	
-//	std::sort(childs_vector.begin(), childs_vector.end());
+	std::sort(childs_vector.begin(), childs_vector.end(), 
+		[](const HashTrieNode &p1, const HashTrieNode &p2) -> bool{return p1.first < p2.first;}
+	);
 	
 //	cout << "----- \n";
 	
@@ -202,6 +205,7 @@ void HashTrie::printSize(){
 
 pair<unsigned int, unsigned int> HashTrie::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, const string &pattern){
 	return root.getRange(kr_pat_vector, pos, 0, karp_rabin, kr_factors, arr_y, pattern, &hash_nano);
+//	return root.getRange(kr_pat_vector, pos, 0, karp_rabin, kr_factors, arr_y, arr_y->size() - 1, pattern, &hash_nano);
 }
 
 unsigned int HashTrieNode::findChild(char c){
@@ -219,6 +223,8 @@ unsigned int HashTrieNode::findChild(char c){
 	return 0xffffffff;
 }
 
+//pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, unsigned int cur_max, const string &pattern, unsigned long long *hash_nano){
+
 pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, const string &pattern, unsigned long long *hash_nano){
 	
 //	cout << "HashTrieNode::getRange - Start (prefixes: " << kr_pat_vector.size() << ", pos: " << pos << ", processed: " << processed << ")\n";
@@ -226,6 +232,7 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long lon
 	if( pos + processed >= kr_pat_vector.size() ){
 //		cout << "HashTrieNode::getRange - [" << min << ", " << max << "]\n";
 		return pair<unsigned int, unsigned int>(min, max);
+//		return pair<unsigned int, unsigned int>(min, cur_max);
 	}
 	
 	unsigned long long hash_pat = 0;
@@ -238,37 +245,44 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long lon
 	
 	unsigned int pos_child = findChild(first_char_pat);
 	if( pos_child != 0xffffffff ){
-		child_len = childs_vector[pos_child].second.len;
+		child_len = childs_vector[pos_child].len;
+		
+		// Ajuste a cur_max
+//		if( pos_child < childs_vector.size() - 1 ){
+//			cur_max = childs_vector[pos_child+1] - 1;
+//		}
+
 		if( child_len <= pat_len ){
 //			cout << "HashTrieNode::getRange - Case 1, child_len: " << child_len << "\n";
 			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[pos + processed + child_len - 1], kr_pat_vector[pos + processed - 1], child_len);
 			string pat_cut = pattern.substr(pos + processed, child_len);
 //			cout << "HashTrieNode::getRange - pat_cut: " << pat_cut << " hash_pat: " << hash_pat << " / " << karp_rabin->hash(pat_cut) << " (processed: " << processed << ")\n";
-			if( hash_pat == childs_vector[pos_child].second.hash ){
-//				cout << "HashTrieNode::getRange - Child found -> [" << childs_vector[pos_child].second.min << ", " << childs_vector[pos_child].second.max << "]\n";
-				return childs_vector[pos_child].second.getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, pattern, hash_nano);
+			if( hash_pat == childs_vector[pos_child].hash ){
+//				cout << "HashTrieNode::getRange - Child found -> [" << childs_vector[pos_child].min << ", " << childs_vector[pos_child].max << "]\n";
+				return childs_vector[pos_child].getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, pattern, hash_nano);
+//				return childs_vector[pos_child].getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, cur_max, pattern, hash_nano);
 			}
 		}
 		else{
 //			cout << "HashTrieNode::getRange - Case 2, child_len: " << child_len << "\n";
 			
-			unsigned int min_factor_pos = (*arr_y)[childs_vector[pos_child].second.min];
+			unsigned int min_factor_pos = (*arr_y)[childs_vector[pos_child].min];
 			
 //			cout << "Node: \n";
-//			childs_vector[pos_child].second.print(0);
-			// Caso de borde detectado a veces en kr_factors->hashFast(childs_vector[pos_child].second.min_factor_pos, processed, pat_len
+//			childs_vector[pos_child].print(0);
+			// Caso de borde detectado a veces en kr_factors->hashFast(childs_vector[pos_child].min_factor_pos, processed, pat_len
 			
 			unsigned long long hash = kr_factors->hashFast(min_factor_pos, processed, pat_len);
 			
 			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
 //			cout << "HashTrieNode::getRange - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
 			if( hash == hash_pat ){
-//				cout << "HashTrieNode::getRange - Child found -> [" << childs_vector[pos_child].second.min << ", " << childs_vector[pos_child].second.max << "]\n";
-				return pair<unsigned int, unsigned int>(childs_vector[pos_child].second.min, childs_vector[pos_child].second.max);
+//				cout << "HashTrieNode::getRange - Child found -> [" << childs_vector[pos_child].min << ", " << childs_vector[pos_child].max << "]\n";
+				return pair<unsigned int, unsigned int>(childs_vector[pos_child].min, childs_vector[pos_child].max);
+//				return pair<unsigned int, unsigned int>(childs_vector[pos_child].min, cur_max);
 			}
 		}
 	}
-	
 	
 	/*
 	auto it_child = childs.find(first_char_pat);
@@ -347,10 +361,18 @@ void HashTrieNode::load(fstream &reader){
 //		childs[child_first_char] = std::make_shared<HashTrieNode>();
 //		childs[child_first_char]->load(reader);
 		
-		childs_vector.push_back(pair<char, HashTrieNode>(child_first_char, HashTrieNode()));
-		childs_vector.back().second.load(reader);
+		childs_vector.push_back(HashTrieNode());
+		childs_vector.back().load(reader);
+		childs_vector.back().first = child_first_char;
 		
 	}
+	
+	// Debug
+//	cout << "HashTrieNode::load - Childs: " << childs_vector.size() << " / ";
+//	for(auto it : childs_vector){
+//		cout << it.first << " ";
+//	}
+//	cout << "\n";
 
 }
 
