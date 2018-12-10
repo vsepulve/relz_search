@@ -28,7 +28,7 @@ using namespace std;
 
 class HashTriev2Node{
 	
-	// Returns 0xffffffff in case of not found
+	// Returns NOT_FOUND in case of not found
 	unsigned int findChild(char c);
 
 public: 
@@ -36,14 +36,14 @@ public:
 	// Uncompressed node's data
 	unsigned int len;
 	unsigned int min;
-	unsigned int max;
+//	unsigned int max;
 	unsigned int hash;
 	// Position of the factor in the collection
-	unsigned int min_factor_pos;
+//	unsigned int min_factor_pos;
 	char first;
 	
 	// Structure for chidls, indexed by first char
-	map<char, shared_ptr<HashTriev2Node>> childs;
+//	map<char, shared_ptr<HashTriev2Node>> childs;
 	
 //	vector<pair<char, HashTriev2Node>> childs_vector;
 	vector<HashTriev2Node> childs_vector;
@@ -57,9 +57,9 @@ public:
 	
 	unsigned int totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height);
 	
-	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, const string &pattern, unsigned long long *hash_nano);
+//	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, const string &pattern, unsigned long long *hash_nano);
 	
-//	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, unsigned int cur_max, const string &pattern, unsigned long long *hash_nano);
+	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, unsigned int cur_max, const string &pattern, unsigned long long *hash_nano);
 	
 	void save(fstream &writer);
 	

@@ -32,7 +32,7 @@ void HashTriev2::build(const char *full_text, unsigned int len_text, vector<unsi
 HashTriev2Node::HashTriev2Node(){
 	len = 0;
 	min = 0;
-	max = 0;
+//	max = 0;
 	hash = 0;
 //	min_factor_pos = 0;
 }
@@ -122,18 +122,11 @@ void HashTriev2Node::build(const char *full_text, unsigned int len_text, vector<
 		}
 		else{
 			
-//			childs[first_char] = std::make_shared<HashTriev2Node>();
-//			childs[first_char]->len = min_text_len;
-//			childs[first_char]->min = min_pos;
-//			childs[first_char]->max = cur_pos;
-//			childs[first_char]->hash = hash;
-//			childs[first_char]->build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
-			
 			childs_vector.push_back(HashTriev2Node());
 			childs_vector.back().first = first_char;
 			childs_vector.back().len = min_text_len;
 			childs_vector.back().min = min_pos;
-			childs_vector.back().max = cur_pos;
+//			childs_vector.back().max = cur_pos;
 			childs_vector.back().hash = hash;
 			childs_vector.back().build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
 		}
@@ -159,10 +152,10 @@ void HashTriev2Node::build(const char *full_text, unsigned int len_text, vector<
 
 void HashTriev2::print(){
 	root.print(0);
-	cout << "Root: " << root.childs.size() << " childs\n";
+	cout << "Root: " << root.childs_vector.size() << " childs\n";
 	cout << "Lengths: ";
-	for( auto it_child : root.childs ){
-		cout << it_child.second->len << " - ";
+	for( auto it_child : root.childs_vector ){
+		cout << it_child.len << " - ";
 	}
 	cout << "\n";
 }
@@ -171,26 +164,26 @@ void HashTriev2Node::print(unsigned int level){
 	for(unsigned int i = 0; i < level; ++i){
 		cout << "- ";
 	}
-	cout << "hash: " << hash << ", len: " << len << " , range [" << min << ", " << max << "]\n";
-	for( auto it : childs ){
+	cout << "hash: " << hash << ", len: " << len << " , range [" << min << "]\n";
+	for( auto it : childs_vector ){
 		cout << it.first << " ";
-		it.second->print(level+1);
+		it.print(level+1);
 	}
 }
 
 unsigned int HashTriev2Node::totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height){
-	unsigned int ret = childs.size();
+	unsigned int ret = childs_vector.size();
 	if( height > max_height ){
 		max_height = height;
 	}
 	if( len > max_len ){
 		max_len = len;
 	}
-	if( childs.size() > max_childs ){
-		max_childs = childs.size();
+	if( childs_vector.size() > max_childs ){
+		max_childs = childs_vector.size();
 	}
-	for( auto it : childs ){
-		ret += it.second->totalChilds(max_len, max_childs, max_height, 1 + height);
+	for( auto it : childs_vector ){
+		ret += it.totalChilds(max_len, max_childs, max_height, 1 + height);
 	}
 	return ret;
 }
@@ -204,8 +197,8 @@ void HashTriev2::printSize(){
 }
 
 pair<unsigned int, unsigned int> HashTriev2::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, const string &pattern){
-	return root.getRange(kr_pat_vector, pos, 0, karp_rabin, kr_factors, arr_y, pattern, &hash_nano);
-//	return root.getRange(kr_pat_vector, pos, 0, karp_rabin, kr_factors, arr_y, arr_y->size() - 1, pattern, &hash_nano);
+//	return root.getRange(kr_pat_vector, pos, 0, karp_rabin, kr_factors, arr_y, pattern, &hash_nano);
+	return root.getRange(kr_pat_vector, pos, 0, karp_rabin, kr_factors, arr_y, arr_y->size() - 1, pattern, &hash_nano);
 }
 
 unsigned int HashTriev2Node::findChild(char c){
@@ -223,16 +216,16 @@ unsigned int HashTriev2Node::findChild(char c){
 	return NOT_FOUND;
 }
 
-//pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, unsigned int cur_max, const string &pattern, unsigned long long *hash_nano){
+pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, unsigned int cur_max, const string &pattern, unsigned long long *hash_nano){
 
-pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, const string &pattern, unsigned long long *hash_nano){
+//pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, const string &pattern, unsigned long long *hash_nano){
 	
 //	cout << "HashTriev2Node::getRange - Start (prefixes: " << kr_pat_vector.size() << ", pos: " << pos << ", processed: " << processed << ")\n";
 	
 	if( pos + processed >= kr_pat_vector.size() ){
-//		cout << "HashTriev2Node::getRange - [" << min << ", " << max << "]\n";
-		return pair<unsigned int, unsigned int>(min, max);
-//		return pair<unsigned int, unsigned int>(min, cur_max);
+//		cout << "HashTriev2Node::getRange - [" << min << ", " << cur_max << "]\n";
+//		return pair<unsigned int, unsigned int>(min, max);
+		return pair<unsigned int, unsigned int>(min, cur_max);
 	}
 	
 	unsigned long long hash_pat = 0;
@@ -248,9 +241,9 @@ pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long l
 		child_len = childs_vector[pos_child].len;
 		
 		// Ajuste a cur_max
-//		if( pos_child < childs_vector.size() - 1 ){
-//			cur_max = childs_vector[pos_child+1] - 1;
-//		}
+		if( pos_child < childs_vector.size() - 1 ){
+			cur_max = childs_vector[pos_child+1].min - 1;
+		}
 
 		if( child_len <= pat_len ){
 //			cout << "HashTriev2Node::getRange - Case 1, child_len: " << child_len << "\n";
@@ -258,9 +251,9 @@ pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long l
 			string pat_cut = pattern.substr(pos + processed, child_len);
 //			cout << "HashTriev2Node::getRange - pat_cut: " << pat_cut << " hash_pat: " << hash_pat << " / " << karp_rabin->hash(pat_cut) << " (processed: " << processed << ")\n";
 			if( hash_pat == childs_vector[pos_child].hash ){
-//				cout << "HashTriev2Node::getRange - Child found -> [" << childs_vector[pos_child].min << ", " << childs_vector[pos_child].max << "]\n";
-				return childs_vector[pos_child].getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, pattern, hash_nano);
-//				return childs_vector[pos_child].getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, cur_max, pattern, hash_nano);
+//				cout << "HashTriev2Node::getRange - Child found -> [" << childs_vector[pos_child].min << ", " << cur_max << "]\n";
+//				return childs_vector[pos_child].getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, pattern, hash_nano);
+				return childs_vector[pos_child].getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, cur_max, pattern, hash_nano);
 			}
 		}
 		else{
@@ -277,49 +270,12 @@ pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long l
 			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
 //			cout << "HashTriev2Node::getRange - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
 			if( hash == hash_pat ){
-//				cout << "HashTriev2Node::getRange - Child found -> [" << childs_vector[pos_child].min << ", " << childs_vector[pos_child].max << "]\n";
-				return pair<unsigned int, unsigned int>(childs_vector[pos_child].min, childs_vector[pos_child].max);
-//				return pair<unsigned int, unsigned int>(childs_vector[pos_child].min, cur_max);
+//				cout << "HashTriev2Node::getRange - Child found -> [" << childs_vector[pos_child].min << ", " << cur_max << "]\n";
+//				return pair<unsigned int, unsigned int>(childs_vector[pos_child].min, childs_vector[pos_child].max);
+				return pair<unsigned int, unsigned int>(childs_vector[pos_child].min, cur_max);
 			}
 		}
 	}
-	
-	/*
-	auto it_child = childs.find(first_char_pat);
-	if(it_child != childs.end()){
-		child_len = it_child->second->len;
-		if( child_len <= pat_len ){
-//			cout << "HashTriev2Node::getRange - Case 1, child_len: " << child_len << "\n";
-			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[pos + processed + child_len - 1], kr_pat_vector[pos + processed - 1], child_len);
-			string pat_cut = pattern.substr(pos + processed, child_len);
-//			cout << "HashTriev2Node::getRange - pat_cut: " << pat_cut << " hash_pat: " << hash_pat << " / " << karp_rabin->hash(pat_cut) << " (processed: " << processed << ")\n";
-			if( hash_pat == it_child->second->hash ){
-//				cout << "HashTriev2Node::getRange - Child found -> [" << it_child->second->min << ", " << it_child->second->max << "]\n";
-				return it_child->second->getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, pattern, hash_nano);
-			}
-		}
-		else{
-//			cout << "HashTriev2Node::getRange - Case 2, child_len: " << child_len << "\n";
-			
-			unsigned int min_factor_pos = (*arr_y)[it_child->second->min];
-			
-//			cout << "Node: \n";
-//			it_child->second->print(0);
-			// Caso de borde detectado a veces en kr_factors->hashFast(it_child->second->min_factor_pos, processed, pat_len
-			
-			unsigned long long hash = kr_factors->hashFast(min_factor_pos, processed, pat_len);
-			
-			
-			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
-//			cout << "HashTriev2Node::getRange - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
-			if( hash == hash_pat ){
-//				cout << "HashTriev2Node::getRange - Child found -> [" << it_child->second->min << ", " << it_child->second->max << "]\n";
-				return pair<unsigned int, unsigned int>(it_child->second->min, it_child->second->max);
-			}
-		}
-	}
-	*/
-	
 	
 //	cout << "HashTriev2Node::getRange - Pattern NOT found\n";
 	return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
@@ -329,16 +285,15 @@ void HashTriev2Node::save(fstream &writer){
 	
 	writer.write((char*)&len, sizeof(int));
 	writer.write((char*)&min, sizeof(int));
-	writer.write((char*)&max, sizeof(int));
+//	writer.write((char*)&max, sizeof(int));
 	writer.write((char*)&hash, sizeof(int));
 //	writer.write((char*)&min_factor_pos, sizeof(int));
+	writer.write((char*)&first, 1);
 	
-	unsigned int n_childs = childs.size();
+	unsigned int n_childs = childs_vector.size();
 	writer.write((char*)&n_childs, sizeof(int));
-	for( auto it : childs ){
-		char child_first_char = it.first;
-		writer.write((char*)&child_first_char, 1);
-		it.second->save(writer);
+	for( auto it : childs_vector ){
+		it.save(writer);
 	}
 	
 }
@@ -347,14 +302,20 @@ void HashTriev2Node::load(fstream &reader){
 	
 	reader.read((char*)&len, sizeof(int));
 	reader.read((char*)&min, sizeof(int));
+	// Lo dejo temporalmente por legacy
+	unsigned int max = 0;
 	reader.read((char*)&max, sizeof(int));
 	reader.read((char*)&hash, sizeof(int));
 	// Lo dejo temporalmente por legacy
+	unsigned int min_factor_pos = 0;
 	reader.read((char*)&min_factor_pos, sizeof(int));
 	
 	unsigned int n_childs = 0;
 	reader.read((char*)&n_childs, sizeof(int));
 	for(unsigned int i = 0; i < n_childs; ++i){
+		
+		// Lo que sigue debe cargarse solo cuando la clase este terminada
+		
 		char child_first_char = 0;
 		reader.read((char*)&child_first_char, 1);
 		
