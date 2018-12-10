@@ -36,16 +36,10 @@ public:
 	// Uncompressed node's data
 	unsigned int len;
 	unsigned int min;
-//	unsigned int max;
 	unsigned int hash;
-	// Position of the factor in the collection
-//	unsigned int min_factor_pos;
 	char first;
 	
-	// Structure for chidls, indexed by first char
-//	map<char, shared_ptr<HashTriev2Node>> childs;
-	
-//	vector<pair<char, HashTriev2Node>> childs_vector;
+	// Structure for chidls, sorted by first char
 	vector<HashTriev2Node> childs_vector;
 	
 	HashTriev2Node();
@@ -56,8 +50,6 @@ public:
 	void print(unsigned int level);
 	
 	unsigned int totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height);
-	
-//	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, const string &pattern, unsigned long long *hash_nano);
 	
 	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, unsigned int cur_max, const string &pattern, unsigned long long *hash_nano);
 	
@@ -98,23 +90,26 @@ public:
 };
 
 class HashTriev2RevNode{
+	
+	// Returns NOT_FOUND in case of not found
+	unsigned int findChild(char c);
 
 public: 
 
 	// Uncompressed node's data
 	unsigned int len;
 	unsigned int min;
-	unsigned int max;
+//	unsigned int max;
 	unsigned int hash;
 	// Position of the factor in the collection
-	unsigned int min_factor_pos;
-	
-	// To simplify tge code, I add the text to evaluate prefix hash
-	// Obviously this text can be accesed from the reference at querytime (its only 1 factor)
-//	string text;
+//	unsigned int min_factor_pos;
+	char first;
 	
 	// Structure for chidls, indexed by first char
-	unordered_map<char, shared_ptr<HashTriev2RevNode>> childs;
+//	unordered_map<char, shared_ptr<HashTriev2RevNode>> childs;
+
+	// Structure for chidls, sorted by first char
+	vector<HashTriev2RevNode> childs_vector;
 	
 	HashTriev2RevNode();
 	~HashTriev2RevNode();
@@ -125,7 +120,9 @@ public:
 	
 	unsigned int totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height);
 	
-	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_x, const string &pattern_rev);
+//	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_x, const string &pattern_rev);
+	
+	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_x, unsigned int cur_max, const string &pattern_rev);
 	
 	void save(fstream &writer);
 	
