@@ -211,7 +211,7 @@ pair<unsigned int, unsigned int> HashTrie::getRange(vector<unsigned long long> &
 unsigned int HashTrieNode::findChild(char c){
 	
 //	if(childs_vector.size() < 1){
-//		return 0xffffffff;
+//		return NOT_FOUND;
 //	}
 //	// Busqueda Binaria
 	
@@ -220,7 +220,7 @@ unsigned int HashTrieNode::findChild(char c){
 			return i;
 		}
 	}
-	return 0xffffffff;
+	return NOT_FOUND;
 }
 
 //pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, unsigned int cur_max, const string &pattern, unsigned long long *hash_nano){
@@ -244,7 +244,7 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long lon
 //	cout << "HashTrieNode::getRange - pat: " << pat << "\n";
 	
 	unsigned int pos_child = findChild(first_char_pat);
-	if( pos_child != 0xffffffff ){
+	if( pos_child != NOT_FOUND ){
 		child_len = childs_vector[pos_child].len;
 		
 		// Ajuste a cur_max
