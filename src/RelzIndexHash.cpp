@@ -273,14 +273,14 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 //	tree_y.build(full_text, len_text, factors_start, arr_y_original, karp_rabin, kr_factors);
 	tree_y.build(full_text, len_text, factors_start, &arr_y, karp_rabin, kr_factors);
 	cout << "RelzIndexHash - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
-//	tree_y.print();
+	tree_y.print();
 	
 	cout << "RelzIndexHash - Building Tree X\n";
 	timer.reset();
 //	tree_x.build(full_text, len_text, factors_start, arr_x_original, karp_rabin, kr_factors);
 	tree_x.build(full_text, len_text, factors_start, &arr_x, karp_rabin, kr_factors);
 	cout << "RelzIndexHash - Tree X finished in (" << timer.getMilisec() << " ms)\n";
-//	tree_x.print();
+	tree_x.print();
 	
 	cout << "RelzIndexHash - Trees prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
