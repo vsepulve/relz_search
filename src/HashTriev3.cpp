@@ -37,12 +37,49 @@ void HashTriev3::build(const char *full_text, unsigned int len_text, vector<unsi
 //	int_vector<> min_childs;
 //	int_vector<> hash_childs;
 //	vector<char> first_childs
+
+	unsigned int max_len = 0;
+	unsigned int max_childs = 0;
+	unsigned int max_height = 0;
+	// including the root
+	unsigned int n_nodes = 1 + root.totalChilds(max_len, max_childs, max_height, 0);
 	
-//	positions_childs.resize(arr_y->size());
-//	unsigned int next_pos = 0;
+	cout << "HashTriev3::build - Total Nodes: " << n_nodes << " (max_len: " << max_len << ", max_childs: " << max_childs << ", max_height: " << max_height << ")\n";
 	
-//	root.compactData();
+	positions_childs.resize(n_nodes);
+	n_childs.resize(n_nodes);
+	len_childs.resize(n_nodes);
+	min_childs.resize(n_nodes);
+	hash_childs.resize(n_nodes);
+	first_childs.resize(n_nodes);
 	
+	unsigned int next_pos = 0;
+	
+	// El llamador guarda la posicion de inicio de la raiz
+	// Es decir, cada nodo guarda los datos de sus hijos
+	positions_childs[next_pos] = 1;
+	cout << "HashTriev3::build - positions_childs[" << next_pos << "]: 1\n";
+	n_childs[next_pos] = root.childs_vector.size();
+	len_childs[next_pos] = root.len;
+	min_childs[next_pos] = root.min;
+	hash_childs[next_pos] = root.hash;
+	first_childs[next_pos] = root.first;
+	++next_pos;
+	
+	root.compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs);
+	
+	sdsl::util::bit_compress(positions_childs);
+	sdsl::util::bit_compress(n_childs);
+	sdsl::util::bit_compress(len_childs);
+	sdsl::util::bit_compress(min_childs);
+	sdsl::util::bit_compress(hash_childs);
+//	sdsl::util::bit_compress(first_childs);
+	
+	// Debug
+	for(unsigned int i = 0; i < n_nodes; ++i){
+//		cout << "HashTriev3::build - positions_childs[" << i << "]: " << positions_childs[i] << " / n_childs[" << i << "]: " << n_childs[i] << "\n";
+		cout << "HashTriev3::build - node[" << i << "]: (" << positions_childs[i] << ", " << n_childs[i] << ", " << len_childs[i] << ", " << min_childs[i] << ", " << hash_childs[i] << ", " << first_childs[i] << ")\n";
+	}
 	
 	cout << "HashTriev3::build - End\n";
 }
@@ -57,6 +94,32 @@ HashTriev3Node::HashTriev3Node(){
 
 HashTriev3Node::~HashTriev3Node(){
 
+}
+
+void HashTriev3Node::compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, vector<char> &first_childs){
+	
+	// Guardo la posicion para los hijos de este nodo
+	// El valor de next_pos cambiara con cada hijo
+	unsigned int cur_pos = next_pos;
+	next_pos += childs_vector.size();
+	
+//	cout << "HashTriev3Node::compactData - childs_vector.size(): " << childs_vector.size() << "\n";
+	
+	for(unsigned int i = 0; i < childs_vector.size(); ++i){
+		
+		positions_childs[cur_pos] = next_pos;
+//		cout << "HashTriev3Node::compactData - positions_childs[" << cur_pos << "]: " << next_pos << "\n";
+		n_childs[cur_pos] = childs_vector[i].childs_vector.size();
+		len_childs[cur_pos] = childs_vector[i].len;
+		min_childs[cur_pos] = childs_vector[i].min;
+		hash_childs[cur_pos] = childs_vector[i].hash;
+		first_childs[cur_pos] = childs_vector[i].first;
+		
+		childs_vector[i].compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs);
+		
+		++cur_pos;
+	}
+	
 }
 
 void HashTriev3Node::build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *arr_y, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int min, unsigned int max, unsigned int processed_len){

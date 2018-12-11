@@ -1,5 +1,5 @@
-#ifndef _HASH_TRIE_v2_H
-#define _HASH_TRIE_v2_H
+#ifndef _HASH_TRIE_v3_H
+#define _HASH_TRIE_v3_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,6 +56,8 @@ public:
 	void save(fstream &writer);
 	
 	void load(fstream &reader);
+	
+	void compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, vector<char> &first_childs);
 	
 };
 
