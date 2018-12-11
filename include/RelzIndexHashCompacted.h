@@ -26,6 +26,7 @@
 #include "KarpRabinFactorsSuffixesv2.h"
 #include "HashTrie.h"
 #include "HashTriev2.h"
+#include "HashTriev3.h"
 
 using namespace sdsl;
 using namespace std;
@@ -101,8 +102,8 @@ public:
 //	HashTrie tree_y;
 //	HashTrieRev tree_x;
 	
-	HashTriev2 tree_y;
-	HashTriev2Rev tree_x;
+	HashTriev3 tree_y;
+	HashTriev3Rev tree_x;
 	
 	void printSize();
 	
