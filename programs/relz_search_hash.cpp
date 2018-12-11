@@ -29,51 +29,30 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-	if(argc != 5){
-		cout<<"\nModo de Uso: relz_search serialized_ref sequence_file output_relz queries_file\n";
+	if(argc != 3){
+		cout<<"\nUsage: ./bin/relz_search_hash index_directory queries_file\n";
 		return 0;
 	}
 	
-	const char *ref_file = argv[1];
-	const char *input = argv[2];
-	const char *output = argv[3];
-	const char *queries_file = argv[4];
+	const char *index_directory = argv[1];
+	const char *queries_file = argv[2];
 	
-	ReferenceIndex *reference = new ReferenceIndexBasic();
-	reference->load(ref_file);
+	string output_path(index_directory);
+	if( output_path.back() != '/' ){
+		output_path += "/";
+	}
+	output_path += "index_hash";
 	
-	// Preparar Compresor
-	TextFilter *filter = new TextFilterFull();
-	CompressorSingleBuffer compressor(
-		output, 
-		new CoderBlocksRelz(reference), 
-		new DecoderBlocksRelz(reference->getText()), 
-		filter
-	);
-	
-	vector<pair<unsigned int, unsigned int> > factors;
-	compressor.compress(input, 1, 1000000, 0, &factors);
-	
-	// Recargo el texto de la entrada, solo para acelerar la construccion
-	unsigned long long real_len_text = 0;
-	char *text = filter->readText(input, real_len_text);
-	unsigned int len_text = compressor.getTextSize();
-	cout << "Full text loaded of " << len_text << " / " << real_len_text << " chars\n";
-	
-	const char *ref = reference->getText();
-	unsigned int len_ref = reference->getLength();
-	
-	cout << "----- Building index -----\n";
+	cout << "----- Testing load -----\n";
 	NanoTimer timer;
+	vector<unsigned int> results;
 	unsigned int bits = 8;
 //	unsigned int mod = 787;
 	unsigned int mod = 15485863;
 //	KarpRabin karp_rabin(bits, mod, 1100000000);
 	KarpRabin karp_rabin(bits, mod, 10000000);
-	vector<unsigned int> results;
-	RelzIndexHash index(factors, text, len_text, ref, len_ref, &karp_rabin);
-//	KarpRabinFactorsSuffixes *kr_factors = index.getKRFactors();
-	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
+	RelzIndexHash index;
+	index.load(output_path, &karp_rabin);
 	index.printSize();
 	
 	cout << "----- Loading Queries from \"" << queries_file << "\" -----\n";
@@ -104,10 +83,9 @@ int main(int argc, char* argv[]){
 	index.occs_a = 0;
 	index.occs_b = 0;
 	index.occs_c = 0;
-	index.tree_y.hash_nano = 0;
-	index.kr_factors->kr_nano = 0;
 	for( string query : queries ){
 //		cout << "----- Query \"" << query << "\" -----\n";
+//		index.find(query, results);
 		index.findTimes(query, results);
 //		cout << "-----     -----\n";
 		total_occ += results.size();
@@ -131,12 +109,6 @@ int main(int argc, char* argv[]){
 	cout << "kr_factors - max_offset: " <<  index.kr_factors->max_offset << ", max_length: " <<  index.kr_factors->max_length << "\n";
 	cout << "KarpRabin max used length: " <<  karp_rabin.max_len << "\n";
 	
-	
-	
-	delete reference;
-
-
-
 
 }
 
