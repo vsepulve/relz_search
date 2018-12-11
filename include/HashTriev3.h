@@ -76,6 +76,8 @@ private:
 	int_vector<> hash_childs;
 	vector<char> first_childs;
 	
+	void compactData(HashTriev3Node &root_node);
+	
 public: 
 	HashTriev3Node root;
 	
