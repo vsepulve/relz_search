@@ -79,6 +79,23 @@ void HashTriev3::compactData(HashTriev3Node &root_node){
 	sdsl::util::bit_compress(hash_childs);
 //	sdsl::util::bit_compress(first_childs);
 	
+	float total_bits = 0;
+	
+	cout << "HashTriev3::compactData - bits/node positions_childs: " << (8.0*size_in_bytes(positions_childs)/n_nodes) << "\n";
+	cout << "HashTriev3::compactData - bits/node n_childs: " << (8.0*size_in_bytes(n_childs)/n_nodes) << "\n";
+	cout << "HashTriev3::compactData - bits/node len_childs: " << (8.0*size_in_bytes(len_childs)/n_nodes) << "\n";
+	cout << "HashTriev3::compactData - bits/node min_childs: " << (8.0*size_in_bytes(min_childs)/n_nodes) << "\n";
+	cout << "HashTriev3::compactData - bits/node hash_childs: " << (8.0*size_in_bytes(hash_childs)/n_nodes) << "\n";
+	cout << "HashTriev3::compactData - bits/node first_childs: 8\n";
+	
+	total_bits += (8.0*size_in_bytes(positions_childs)/n_nodes);
+	total_bits += (8.0*size_in_bytes(n_childs)/n_nodes);
+	total_bits += (8.0*size_in_bytes(len_childs)/n_nodes);
+	total_bits += (8.0*size_in_bytes(min_childs)/n_nodes);
+	total_bits += (8.0*size_in_bytes(hash_childs)/n_nodes);
+	total_bits += 8;
+	cout << "HashTriev3::compactData - bytes/node: " << total_bits/8.0 << "\n";
+	
 	// Debug
 	for(unsigned int i = 0; i < n_nodes; ++i){
 //		cout << "HashTriev3::compactData - positions_childs[" << i << "]: " << positions_childs[i] << " / n_childs[" << i << "]: " << n_childs[i] << "\n";
@@ -207,11 +224,13 @@ void HashTriev3Node::build(const char *full_text, unsigned int len_text, vector<
 //			cout << "HashTriev3Node::build - Omiting child of len 0\n";
 		}
 		else{
+//			cout << "HashTriev3Node::build - Preparing Child\n";
 			childs_vector.push_back(HashTriev3Node());
 			childs_vector.back().first = first_char;
 			childs_vector.back().len = min_text_len;
 			childs_vector.back().min = min_pos;
 			childs_vector.back().hash = hash;
+//			cout << "HashTriev3Node::build - Child Ready, starting recursive build\n";
 			childs_vector.back().build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
 		}
 		
@@ -226,9 +245,12 @@ void HashTriev3Node::build(const char *full_text, unsigned int len_text, vector<
 	
 	}
 	
-	std::sort(childs_vector.begin(), childs_vector.end(), 
-		[](const HashTriev3Node &p1, const HashTriev3Node &p2) -> bool{return p1.first < p2.first;}
-	);
+	if( childs_vector.size() > 1 ){
+//		cout << "HashTriev3Node::build - Sort (" << childs_vector.size() << " childs)\n";
+		std::sort(childs_vector.begin(), childs_vector.end(), 
+			[](const HashTriev3Node &p1, const HashTriev3Node &p2) -> bool{return p1.first < p2.first;}
+		);
+	}
 	
 //	cout << "----- \n";
 	
@@ -525,16 +547,6 @@ void HashTriev3Node::load(fstream &reader){
 
 void HashTriev3::save(const string &file){
 	cout << "HashTriev3::save - Start (" << file << ")\n";
-//	fstream writer(file, fstream::out | fstream::trunc);
-//	root.save(writer);
-//	writer.close();
-	
-//	int_vector<> positions_childs;
-//	int_vector<> n_childs;
-//	int_vector<> len_childs;
-//	int_vector<> min_childs;
-//	int_vector<> hash_childs;
-//	vector<char> first_childs;
 	
 	string pos_file = file + ".pos";
 	store_to_file(positions_childs, pos_file);
@@ -566,13 +578,6 @@ void HashTriev3::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_fact
 	karp_rabin = _karp_rabin;
 	kr_factors = _kr_factors;
 	arr_y = _arr_y;
-	
-//	fstream reader(file, fstream::in);
-//	HashTriev3Node local_root;
-//	local_root.load(reader);
-//	reader.close();
-//	
-//	compactData(local_root);
 	
 	string pos_file = file + ".pos";
 	load_from_file(positions_childs, pos_file);
@@ -788,9 +793,11 @@ void HashTriev3RevNode::build(const char *full_text, unsigned int len_text, vect
 	
 	}
 	
-	std::sort(childs_vector.begin(), childs_vector.end(), 
-		[](const HashTriev3RevNode &p1, const HashTriev3RevNode &p2) -> bool{return p1.first < p2.first;}
-	);
+	if( childs_vector.size() > 1 ){
+		std::sort(childs_vector.begin(), childs_vector.end(), 
+			[](const HashTriev3RevNode &p1, const HashTriev3RevNode &p2) -> bool{return p1.first < p2.first;}
+		);
+	}
 	
 //	cout << "----- \n";
 	

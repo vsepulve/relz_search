@@ -140,9 +140,11 @@ void HashTriev2Node::build(const char *full_text, unsigned int len_text, vector<
 	
 	}
 	
-	std::sort(childs_vector.begin(), childs_vector.end(), 
-		[](const HashTriev2Node &p1, const HashTriev2Node &p2) -> bool{return p1.first < p2.first;}
-	);
+	if( childs_vector.size() > 1 ){
+		std::sort(childs_vector.begin(), childs_vector.end(), 
+			[](const HashTriev2Node &p1, const HashTriev2Node &p2) -> bool{return p1.first < p2.first;}
+		);
+	}
 	
 //	cout << "----- \n";
 	
@@ -329,9 +331,11 @@ void HashTriev2Node::load(fstream &reader){
 		
 	}
 	
-	std::sort(childs_vector.begin(), childs_vector.end(), 
-		[](const HashTriev2Node &p1, const HashTriev2Node &p2) -> bool{return p1.first < p2.first;}
-	);
+	if( childs_vector.size() > 1 ){
+		std::sort(childs_vector.begin(), childs_vector.end(), 
+			[](const HashTriev2Node &p1, const HashTriev2Node &p2) -> bool{return p1.first < p2.first;}
+		);
+	}
 	
 	// Debug
 //	cout << "HashTriev2Node::load - Childs: " << childs_vector.size() << " / ";
@@ -547,9 +551,11 @@ void HashTriev2RevNode::build(const char *full_text, unsigned int len_text, vect
 	
 	}
 	
-	std::sort(childs_vector.begin(), childs_vector.end(), 
-		[](const HashTriev2RevNode &p1, const HashTriev2RevNode &p2) -> bool{return p1.first < p2.first;}
-	);
+	if( childs_vector.size() > 1 ){
+		std::sort(childs_vector.begin(), childs_vector.end(), 
+			[](const HashTriev2RevNode &p1, const HashTriev2RevNode &p2) -> bool{return p1.first < p2.first;}
+		);
+	}
 	
 //	cout << "----- \n";
 	
@@ -755,9 +761,11 @@ void HashTriev2RevNode::load(fstream &reader){
 		childs_vector.back().first = child_first_char;
 	}
 	
-	std::sort(childs_vector.begin(), childs_vector.end(), 
-		[](const HashTriev2RevNode &p1, const HashTriev2RevNode &p2) -> bool{return p1.first < p2.first;}
-	);
+	if( childs_vector.size() > 1 ){
+		std::sort(childs_vector.begin(), childs_vector.end(), 
+			[](const HashTriev2RevNode &p1, const HashTriev2RevNode &p2) -> bool{return p1.first < p2.first;}
+		);
+	}
 	
 }
 
