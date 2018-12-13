@@ -340,7 +340,7 @@ void RelzIndexHashCompacted::printSize(){
 	unsigned int max_childs = 0;
 	unsigned int max_height = 0;
 	unsigned int total_childs = 0;
-	total_childs = tree_y.root.totalChilds(max_len, max_childs, max_height, 0);
+	total_childs = tree_y.totalChilds();
 	total_bytes += ((double)total_childs)*12.625;
 //	cout << "RelzIndexHashCompacted::printSize - tree_y: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
 	cout << "RelzIndexHashCompacted::printSize - tree_y: " << (8.0*((double)total_childs)*12.625/(len_text)) << " bps (total_childs: " << total_childs << ", max_len: " << max_len << ", max_childs: " << max_childs << ", max_height: " << max_height << ")\n";
