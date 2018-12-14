@@ -220,10 +220,10 @@ pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long l
 
 //pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, const string &pattern, unsigned long long *hash_nano){
 	
-	cout << "HashTriev2Node::getRange - Start (prefixes: " << kr_pat_vector.size() << ", pos: " << pos << ", processed: " << processed << ")\n";
+//	cout << "HashTriev2Node::getRange - Start (prefixes: " << kr_pat_vector.size() << ", pos: " << pos << ", processed: " << processed << ")\n";
 	
 	if( pos + processed >= kr_pat_vector.size() ){
-		cout << "HashTriev2Node::getRange - [" << min << ", " << cur_max << "]\n";
+//		cout << "HashTriev2Node::getRange - [" << min << ", " << cur_max << "]\n";
 //		return pair<unsigned int, unsigned int>(min, max);
 		return pair<unsigned int, unsigned int>(min, cur_max);
 	}
@@ -234,7 +234,7 @@ pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long l
 	char first_char_pat = pattern[pos + processed];
 //	cout << "HashTriev2Node::getRange - pat_len: " << pat_len << "\n";
 	string pat = pattern.substr(pos + processed, pat_len);
-	cout << "HashTriev2Node::getRange - pat: " << pat << " (first_char_pat: " << first_char_pat << ")\n";
+//	cout << "HashTriev2Node::getRange - pat: " << pat << " (first_char_pat: " << first_char_pat << ")\n";
 	
 	unsigned int pos_child = findChild(first_char_pat);
 	if( pos_child != NOT_FOUND ){
@@ -246,18 +246,18 @@ pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long l
 		}
 		
 		if( child_len <= pat_len ){
-			cout << "HashTriev2Node::getRange - Case 1, child_len: " << child_len << ", pos_child: " << pos_child << "\n";
+//			cout << "HashTriev2Node::getRange - Case 1, child_len: " << child_len << ", pos_child: " << pos_child << "\n";
 			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[pos + processed + child_len - 1], kr_pat_vector[pos + processed - 1], child_len);
 			string pat_cut = pattern.substr(pos + processed, child_len);
 //			cout << "HashTriev2Node::getRange - pat_cut: " << pat_cut << " hash_pat: " << hash_pat << " / " << karp_rabin->hash(pat_cut) << " (processed: " << processed << ")\n";
 			if( hash_pat == childs_vector[pos_child].hash ){
-				cout << "HashTriev2Node::getRange - Child found -> [" << childs_vector[pos_child].min << ", " << cur_max << "]\n";
+//				cout << "HashTriev2Node::getRange - Child found -> [" << childs_vector[pos_child].min << ", " << cur_max << "]\n";
 //				return childs_vector[pos_child].getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, pattern, hash_nano);
 				return childs_vector[pos_child].getRange(kr_pat_vector, pos, processed + child_len, karp_rabin, kr_factors, arr_y, cur_max, pattern, hash_nano);
 			}
 		}
 		else{
-			cout << "HashTriev2Node::getRange - Case 2, child_len: " << child_len << "\n";
+//			cout << "HashTriev2Node::getRange - Case 2, child_len: " << child_len << "\n";
 			
 			unsigned int min_factor_pos = (*arr_y)[childs_vector[pos_child].min];
 			
@@ -270,14 +270,14 @@ pair<unsigned int, unsigned int> HashTriev2Node::getRange(vector<unsigned long l
 			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
 //			cout << "HashTriev2Node::getRange - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
 			if( hash == hash_pat ){
-				cout << "HashTriev2Node::getRange - Child found -> [" << childs_vector[pos_child].min << ", " << cur_max << "]\n";
+//				cout << "HashTriev2Node::getRange - Child found -> [" << childs_vector[pos_child].min << ", " << cur_max << "]\n";
 //				return pair<unsigned int, unsigned int>(childs_vector[pos_child].min, childs_vector[pos_child].max);
 				return pair<unsigned int, unsigned int>(childs_vector[pos_child].min, cur_max);
 			}
 		}
 	}
 	
-	cout << "HashTriev2Node::getRange - Pattern NOT found\n";
+//	cout << "HashTriev2Node::getRange - Pattern NOT found\n";
 	return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
 }
 
