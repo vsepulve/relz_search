@@ -350,7 +350,7 @@ void RelzIndexHashCompacted::printSize(){
 	max_childs = 0;
 	max_height = 0;
 	total_childs = 0;
-	total_childs = tree_x.root.totalChilds(max_len, max_childs, max_height, 0);
+	total_childs = tree_x.totalChilds();
 	total_bytes += ((double)total_childs)*12.625;
 //	cout << "RelzIndexHashCompacted::printSize - tree_x: " << (((double)total_childs)*12.625/(1024*1024)) << " MB\n";
 	cout << "RelzIndexHashCompacted::printSize - tree_x: " << (8.0*((double)total_childs)*12.625/(len_text)) << " bps (total_childs: " << total_childs << ", max_len: " << max_len << ", max_childs: " << max_childs << ", max_height: " << max_height << ")\n";
@@ -361,10 +361,10 @@ void RelzIndexHashCompacted::printSize(){
 
 void RelzIndexHashCompacted::findTimes(const string &pattern, vector<unsigned int> &results){
 	
-	cout << "RelzIndexHashCompacted::findTimes - Start (\"" << pattern << "\")\n";
+//	cout << "RelzIndexHashCompacted::findTimes - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
 	
-	cout << "RelzIndexHashCompacted::findTimes - Section A, reference\n";
+//	cout << "RelzIndexHashCompacted::findTimes - Section A, reference\n";
 	
 	size_t m = pattern.size();
 	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
@@ -392,7 +392,7 @@ void RelzIndexHashCompacted::findTimes(const string &pattern, vector<unsigned in
 	}
 	querytime_p2 += timer.getNanosec();
 	
-	cout << "RelzIndexHashCompacted::findTimes - Section B, ranges\n";
+//	cout << "RelzIndexHashCompacted::findTimes - Section B, ranges\n";
 	
 	vector<unsigned long long> kr_pat_vector;
 	vector<unsigned long long> kr_pat_rev_vector;
@@ -409,29 +409,29 @@ void RelzIndexHashCompacted::findTimes(const string &pattern, vector<unsigned in
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
 		
-		cout << "-----  tree_x.getRange -----\n";
+//		cout << "-----  tree_x.getRange -----\n";
 		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
 		querytime_p3x += timer.getNanosec();
 		timer.reset();
-		cout << "-----\n";
+//		cout << "-----\n";
 		
 		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
 			continue;
 		}
 		
-		cout << "-----  tree_y.getRange -----\n";
+//		cout << "-----  tree_y.getRange -----\n";
 		pair<unsigned int, unsigned int> r2 = tree_y.getRange(kr_pat_vector, i, pattern);
 		querytime_p3y += timer.getNanosec();
 		timer.reset();
-		cout << "-----\n";
+//		cout << "-----\n";
 		
 		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 			continue;
 		}
 		
-		cout << "RelzIndexHashCompacted::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+//		cout << "RelzIndexHashCompacted::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
-		cout << "RelzIndexHashCompacted::findTimes - Adding " << res.second.size() << " points\n";
+//		cout << "RelzIndexHashCompacted::findTimes - Adding " << res.second.size() << " points\n";
 		for (auto point : res.second){
 			unsigned int f = arr_y[point.second];
 			unsigned int pu = select1_b(f + 1);
@@ -475,7 +475,7 @@ void RelzIndexHashCompacted::findTimes(const string &pattern, vector<unsigned in
 		
 	}
 	
-	cout << "RelzIndexHashCompacted::findTimes - End\n";
+//	cout << "RelzIndexHashCompacted::findTimes - End\n";
 	
 }
 
