@@ -27,9 +27,6 @@
 using namespace std;
 
 class HashTriev3Node{
-	
-	// Returns NOT_FOUND in case of not found
-//	unsigned int findChild(char c);
 
 public: 
 
@@ -47,15 +44,7 @@ public:
 	
 	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *arr_y, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int min, unsigned int max, unsigned int processed_len);
 	
-//	void print(unsigned int level);
-//	
 	unsigned int totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height);
-	
-//	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, unsigned int cur_max, const string &pattern, unsigned long long *hash_nano);
-//	
-//	void save(fstream &writer);
-//	
-//	void load(fstream &reader);
 	
 	void compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, vector<char> &first_childs);
 	
@@ -79,6 +68,7 @@ private:
 	void compactData(HashTriev3Node &root_node);
 	
 	// Clone of HashTriev3Node::findChild, but using compacted arrays and node_pos as the position for the current node
+	// Returns NOT_FOUND in case of not found
 	unsigned int findChildInternal(unsigned int node_pos, char c);
 
 	// Clone of HashTriev3Node::getRange, but using compacted arrays and node_pos as the position for the current node
@@ -88,7 +78,6 @@ private:
 	void printInternal(unsigned int node_pos, unsigned int level);
 	
 public: 
-//	HashTriev3Node root;
 	
 	HashTriev3();
 	HashTriev3(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_y, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
@@ -124,15 +113,9 @@ public:
 	// Uncompressed node's data
 	unsigned int len;
 	unsigned int min;
-//	unsigned int max;
 	unsigned int hash;
-	// Position of the factor in the collection
-//	unsigned int min_factor_pos;
 	char first;
 	
-	// Structure for chidls, indexed by first char
-//	unordered_map<char, shared_ptr<HashTriev3RevNode>> childs;
-
 	// Structure for chidls, sorted by first char
 	vector<HashTriev3RevNode> childs_vector;
 	
@@ -145,13 +128,15 @@ public:
 	
 	unsigned int totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height);
 	
+	void compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, vector<char> &first_childs);
+	
 //	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_x, const string &pattern_rev);
 	
-	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_x, unsigned int cur_max, const string &pattern_rev);
-	
-	void save(fstream &writer);
-	
-	void load(fstream &reader);
+//	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_x, unsigned int cur_max, const string &pattern_rev);
+//	
+//	void save(fstream &writer);
+//	
+//	void load(fstream &reader);
 	
 };
 
@@ -162,8 +147,28 @@ private:
 	KarpRabinFactorsSuffixes *kr_factors;
 	int_vector<> *arr_x;
 	
+	// Datos serializados de los nodos
+	int_vector<> positions_childs;
+	int_vector<> n_childs;
+	int_vector<> len_childs;
+	int_vector<> min_childs;
+	int_vector<> hash_childs;
+	vector<char> first_childs;
+	
+	void compactData(HashTriev3RevNode &root_node);
+	
+	// Clone of HashTriev3Node::findChild, but using compacted arrays and node_pos as the position for the current node
+	// Returns NOT_FOUND in case of not found
+	unsigned int findChildInternal(unsigned int node_pos, char c);
+
+	// Clone of HashTriev3Node::getRange, but using compacted arrays and node_pos as the position for the current node
+	pair<unsigned int, unsigned int> getRangeInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, int_vector<> *arr_y, unsigned int cur_max, const string &pattern);
+	
+	// Clone of HashTriev3Node::print, but using compacted arrays and node_pos as the position for the current node
+	void printInternal(unsigned int node_pos, unsigned int level);
+	
 public: 
-	HashTriev3RevNode root;
+//	HashTriev3RevNode root;
 	
 	HashTriev3Rev();
 	HashTriev3Rev(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_x, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors);
@@ -180,6 +185,10 @@ public:
 	void save(const string &file);
 	
 	void load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, int_vector<> *_arr_x, const string &file);
+	
+	unsigned int totalChilds(){
+		return positions_childs.size();
+	}
 	
 };
 
