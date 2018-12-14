@@ -107,6 +107,8 @@ public:
 		return positions_childs.size();
 	}
 	
+	unsigned int getSizeBytes();
+	
 	unsigned long long hash_nano;
 	
 };

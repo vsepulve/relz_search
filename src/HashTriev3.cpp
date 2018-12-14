@@ -679,6 +679,26 @@ void HashTriev3::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_fact
 	cout << "HashTriev3::load - End\n";
 }
 
+unsigned int HashTriev3::getSizeBytes(){
+
+//	int_vector<> positions_childs;
+//	int_vector<> n_childs;
+//	int_vector<> len_childs;
+//	int_vector<> min_childs;
+//	int_vector<> hash_childs;
+//	vector<char> first_childs;
+	
+	unsigned int total = 0;
+	total += size_in_bytes(positions_childs);
+	total += size_in_bytes(n_childs);
+	total += size_in_bytes(len_childs);
+	total += size_in_bytes(min_childs);
+	total += size_in_bytes(hash_childs);
+//	total += size_in_bytes(first_childs);
+	total += first_childs.size();
+	
+	return total;
+}
 
 
 
