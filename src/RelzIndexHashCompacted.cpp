@@ -135,15 +135,15 @@ RelzIndexHashCompacted::RelzIndexHashCompacted(vector<pair<unsigned int, unsigne
 		arr_x[i] = arr_x_original[i];
 	}
 	
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-		char c = 0;
-		FactorsIteratorReverse it(arr_x[i] - 1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, _ref_text, &fm_index, len_text);
-		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
-			cout << c;
-		cout << "\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+//		char c = 0;
+//		FactorsIteratorReverse it(arr_x[i] - 1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, _ref_text, &fm_index, len_text);
+//		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
+//			cout << c;
+//		cout << "\n";
+//	}
+//	cout << "-----\n";
 	
 	cout << "RelzIndexHashCompacted - Preparing arr Y\n";
 	vector<unsigned int> arr_y_original(n_factors);
@@ -161,15 +161,15 @@ RelzIndexHashCompacted::RelzIndexHashCompacted(vector<pair<unsigned int, unsigne
 		arr_y_inv[ arr_y_original[i] ] = i;
 	}
 	
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
-		char c = 0;
-		FactorsIterator it(arr_y[i], n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, _ref_text, &fm_index, len_text);
-		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
-			cout << c;
-		cout << " (" << it.length() << ")\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
+//		char c = 0;
+//		FactorsIterator it(arr_y[i], n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, _ref_text, &fm_index, len_text);
+//		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
+//			cout << c;
+//		cout << " (" << it.length() << ")\n";
+//	}
+//	cout << "-----\n";
 
 	cout << "RelzIndexHashCompacted - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
@@ -268,19 +268,17 @@ RelzIndexHashCompacted::RelzIndexHashCompacted(vector<pair<unsigned int, unsigne
 	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
 	// Tambien, si hay un archivo para tree_y almacenado, lo cargo en lugar de construirlo
 	
-	cout << "RelzIndexHashCompacted - Building Tree Y\n";
-	timer.reset();
-//	tree_y.build(full_text, len_text, factors_start, arr_y_original, karp_rabin, kr_factors);
-	tree_y.build(full_text, len_text, factors_start, &arr_y, karp_rabin, kr_factors);
-	cout << "RelzIndexHashCompacted - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
-	tree_y.print();
-	
 	cout << "RelzIndexHashCompacted - Building Tree X\n";
 	timer.reset();
-//	tree_x.build(full_text, len_text, factors_start, arr_x_original, karp_rabin, kr_factors);
-	tree_x.build(full_text, len_text, factors_start, &arr_x, karp_rabin, kr_factors);
+	tree_x.build(full_text, len_text, factors_start, &arr_x, karp_rabin, kr_factors, true);
 	cout << "RelzIndexHashCompacted - Tree X finished in (" << timer.getMilisec() << " ms)\n";
-	tree_x.print();
+//	tree_x.print();
+	
+	cout << "RelzIndexHashCompacted - Building Tree Y\n";
+	timer.reset();
+	tree_y.build(full_text, len_text, factors_start, &arr_y, karp_rabin, kr_factors, false);
+	cout << "RelzIndexHashCompacted - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
+//	tree_y.print();
 	
 	cout << "RelzIndexHashCompacted - Trees prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
@@ -410,7 +408,8 @@ void RelzIndexHashCompacted::findTimes(const string &pattern, vector<unsigned in
 		timer.reset();
 		
 //		cout << "-----  tree_x.getRange -----\n";
-		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
+//		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
+		pair<unsigned int, unsigned int> r1 = tree_x.getRangeRev(kr_pat_rev_vector, i, pattern_rev);
 		querytime_p3x += timer.getNanosec();
 		timer.reset();
 //		cout << "-----\n";
@@ -581,11 +580,11 @@ void RelzIndexHashCompacted::save(const string &file_base){
 	kr_factors->save(krs_file);
 	
 	// tree_x
-	string tree_x_file = file_base + ".tree.x";
+	string tree_x_file = file_base + ".tree_x";
 	tree_x.save(tree_x_file);
 	
 	// tree_y
-	string tree_y_file = file_base + ".tree.y";
+	string tree_y_file = file_base + ".tree_y";
 	tree_y.save(tree_y_file);
 	
 	
@@ -689,11 +688,11 @@ void RelzIndexHashCompacted::load(const string &file_base, KarpRabin *_karp_rabi
 	kr_factors = new KarpRabinFactorsSuffixesv2(krs_file, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
 	
 	// tree_x
-	string tree_x_file = file_base + ".tree.x";
+	string tree_x_file = file_base + ".tree_x";
 	tree_x.load(karp_rabin, kr_factors, &arr_x, tree_x_file);
 	
 	// tree_y
-	string tree_y_file = file_base + ".tree.y";
+	string tree_y_file = file_base + ".tree_y";
 	tree_y.load(karp_rabin, kr_factors, &arr_y, tree_y_file);
 	
 	
