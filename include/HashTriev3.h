@@ -48,7 +48,7 @@ public:
 	
 	unsigned int totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height);
 	
-	void compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, vector<char> &first_childs);
+	void compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs);
 	
 };
 
@@ -65,7 +65,8 @@ private:
 	int_vector<> len_childs;
 	int_vector<> min_childs;
 	int_vector<> hash_childs;
-	vector<char> first_childs;
+//	vector<char> first_childs;
+	int_vector<> first_childs;
 	
 	void compactData(HashTriev3Node &root_node);
 	
@@ -110,6 +111,10 @@ public:
 	unsigned int getSizeBytes();
 	
 	unsigned long long hash_nano;
+	
+	static unsigned int codeChar(char c);
+	
+	static constexpr char decodeChar[] = "ACGT";
 	
 };
 

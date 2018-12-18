@@ -1,5 +1,7 @@
 #include "HashTriev3.h"
 
+constexpr char HashTriev3::decodeChar[];
+
 // Node Methods
 
 HashTriev3Node::HashTriev3Node(){
@@ -12,7 +14,7 @@ HashTriev3Node::HashTriev3Node(){
 HashTriev3Node::~HashTriev3Node(){
 }
 
-void HashTriev3Node::compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, vector<char> &first_childs){
+void HashTriev3Node::compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs){
 	// Guardo la posicion para los hijos de este nodo
 	// El valor de next_pos cambiara con cada hijo
 	unsigned int cur_pos = next_pos;
@@ -26,7 +28,7 @@ void HashTriev3Node::compactData(unsigned int &next_pos, int_vector<> &positions
 		len_childs[cur_pos] = childs_vector[i].len;
 		min_childs[cur_pos] = childs_vector[i].min;
 		hash_childs[cur_pos] = childs_vector[i].hash;
-		first_childs[cur_pos] = childs_vector[i].first;
+		first_childs[cur_pos] = HashTriev3::codeChar(childs_vector[i].first);
 		// Recursive call
 		childs_vector[i].compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs);
 		++cur_pos;
@@ -98,12 +100,13 @@ void HashTriev3Node::build(const char *full_text, unsigned int len_text, vector<
 //			cout << "HashTriev3Node::build - Case 2\n";
 			min_text_len = len_text - min_text_start;
 		}
-//		cout << "HashTriev3Node::build - min_text_len: " << min_text_len << "\n";
 //		cout << "HashTriev3Node::build - Preparing string s (min_text_start: " << min_text_start << " / " << len_text << ", len: " << min_text_len << ")\n";
 		
 		// El string es solo para el mensaje de debug
 //		string s(full_text + min_text_start, min_text_len);
 		char first_char = full_text[min_text_start];
+		
+//		cout << "HashTriev3Node::build - first_char: " << first_char << ")\n";
 		
 		// Notar que aqui necesito la posicion del factor en la coleccion, no en el arreglo Y
 		hash = kr_factors->hash( (*arr_y)[min_pos], processed_len, min_text_len);
@@ -317,6 +320,26 @@ unsigned int HashTriev3Node::totalChilds(unsigned int &max_len, unsigned int &ma
 }
 
 // Tree Methods
+	
+unsigned int HashTriev3::codeChar(char c){
+	if(c == 'A'){
+		return 0;
+	}
+	else if(c == 'C'){
+		return 1;
+	}
+	else if(c == 'G'){
+		return 2;
+	}
+	else if(c == 'T'){
+		return 3;
+	}
+	else{
+		cerr << "HashTriev3::codeChar - Unknown char " << c << "\n";
+		exit(0);
+//		return 0;
+	}
+}
 
 HashTriev3::HashTriev3(){
 	karp_rabin = NULL;
@@ -389,7 +412,8 @@ void HashTriev3::compactData(HashTriev3Node &root_node){
 	len_childs[next_pos] = root_node.len;
 	min_childs[next_pos] = root_node.min;
 	hash_childs[next_pos] = root_node.hash;
-	first_childs[next_pos] = root_node.first;
+//	first_childs[next_pos] = root_node.first;
+	first_childs[next_pos] = codeChar(root_node.first);
 	++next_pos;
 	
 	root_node.compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs);
@@ -399,7 +423,7 @@ void HashTriev3::compactData(HashTriev3Node &root_node){
 	sdsl::util::bit_compress(len_childs);
 	sdsl::util::bit_compress(min_childs);
 	sdsl::util::bit_compress(hash_childs);
-//	sdsl::util::bit_compress(first_childs);
+	sdsl::util::bit_compress(first_childs);
 	
 	float total_bits = 0;
 	
@@ -415,13 +439,13 @@ void HashTriev3::compactData(HashTriev3Node &root_node){
 	total_bits += (8.0*size_in_bytes(len_childs)/n_nodes);
 	total_bits += (8.0*size_in_bytes(min_childs)/n_nodes);
 	total_bits += (8.0*size_in_bytes(hash_childs)/n_nodes);
-	total_bits += 8;
+//	total_bits += 8;
+	total_bits += (8.0*size_in_bytes(first_childs)/n_nodes);
 	cout << "HashTriev3::compactData - bytes/node: " << total_bits/8.0 << "\n";
 	
 	// Debug
 	for(unsigned int i = 0; i < n_nodes; ++i){
-//		cout << "HashTriev3::compactData - positions_childs[" << i << "]: " << positions_childs[i] << " / n_childs[" << i << "]: " << n_childs[i] << "\n";
-		cout << "HashTriev3::compactData - node[" << i << "]: (" << positions_childs[i] << ", " << n_childs[i] << ", " << len_childs[i] << ", " << min_childs[i] << ", " << hash_childs[i] << ", " << first_childs[i] << ")\n";
+		cout << "HashTriev3::compactData - node[" << i << "]: (" << positions_childs[i] << ", " << n_childs[i] << ", " << len_childs[i] << ", " << min_childs[i] << ", " << hash_childs[i] << ", " << decodeChar[ first_childs[i] ] << ")\n";
 	}
 	
 	cout << "HashTriev3::compactData - End\n";
@@ -443,7 +467,7 @@ void HashTriev3::printInternal(unsigned int node_pos, unsigned int level){
 	}
 	cout << "hash: " << hash_childs[node_pos] << ", len: " << len_childs[node_pos] << " , range [" << min_childs[node_pos] << "]\n";
 	for(unsigned int i = 0; i < n_childs[node_pos]; ++i){
-		cout << first_childs[ i + positions_childs[node_pos] ] << " ";
+		cout << decodeChar[ first_childs[ i + positions_childs[node_pos] ] ] << " ";
 		printInternal(i + positions_childs[node_pos], level+1);
 	}
 }
@@ -466,7 +490,7 @@ pair<unsigned int, unsigned int> HashTriev3::getRangeRev(vector<unsigned long lo
 
 unsigned int HashTriev3::findChildInternal(unsigned int node_pos, char c){
 	for(unsigned int i = 0; i < n_childs[node_pos]; ++i){
-		if( c == first_childs[ i + positions_childs[node_pos] ] ){
+		if( c == decodeChar[ first_childs[ i + positions_childs[node_pos] ] ] ){
 			return i;
 		}
 	}
@@ -636,11 +660,12 @@ void HashTriev3::save(const string &file){
 	store_to_file(hash_childs, hash_file);
 	
 	string first_file = file + ".first";
-	fstream writer(first_file, fstream::out | fstream::trunc);
-	for(unsigned int i = 0; i < positions_childs.size(); ++i){
-		writer.write(&(first_childs[i]), 1);
-	}
-	writer.close();
+//	fstream writer(first_file, fstream::out | fstream::trunc);
+//	for(unsigned int i = 0; i < positions_childs.size(); ++i){
+//		writer.write(&(first_childs[i]), 1);
+//	}
+//	writer.close();
+	store_to_file(first_childs, first_file);
 	
 	cout << "HashTriev3::save - End\n";
 }
@@ -667,14 +692,15 @@ void HashTriev3::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_fact
 	load_from_file(hash_childs, hash_file);
 	
 	string first_file = file + ".first";
-	fstream reader(first_file, fstream::in);
-	first_childs.resize(positions_childs.size());
-	for(unsigned int i = 0; i < positions_childs.size(); ++i){
-		char c;
-		reader.read(&c, 1);
-		first_childs[i] = c;
-	}
-	reader.close();
+//	fstream reader(first_file, fstream::in);
+//	first_childs.resize(positions_childs.size());
+//	for(unsigned int i = 0; i < positions_childs.size(); ++i){
+//		char c;
+//		reader.read(&c, 1);
+//		first_childs[i] = c;
+//	}
+//	reader.close();
+	load_from_file(first_childs, first_file);
 	
 	cout << "HashTriev3::load - End\n";
 }
@@ -686,7 +712,7 @@ unsigned int HashTriev3::getSizeBytes(){
 //	int_vector<> len_childs;
 //	int_vector<> min_childs;
 //	int_vector<> hash_childs;
-//	vector<char> first_childs;
+//	int_vector<> first_childs;
 	
 	unsigned int total = 0;
 	total += size_in_bytes(positions_childs);
@@ -694,8 +720,8 @@ unsigned int HashTriev3::getSizeBytes(){
 	total += size_in_bytes(len_childs);
 	total += size_in_bytes(min_childs);
 	total += size_in_bytes(hash_childs);
-//	total += size_in_bytes(first_childs);
-	total += first_childs.size();
+//	total += first_childs.size();
+	total += size_in_bytes(first_childs);
 	
 	return total;
 }
