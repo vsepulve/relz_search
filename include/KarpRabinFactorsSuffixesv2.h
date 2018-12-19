@@ -78,6 +78,7 @@ public:
 	
 	// Returns the hash from a suffix from a factor (positional), offset and length
 	unsigned long long hash(unsigned int factor_ini, unsigned int offset, unsigned int length);
+	unsigned long long hashBin(unsigned int factor_ini, unsigned int offset, unsigned int length);
 	
 	// REturns the hash from the start of factor_ini (positional) of length length
 	unsigned long long hash(unsigned int factor_ini, unsigned int length);
@@ -94,7 +95,10 @@ public:
 	
 	void load(const string &file);
 	
-	
+	unsigned long long nano1;
+	unsigned long long nano2;
+	unsigned long long nano3;
+	unsigned long long nano4;
 	
 };
 

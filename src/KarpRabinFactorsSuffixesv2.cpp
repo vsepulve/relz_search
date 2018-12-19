@@ -15,6 +15,10 @@ KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(){
 	
 	max_offset = 0;
 	max_length = 0;
+	nano1 = 0;
+	nano2 = 0;
+	nano3 = 0;
+	nano4 = 0;
 }
 
 KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(unsigned int _n_factors, 
@@ -43,6 +47,10 @@ KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(unsigned int _n_factors,
 	
 	max_offset = 0;
 	max_length = 0;
+	nano1 = 0;
+	nano2 = 0;
+	nano3 = 0;
+	nano4 = 0;
 }
 
 KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(const string &file, 
@@ -69,6 +77,10 @@ KarpRabinFactorsSuffixesv2::KarpRabinFactorsSuffixesv2(const string &file,
 	
 	max_offset = 0;
 	max_length = 0;
+	nano1 = 0;
+	nano2 = 0;
+	nano3 = 0;
+	nano4 = 0;
 }
 
 KarpRabinFactorsSuffixesv2::~KarpRabinFactorsSuffixesv2(){
@@ -239,7 +251,7 @@ unsigned long long KarpRabinFactorsSuffixesv2::hashFast(unsigned int factor_ini,
 }
 
 unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, unsigned int offset, unsigned int length){
-
+	
 	// Solo para debug y estadisticas
 	if( offset > max_offset ){
 		max_offset = offset;
@@ -248,15 +260,21 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 		max_length = length;
 	}
 	
-	if( offset < karp_rabin->getTableSize() && length < karp_rabin->getTableSize() ){
+	if( (offset + length) < karp_rabin->getTableSize() ){
+//		cout << "KarpRabinFactorsSuffixesv2::hash - hashFast (" << factor_ini << ", " << offset << ", " << length << ")\n";
 		return hashFast(factor_ini, offset, length);
 	}
 
-//	cout << "KarpRabinFactorsSuffixesv2::hash - Start (factor_ini: " << factor_ini << ", offset: " << offset << ", length: " << length << ")\n";
-	
+	return hashBin(factor_ini, offset, length);
+
+	/*
 	if( length == 0 ){
 		return 0;
 	}
+	
+//	cout << "KarpRabinFactorsSuffixesv2::hash - Start (factor_ini: " << factor_ini << ", offset: " << offset << ", length: " << length << ")\n";
+	
+	NanoTimer timer;
 	
 	unsigned int factor_cur = factor_ini;
 	
@@ -267,7 +285,7 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 	unsigned int lu = select1_b->operator()(factor_cur + 2) - pu;
 	
 	while( lu < offset ){
-//		cout << "KarpRabinFactorsSuffixesv2::hash - Ommiting factor " << factor_cur << "\n";
+//		cout << "KarpRabinFactorsSuffixesv2::hash - Ommiting factor " << factor_cur << " (tu: " << tu << ", pu: " << pu << ", lu: " << lu << ")\n";
 		offset -= lu;
 		++factor_cur;
 		
@@ -279,6 +297,7 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 	}
 	
 	if( lu == offset ){
+//		cout << "KarpRabinFactorsSuffixesv2::hash - increasing\n";
 		offset = 0;
 		++factor_cur;
 		
@@ -289,10 +308,14 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 		
 	}
 	
-//	cout << "KarpRabinFactorsSuffixesv2::hash - Preparing to remove first prefix (offset: " << offset << ", length: " << length << ")\n";
+	nano1 += timer.getNanosec();
+	timer.reset();
+	
+//	cout << "KarpRabinFactorsSuffixesv2::hash - Preparing to remove first prefix (factor_cur: " << factor_cur << ", offset: " << offset << ", length: " << length << ")\n";
 	// Ahora estoy seguro que el offset se aplica a la frase actual
 	// Tambien se que offset es menor que lu
 	// Calculo el hash de offset y lo resto a la palabra actual
+//	cout << "KarpRabinFactorsSuffixesv2::hash - hash 1 (ref_text + " << tu << ", " << offset << ")\n";
 	unsigned long long kr_prefix = karp_rabin->hash(ref_text + tu, offset);
 //	cout << "KarpRabinFactorsSuffixesv2::hash - kr_prefix: " << kr_prefix << "\n";
 	
@@ -301,10 +324,11 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 	unsigned long long kr_phrase = 0;
 	unsigned long long kr_total = 0;
 	if( length + offset <= lu ){
+//		cout << "KarpRabinFactorsSuffixesv2::hash - hash 2 (ref_text + " << tu << ", " << length << ")\n";
 		kr_phrase = karp_rabin->hash(ref_text + tu, length);
 //		cout << "KarpRabinFactorsSuffixesv2::hash - kr_phrase (FINAL) [" << factor_cur << "]: " << kr_phrase << " (len: " << (length + offset) << ", lu: " << lu << ")\n";
 		kr_total = karp_rabin->subtract_prefix(kr_phrase, kr_prefix, length + offset);
-//		cout << "KarpRabinFactorsSuffixesv2::hash - kr_total (FINAL): " << kr_total << "\n";
+//		cout << "KarpRabinFactorsSuffixesv2::hash - End (" << kr_total << ")\n";
 		return kr_total;
 	}
 	else{
@@ -316,6 +340,9 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 	
 	length -= (lu - offset);
 	++factor_cur;
+	
+	nano2 += timer.getNanosec();
+	timer.reset();
 	
 	cur_perm = (*pi_inv)[factor_cur];
 	tu = select1_s->operator()(cur_perm + 1) - cur_perm;
@@ -342,13 +369,160 @@ unsigned long long KarpRabinFactorsSuffixesv2::hash(unsigned int factor_ini, uns
 		lu = select1_b->operator()(factor_cur + 2) - pu;
 	}
 	
+	nano3 += timer.getNanosec();
+	timer.reset();
+	
 //	cout << "KarpRabinFactorsSuffixesv2::hash - Preparing to add last prefix (length: " << length << ")\n";
 	// Ahora se que el length que queda es solo un prefijo de la frase actual, de largo menor a lu
+//	cout << "KarpRabinFactorsSuffixesv2::hash - hash 3 (ref_text + " << tu << ", " << length << ")\n";
 	kr_prefix = karp_rabin->hash(ref_text + tu, length);
 //	cout << "KarpRabinFactorsSuffixesv2::hash - kr_prefix: " << kr_prefix << "\n";
 	kr_total = karp_rabin->concat(kr_total, kr_prefix, length);
 	
-//	cout << "KarpRabinFactorsSuffixesv2::hash - End (kr_total: " << kr_total << ")\n";
+	nano4 += timer.getNanosec();
+	
+//	cout << "KarpRabinFactorsSuffixesv2::hash - End (" << kr_total << ")\n";
+	return kr_total;
+	*/
+}
+
+unsigned long long KarpRabinFactorsSuffixesv2::hashBin(unsigned int factor_ini, unsigned int offset, unsigned int length){
+
+	if( length == 0 ){
+		return 0;
+	}
+	
+//	cout << "KarpRabinFactorsSuffixesv2::hashBin - Start (factor_ini: " << factor_ini << ", offset: " << offset << ", length: " << length << ")\n";
+	
+	unsigned int offset_ini = select1_b->operator()(factor_ini + 1);
+	
+	// Version con Busqueda Binaria
+	unsigned int l = factor_ini;
+	unsigned int h = pi_inv->size();
+	
+	unsigned int factor_cur = factor_ini;
+	unsigned int cur_perm = (*pi_inv)[factor_cur];
+	unsigned int tu = 0;
+	unsigned int pu = select1_b->operator()(factor_cur + 1);
+	unsigned int lu = 0;
+	
+	while(l < h){
+		factor_cur = l + ((h-l)>>1);
+		pu = select1_b->operator()(factor_cur + 1);
+//		cout << "KarpRabinFactorsSuffixesv2::hashBin - factor_cur: " << factor_cur << ", pu: " << pu << " / " << (offset + offset_ini) << "\n";
+		if( pu < offset + offset_ini ){
+			l = factor_cur+1;
+		}
+		else{
+			h = factor_cur;
+		}
+	}
+//	cout << "KarpRabinFactorsSuffixesv2::hashBin - factor_cur: " << factor_cur << " (pu: " << pu << " / " << (offset + offset_ini) << ")\n";
+	if( (factor_cur > factor_ini) && pu >= (offset + offset_ini) ){
+//		cout << "KarpRabinFactorsSuffixesv2::hashBin - reducing\n";
+		--factor_cur;
+		pu = select1_b->operator()(factor_cur + 1);
+	}
+	
+	offset -= (pu - offset_ini);
+	cur_perm = (*pi_inv)[factor_cur];
+	tu = select1_s->operator()(cur_perm + 1) - cur_perm;
+	lu = select1_b->operator()(factor_cur + 2) - pu;
+	
+//	unsigned int factor_cur = factor_ini;
+//	
+//	// Primero omito los factores completos previos a offset
+//	unsigned int cur_perm = (*pi_inv)[factor_cur];
+//	unsigned int tu = select1_s->operator()(cur_perm + 1) - cur_perm;
+//	unsigned int pu = select1_b->operator()(factor_cur + 1);
+//	unsigned int lu = select1_b->operator()(factor_cur + 2) - pu;
+//	
+//	while( lu < offset ){
+//		cout << "KarpRabinFactorsSuffixesv2::hashBin - Ommiting factor " << factor_cur << " (tu: " << tu << ", pu: " << pu << ")\n";
+//		offset -= lu;
+//		++factor_cur;
+//		
+//		cur_perm = (*pi_inv)[factor_cur];
+//		tu = select1_s->operator()(cur_perm + 1) - cur_perm;
+//		pu = select1_b->operator()(factor_cur + 1);
+//		lu = select1_b->operator()(factor_cur + 2) - pu;
+//		
+//	}
+//	
+//	if( lu == offset ){
+//		offset = 0;
+//		++factor_cur;
+//		
+//		cur_perm = (*pi_inv)[factor_cur];
+//		tu = select1_s->operator()(cur_perm + 1) - cur_perm;
+//		pu = select1_b->operator()(factor_cur + 1);
+//		lu = select1_b->operator()(factor_cur + 2) - pu;
+//		
+//	}
+	
+//	cout << "KarpRabinFactorsSuffixesv2::hashBin - Preparing to remove first prefix (factor_cur: " << factor_cur << ", offset: " << offset << ", length: " << length << ")\n";
+	// Ahora estoy seguro que el offset se aplica a la frase actual
+	// Tambien se que offset es menor que lu
+	// Calculo el hash de offset y lo resto a la palabra actual
+//	cout << "KarpRabinFactorsSuffixesv2::hashBin - hash 1 (ref_text + " << tu << ", " << offset << ")\n";
+	unsigned long long kr_prefix = karp_rabin->hash(ref_text + tu, offset);
+//	cout << "KarpRabinFactorsSuffixesv2::hashBin - kr_prefix: " << kr_prefix << "\n";
+	
+	// Puede pasar que el largo sea MENOR que el largo de la frase
+	// En ese caso, la idea seria omitir el resto
+	unsigned long long kr_phrase = 0;
+	unsigned long long kr_total = 0;
+	if( length + offset <= lu ){
+//		cout << "KarpRabinFactorsSuffixesv2::hashBin - hash 2 (ref_text + " << tu << ", " << length << ")\n";
+		kr_phrase = karp_rabin->hash(ref_text + tu, length);
+//		cout << "KarpRabinFactorsSuffixesv2::hashBin - kr_phrase (FINAL) [" << factor_cur << "]: " << kr_phrase << " (len: " << (length + offset) << ", lu: " << lu << ")\n";
+		kr_total = karp_rabin->subtract_prefix(kr_phrase, kr_prefix, length + offset);
+//		cout << "KarpRabinFactorsSuffixesv2::hashBin - End (" << kr_total << ")\n";
+		return kr_total;
+	}
+	else{
+		kr_phrase = karp_rabin->subtract_prefix(arr_kr_s->at(factor_cur+1), arr_kr_s->at(factor_cur), lu);
+//		cout << "KarpRabinFactorsSuffixesv2::hashBin - kr_phrase [" << factor_cur << "]: " << kr_phrase << "\n";
+		kr_total = karp_rabin->subtract_prefix(kr_phrase, kr_prefix, lu - offset);
+//		cout << "KarpRabinFactorsSuffixesv2::hashBin - kr_total: " << kr_total << "\n";
+	}
+	
+	length -= (lu - offset);
+	++factor_cur;
+	
+	cur_perm = (*pi_inv)[factor_cur];
+	tu = select1_s->operator()(cur_perm + 1) - cur_perm;
+	pu = select1_b->operator()(factor_cur + 1);
+	lu = select1_b->operator()(factor_cur + 2) - pu;
+	
+	// Ahora agrego el hash de cada frase completa contenida
+	while( lu < length ){
+//		cout << "KarpRabinFactorsSuffixesv2::hashBin - Adding factor " << factor_cur << " (lu: " << lu << ", length: " << length << ")\n";
+		
+		// Agrego el hash de la frase
+		kr_phrase = karp_rabin->subtract_prefix(arr_kr_s->at(factor_cur+1), arr_kr_s->at(factor_cur), lu);
+//		cout << "KarpRabinFactorsSuffixesv2::hashBin - kr_phrase [" << factor_cur << "]: " << kr_phrase << "\n";
+		
+		kr_total = karp_rabin->concat(kr_total, kr_phrase, lu);
+//		cout << "KarpRabinFactorsSuffixesv2::hashBin - kr_total " << kr_total << "\n";
+		
+		length -= lu;
+		++factor_cur;
+		
+		cur_perm = (*pi_inv)[factor_cur];
+		tu = select1_s->operator()(cur_perm + 1) - cur_perm;
+		pu = select1_b->operator()(factor_cur + 1);
+		lu = select1_b->operator()(factor_cur + 2) - pu;
+	}
+	
+//	cout << "KarpRabinFactorsSuffixesv2::hashBin - Preparing to add last prefix (length: " << length << ")\n";
+	// Ahora se que el length que queda es solo un prefijo de la frase actual, de largo menor a lu
+//	cout << "KarpRabinFactorsSuffixesv2::hashBin - hash 3 (ref_text + " << tu << ", " << length << ")\n";
+	kr_prefix = karp_rabin->hash(ref_text + tu, length);
+//	cout << "KarpRabinFactorsSuffixesv2::hashBin - kr_prefix: " << kr_prefix << "\n";
+	kr_total = karp_rabin->concat(kr_total, kr_prefix, length);
+	
+//	cout << "KarpRabinFactorsSuffixesv2::hashBin - End (" << kr_total << ")\n";
 	return kr_total;
 	
 }
@@ -386,22 +560,23 @@ void KarpRabinFactorsSuffixesv2::save(const string &file){
 	
 	writer.close();
 	
-	cout << "KarpRabinFactorsSuffixesv2::save - Verification\n";
-	cout << "n_factors: " << n_factors << " (arr_kr_s: " << arr_kr_s->size() << ", factors_start: " << factors_start->size() << ")\n";
-	for(unsigned int i = 0; i < 10; ++i){
-		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
-	}
-	for(unsigned int i = arr_kr_s->size() - 10; i < arr_kr_s->size(); ++i){
-		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
-	}
-	for(unsigned int i = 0; i < 10; ++i){
-		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
-	}
-	for(unsigned int i = factors_start->size() - 10; i < factors_start->size(); ++i){
-		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
-	}
-	cout << "KarpRabinFactorsSuffixesv2::save - Verification End\n";
+//	cout << "KarpRabinFactorsSuffixesv2::save - Verification\n";
+//	cout << "n_factors: " << n_factors << " (arr_kr_s: " << arr_kr_s->size() << ", factors_start: " << factors_start->size() << ")\n";
+//	for(unsigned int i = 0; i < 10; ++i){
+//		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
+//	}
+//	for(unsigned int i = arr_kr_s->size() - 10; i < arr_kr_s->size(); ++i){
+//		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
+//	}
+//	for(unsigned int i = 0; i < 10; ++i){
+//		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
+//	}
+//	for(unsigned int i = factors_start->size() - 10; i < factors_start->size(); ++i){
+//		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
+//	}
+//	cout << "KarpRabinFactorsSuffixesv2::save - Verification End\n";
 	
+	cout << "KarpRabinFactorsSuffixesv2::save - Times: " << nano1 << ", " << nano2 << ", " << nano3 << ", " << nano4 << "\n";
 	
 }
 
@@ -449,21 +624,21 @@ void KarpRabinFactorsSuffixesv2::load(const string &file){
 	
 	reader.close();
 	
-	cout << "KarpRabinFactorsSuffixesv2::load - Verification\n";
-	cout << "n_factors: " << n_factors << " (arr_kr_s: " << arr_kr_s->size() << ", factors_start: " << factors_start->size() << ")\n";
-	for(unsigned int i = 0; i < 10; ++i){
-		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
-	}
-	for(unsigned int i = arr_kr_s->size() - 10; i < arr_kr_s->size(); ++i){
-		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
-	}
-	for(unsigned int i = 0; i < 10; ++i){
-		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
-	}
-	for(unsigned int i = factors_start->size() - 10; i < factors_start->size(); ++i){
-		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
-	}
-	cout << "KarpRabinFactorsSuffixesv2::load - Verification End\n";
+//	cout << "KarpRabinFactorsSuffixesv2::load - Verification\n";
+//	cout << "n_factors: " << n_factors << " (arr_kr_s: " << arr_kr_s->size() << ", factors_start: " << factors_start->size() << ")\n";
+//	for(unsigned int i = 0; i < 10; ++i){
+//		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
+//	}
+//	for(unsigned int i = arr_kr_s->size() - 10; i < arr_kr_s->size(); ++i){
+//		cout << "arr_kr_s[" << i << "]: " << arr_kr_s->at(i) << "\n";
+//	}
+//	for(unsigned int i = 0; i < 10; ++i){
+//		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
+//	}
+//	for(unsigned int i = factors_start->size() - 10; i < factors_start->size(); ++i){
+//		cout << "factors_start[" << i << "]: " << factors_start->at(i) << "\n";
+//	}
+//	cout << "KarpRabinFactorsSuffixesv2::load - Verification End\n";
 	
 }
 
