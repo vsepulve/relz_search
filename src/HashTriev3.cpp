@@ -8,7 +8,8 @@ HashTriev3Node::HashTriev3Node(){
 	len = 0;
 	min = 0;
 	hash = 0;
-	first = 0;
+//	first = 0;
+	first = 'A';
 }
 
 HashTriev3Node::~HashTriev3Node(){
@@ -432,7 +433,8 @@ void HashTriev3::compactData(HashTriev3Node &root_node){
 	cout << "HashTriev3::compactData - bits/node len_childs: " << (8.0*size_in_bytes(len_childs)/n_nodes) << "\n";
 	cout << "HashTriev3::compactData - bits/node min_childs: " << (8.0*size_in_bytes(min_childs)/n_nodes) << "\n";
 	cout << "HashTriev3::compactData - bits/node hash_childs: " << (8.0*size_in_bytes(hash_childs)/n_nodes) << "\n";
-	cout << "HashTriev3::compactData - bits/node first_childs: 8\n";
+//	cout << "HashTriev3::compactData - bits/node first_childs: 8\n";
+	cout << "HashTriev3::compactData - bits/node hash_childs: " << (8.0*size_in_bytes(first_childs)/n_nodes) << "\n";
 	
 	total_bits += (8.0*size_in_bytes(positions_childs)/n_nodes);
 	total_bits += (8.0*size_in_bytes(n_childs)/n_nodes);
