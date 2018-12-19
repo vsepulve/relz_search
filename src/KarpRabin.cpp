@@ -34,11 +34,24 @@ unsigned long long KarpRabin::ullpow2(unsigned int bits, unsigned int y){
 	if( y > max_len ){
 		max_len = y;
 	}
-	assert(y < table_size);
-	assert(pow_table != NULL);
+	if( (pow_table == NULL) || (y >= table_size) ){
+//		cerr << "KarpRabin::ullpow2 - Error, out of table size (" << y << " >= " << table_size << ")\n";
+//		exit(0);
+		return ullpow2_rec(bits, y);
+	}
 	return pow_table[y];
 }
 
+// Recursive Version (Secure but slower than table)
+unsigned long long KarpRabin::ullpow2_rec(unsigned int bits, unsigned int y){
+	if( bits * y < 64 ){
+		return ((1ull << (bits*y) ) % kr_mod);
+	}
+	else{
+//		cout << "KarpRabin::ullpow2_rec (" << (bits * y) << " => " << (y/2) << " | " << (y/2 + (y & 0x1)) << ")\n";
+		return ( ullpow2_rec(bits, y>>1) * ullpow2_rec(bits, (y>>1) + (y & 0x1)) ) % kr_mod;
+	}
+}
 
 // Evaluate the full hash in str.length() operations
 unsigned long long KarpRabin::hash(const string &str){
