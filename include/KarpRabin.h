@@ -25,8 +25,8 @@ protected:
 	// Version using precomputed table
 	unsigned long long ullpow2(unsigned int bits, unsigned int y);
 	
-	// Recursive Version (Secure but slower than table)
-	unsigned long long ullpow2_rec(unsigned int bits, unsigned int y);
+	// Logarithmic version for bit exponents
+	unsigned long long ullpow2_log(unsigned int bits, unsigned int y);
 	
 	// Returns the start from the first factor greater than start, from the sorted array
 	unsigned int nextFactor(unsigned int start, vector<unsigned int> &factors_start);

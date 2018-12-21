@@ -37,20 +37,29 @@ unsigned long long KarpRabin::ullpow2(unsigned int bits, unsigned int y){
 	if( (pow_table == NULL) || (y >= table_size) ){
 //		cerr << "KarpRabin::ullpow2 - Error, out of table size (" << y << " >= " << table_size << ")\n";
 //		exit(0);
-		return ullpow2_rec(bits, y);
+		return ullpow2_log(bits, y);
 	}
 	return pow_table[y];
 }
 
-// Recursive Version (Secure but slower than table)
-unsigned long long KarpRabin::ullpow2_rec(unsigned int bits, unsigned int y){
-	if( bits * y < 64 ){
-		return ((1ull << (bits*y) ) % kr_mod);
+unsigned long long KarpRabin::ullpow2_log(unsigned int bits, unsigned int b){
+	long long int result = 1;
+	unsigned long long base = (1<<bits);
+//	cout << "KarpRabin::ullpow2_log - base: " << base << "\n";
+	while (b > 0){
+		if (b & 1){
+			base = base % kr_mod;
+			result = (result * base) % kr_mod;
+			result = result % kr_mod;
+		}
+		b = b>>1;
+		base = base % kr_mod;
+		base = (base*base) % kr_mod;
+		base = base % kr_mod;
+//		cout << "KarpRabin::ullpow2_log - base: " << base << "\n";
 	}
-	else{
-//		cout << "KarpRabin::ullpow2_rec (" << (bits * y) << " => " << (y/2) << " | " << (y/2 + (y & 0x1)) << ")\n";
-		return ( ullpow2_rec(bits, y>>1) * ullpow2_rec(bits, (y>>1) + (y & 0x1)) ) % kr_mod;
-	}
+//	cout << "KarpRabin::ullpow2_log - result: " << result << "\n";
+	return result;
 }
 
 // Evaluate the full hash in str.length() operations
@@ -122,7 +131,6 @@ void KarpRabin::hashPrefixesRev(const string &pattern, vector<unsigned long long
 //		cout << "KarpRabin::hashPrefixesRev - " << s << " (" << kr_rev_vector[i] << " / " << hash(s) << ")\n";
 //	}
 }
-
 
 // Evaluate the hash of the concatenation in constant time
 unsigned long long KarpRabin::concat(unsigned long long kr1, unsigned long long kr2, unsigned int len2){
