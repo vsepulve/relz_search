@@ -98,9 +98,6 @@ public:
 	vector<unsigned long long> arr_kr_s;
 	KarpRabinFactorsSuffixes *kr_factors;
 	
-//	HashTrie tree_y;
-//	HashTrieRev tree_x;
-	
 	HashTriev2 tree_y;
 	HashTriev2Rev tree_x;
 	

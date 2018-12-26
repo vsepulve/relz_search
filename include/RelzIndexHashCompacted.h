@@ -99,11 +99,7 @@ public:
 	vector<unsigned long long> arr_kr_s;
 	KarpRabinFactorsSuffixes *kr_factors;
 	
-//	HashTrie tree_y;
-//	HashTrieRev tree_x;
-	
 	HashTriev3 tree_y;
-//	HashTriev3Rev tree_x;
 	HashTriev3 tree_x;
 	
 	void printSize();
