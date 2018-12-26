@@ -45,17 +45,17 @@ public:
 	
 	// Returns the hash from a suffix from a factor (positional), offset and length
 	// Fast version, only valid for offset and length < karp_rabin->getTableSize()
-	virtual unsigned long long hashFast(unsigned int factor_ini, unsigned int offset, unsigned int length){
-		cerr << "KarpRabinFactorsSuffixes::hash - Not Implemented.\n";
-		return 0;
-	}
+//	virtual unsigned long long hashFast(unsigned int factor_ini, unsigned int offset, unsigned int length){
+//		cerr << "KarpRabinFactorsSuffixes::hashFast - Not Implemented.\n";
+//		return 0;
+//	}
 	
 	// REturns the hash from the start of factor_ini (positional) of length length
 	// Fast version, only valid for offset and length < karp_rabin->getTableSize()
-	virtual unsigned long long hashFast(unsigned int factor_ini, unsigned int length){
-		cerr << "KarpRabinFactorsSuffixes::hash - Not Implemented.\n";
-		return 0;
-	}
+//	virtual unsigned long long hashFast(unsigned int factor_ini, unsigned int length){
+//		cerr << "KarpRabinFactorsSuffixes::hashFast - Not Implemented.\n";
+//		return 0;
+//	}
 	
 	virtual void save(const string &file){
 		cerr << "KarpRabinFactorsSuffixes::save - Not Implemented.\n";
