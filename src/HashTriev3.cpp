@@ -543,7 +543,8 @@ pair<unsigned int, unsigned int> HashTriev3::getRangeInternal(unsigned int node_
 			
 			unsigned int min_factor_pos = (*arr_factors)[ min_childs[pos_child_abs] ];
 			
-			unsigned long long hash = kr_factors->hashFast(min_factor_pos, processed, pat_len);
+//			unsigned long long hash = kr_factors->hashFast(min_factor_pos, processed, pat_len);
+			unsigned long long hash = kr_factors->hash(min_factor_pos, processed, pat_len);
 			
 			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
 //			cout << "HashTriev3Node::getRange - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
