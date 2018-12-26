@@ -434,7 +434,7 @@ void HashTriev3::compactData(HashTriev3Node &root_node){
 	cout << "HashTriev3::compactData - bits/node min_childs: " << (8.0*size_in_bytes(min_childs)/n_nodes) << "\n";
 	cout << "HashTriev3::compactData - bits/node hash_childs: " << (8.0*size_in_bytes(hash_childs)/n_nodes) << "\n";
 //	cout << "HashTriev3::compactData - bits/node first_childs: 8\n";
-	cout << "HashTriev3::compactData - bits/node hash_childs: " << (8.0*size_in_bytes(first_childs)/n_nodes) << "\n";
+	cout << "HashTriev3::compactData - bits/node first_childs: " << (8.0*size_in_bytes(first_childs)/n_nodes) << "\n";
 	
 	total_bits += (8.0*size_in_bytes(positions_childs)/n_nodes);
 	total_bits += (8.0*size_in_bytes(n_childs)/n_nodes);
@@ -446,9 +446,9 @@ void HashTriev3::compactData(HashTriev3Node &root_node){
 	cout << "HashTriev3::compactData - bytes/node: " << total_bits/8.0 << "\n";
 	
 	// Debug
-	for(unsigned int i = 0; i < n_nodes; ++i){
-		cout << "HashTriev3::compactData - node[" << i << "]: (" << positions_childs[i] << ", " << n_childs[i] << ", " << len_childs[i] << ", " << min_childs[i] << ", " << hash_childs[i] << ", " << decodeChar[ first_childs[i] ] << ")\n";
-	}
+//	for(unsigned int i = 0; i < n_nodes; ++i){
+//		cout << "HashTriev3::compactData - node[" << i << "]: (" << positions_childs[i] << ", " << n_childs[i] << ", " << len_childs[i] << ", " << min_childs[i] << ", " << hash_childs[i] << ", " << decodeChar[ first_childs[i] ] << ")\n";
+//	}
 	
 	cout << "HashTriev3::compactData - End\n";
 }
