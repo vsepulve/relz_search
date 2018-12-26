@@ -28,9 +28,11 @@ int main() {
 	
 	cout << "Inicio\n";
 	
+	
 	unsigned int bits = 8;
 	unsigned int mod = 15485863;
 	KarpRabin karp_rabin(bits, mod, 1000000);
+//	KarpRabin karp_rabin(bits, mod, 1100000000);
 	
 	string file_base = "index_yeast_compacted_test1/index_hash_compacted";
 	
@@ -77,12 +79,63 @@ int main() {
 	
 	KarpRabinFactorsSuffixesv2 kr_factors(krs_file, &karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
 	
+	unsigned int hash = kr_factors.hash(1000, 1000000, 1000000);
+//	cout << "hash \n";
 	
-	cout << "kr_factors.hash: " << kr_factors.hash(1000, 1000000, 2000000) << "\n";
-	cout << "kr_factors.hashBin: " << kr_factors.hashBin(1000, 1000000, 2000000) << "\n";
 	
-	cout << "kr_factors.hash: " << kr_factors.hash(6647, 1000000, 2000000) << "\n";
-	cout << "kr_factors.hashBin: " << kr_factors.hashBin(6647, 1000000, 2000000) << "\n";
+	/*
+	unsigned int n_tests = 1000;
+	unsigned int min_len = 500000;
+	
+	vector<unsigned int> hash_table;
+	for(unsigned int i = 0; i < n_tests; ++i){
+		unsigned int hash = kr_factors.hash(1000, 1000000, min_len * i);
+		hash_table.push_back(hash);
+	}
+	
+	NanoTimer timer;
+	for(unsigned int i = 0; i < n_tests; ++i){
+		unsigned int hash = kr_factors.hash(1000, 1000000, min_len * i);
+		if( hash != hash_table[i] ){
+			cerr << "Error - kr_factors.hash(1000, 1000000, " << (min_len * i) << "): " << hash << " != " << hash_table[i] << "\n";
+			exit(0);
+		}
+	}
+	cout << "Time 1: " << timer.getMilisec() << "\n";
+	timer.reset();
+	
+	for(unsigned int i = 0; i < n_tests; ++i){
+		unsigned int hash = kr_factors.hashBin(1000, 1000000, min_len * i);
+		if( hash != hash_table[i] ){
+			cerr << "Error - kr_factors.hashBin(1000, 1000000, " << (min_len * i) << "): " << hash << " != " << hash_table[i] << "\n";
+			exit(0);
+		}
+	}
+	cout << "Time 2: " << timer.getMilisec() << "\n";
+	timer.reset();
+	
+	for(unsigned int i = 0; i < n_tests; ++i){
+		unsigned int hash = kr_factors.hashFast(1000, 1000000, min_len * i);
+		if( hash != hash_table[i] ){
+			cerr << "Error - kr_factors.hashFast(1000, 1000000, " << (min_len * i) << "): " << hash << " != " << hash_table[i] << "\n";
+			exit(0);
+		}
+	}
+	cout << "Time 3: " << timer.getMilisec() << "\n";
+	timer.reset();
+	*/
+	
+	
+	
+//	cout << "kr_factors.hash: " << kr_factors.hash(1000, 1000000, 500000000) << "\n";
+//	cout << "kr_factors.hashBin: " << kr_factors.hashBin(1000, 1000000, 500000000) << "\n";
+//	cout << "kr_factors.hashFast: " << kr_factors.hashFast(1000, 1000000, 500000000) << "\n";
+//	
+//	cout << "kr_factors.hash: " << kr_factors.hash(6647, 1000000, 500000000) << "\n";
+//	cout << "kr_factors.hashBin: " << kr_factors.hashBin(6647, 1000000, 500000000) << "\n";
+//	cout << "kr_factors.hashFast: " << kr_factors.hashFast(6647, 1000000, 500000000) << "\n";
+//	
+//	cout << "Times: " << kr_factors.nano1 << ", " << kr_factors.nano2 << ", " << kr_factors.nano3 << ", " << kr_factors.nano4 << "\n";
 	
 	/*
 	string input_file = "index_yeast_compacted_test1/index_hash_compacted.tree_y.first_old";
