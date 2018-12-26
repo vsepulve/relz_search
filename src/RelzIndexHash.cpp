@@ -262,7 +262,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 //	kr_factors = new KarpRabinFactorsSuffixesv1(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
 	
 	// New
-	kr_factors = new KarpRabinFactorsSuffixesv2(n_factors, &arr_kr_s, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
+	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
 	
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
 	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
@@ -673,7 +673,7 @@ void RelzIndexHash::load(const string &file_base, KarpRabin *_karp_rabin){
 	string krs_file = file_base + ".krsuffixes";
 	// Instead of a load, we use a builder here to load, to pass the more specific parameters
 	// kr_factors->load(krs_file);
-	kr_factors = new KarpRabinFactorsSuffixesv2(krs_file, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
+	kr_factors = new KarpRabinFactorsSuffixes(krs_file, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
 	
 	// tree_x
 	string tree_x_file = file_base + ".tree_x";

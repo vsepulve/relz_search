@@ -607,12 +607,11 @@ pair<unsigned int, unsigned int> HashTrie::getRangeRevInternal(unsigned int node
 			unsigned int min_factor_pos = (*arr_factors)[ min_childs[pos_child_abs] ];
 			
 			if( min_factor_pos > 0 ){
-				KarpRabinFactorsSuffixesv2 *ptr = static_cast<KarpRabinFactorsSuffixesv2*>(kr_factors);
 				
-				unsigned int cur_pi = (*(ptr->pi_inv))[min_factor_pos-1];
-				unsigned int tu = ptr->select1_s->operator()(cur_pi + 1) - cur_pi;
-				unsigned int pu = ptr->select1_b->operator()(min_factor_pos-1 + 1);
-				unsigned int lu = ptr->select1_b->operator()(min_factor_pos-1 + 2) - pu;
+				unsigned int cur_pi = (*(kr_factors->pi_inv))[min_factor_pos-1];
+				unsigned int tu = kr_factors->select1_s->operator()(cur_pi + 1) - cur_pi;
+				unsigned int pu = kr_factors->select1_b->operator()(min_factor_pos-1 + 1);
+				unsigned int lu = kr_factors->select1_b->operator()(min_factor_pos-1 + 2) - pu;
 				
 				if(processed < lu){
 					unsigned int len = lu - processed;
@@ -624,7 +623,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeRevInternal(unsigned int node
 					}
 //					cout << "HashTrieRevNode::getRange - Adding " << len << " chars\n";
 					for(unsigned int i = 0; i < len; ++i){
-						test_text += *(ptr->ref_text + tu + lu - processed - i - 1);
+						test_text += *(kr_factors->ref_text + tu + lu - processed - i - 1);
 					}
 				}
 			}

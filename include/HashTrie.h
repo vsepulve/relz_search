@@ -20,7 +20,6 @@
 #include "NanoTimer.h"
 #include "KarpRabin.h"
 #include "KarpRabinFactorsSuffixes.h"
-#include "KarpRabinFactorsSuffixesv2.h"
 
 #define NOT_FOUND 0xffffffff
 

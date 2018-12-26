@@ -22,7 +22,6 @@
 #include "BitsUtils.h"
 #include "KarpRabin.h"
 #include "KarpRabinFactorsSuffixes.h"
-#include "KarpRabinFactorsSuffixesv2.h"
 #include "HashTrie.h"
 
 using namespace sdsl;
