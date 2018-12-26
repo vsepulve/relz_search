@@ -21,8 +21,7 @@
 #include "DecoderBlocksRelz.h"
 #include "TextFilterFull.h"
 
-#include "RelzIndex.h"
-#include "FactorsIterator.h"
+#include "RelzIndexReference.h"
 
 using namespace sdsl;
 using namespace std;
@@ -59,8 +58,7 @@ int main(int argc, char* argv[]){
 	
 	cout << "----- Building index -----\n";
 	NanoTimer timer;
-	bool delete_text = false;
-	RelzIndex index(factors, text, len_text, ref, len_ref, delete_text);
+	RelzIndexReference index(factors, text, len_text, ref, len_ref);
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index.printSize();
 	
