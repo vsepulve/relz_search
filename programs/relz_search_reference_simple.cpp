@@ -21,7 +21,8 @@
 #include "DecoderBlocksRelz.h"
 #include "TextFilterFull.h"
 
-#include "RelzIndexReference.h"
+#include "RelzIndex.h"
+#include "FactorsIterator.h"
 
 using namespace sdsl;
 using namespace std;
@@ -40,12 +41,12 @@ int main(int argc, char* argv[]){
 	if( output_path.back() != '/' ){
 		output_path += "/";
 	}
-	output_path += "index_reference_v2";
+	output_path += "index_reference_simple";
 	
 	cout << "----- Testing load -----\n";
 	NanoTimer timer;
 	vector<unsigned int> results;
-	RelzIndexReference index;
+	RelzIndex index;
 	index.load(output_path);
 	index.printSize();
 	
