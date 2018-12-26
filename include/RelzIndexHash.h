@@ -1,5 +1,5 @@
-#ifndef _RELZ_INDEX_HASH_H
-#define _RELZ_INDEX_HASH_H
+#ifndef _RELZ_INDEX_HASH_COMPACTED_H
+#define _RELZ_INDEX_HASH_COMPACTED_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,10 +22,8 @@
 #include "BitsUtils.h"
 #include "KarpRabin.h"
 #include "KarpRabinFactorsSuffixes.h"
-#include "KarpRabinFactorsSuffixesv1.h"
 #include "KarpRabinFactorsSuffixesv2.h"
 #include "HashTrie.h"
-#include "HashTriev2.h"
 
 using namespace sdsl;
 using namespace std;
@@ -98,8 +96,8 @@ public:
 	vector<unsigned long long> arr_kr_s;
 	KarpRabinFactorsSuffixes *kr_factors;
 	
-	HashTriev2 tree_y;
-	HashTriev2Rev tree_x;
+	HashTrie tree_y;
+	HashTrie tree_x;
 	
 	void printSize();
 	

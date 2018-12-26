@@ -22,8 +22,6 @@
 #include "TextFilterFull.h"
 
 #include "RelzIndexHash.h"
-#include "RelzIndexHashCompacted.h"
-#include "FactorsIterator.h"
 
 using namespace sdsl;
 using namespace std;
@@ -65,7 +63,7 @@ int main(int argc, char* argv[]){
 	unsigned int mod = 15485863;
 //	KarpRabin karp_rabin(bits, mod, 1100000000);
 	KarpRabin karp_rabin(bits, mod, 100000000);
-	RelzIndexHashCompacted index(factors, text, len_text, ref, len_ref, &karp_rabin);
+	RelzIndexHash index(factors, text, len_text, ref, len_ref, &karp_rabin);
 	cout << "----- index finished in " << timer.getMilisec() << " ms -----\n";
 	index.printSize();
 	
@@ -74,7 +72,7 @@ int main(int argc, char* argv[]){
 	if( output_path.back() != '/' ){
 		output_path += "/";
 	}
-	output_path += "index_hash_compacted";
+	output_path += "index_hash";
 	
 	index.save(output_path);
 	

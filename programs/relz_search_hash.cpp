@@ -22,7 +22,6 @@
 #include "TextFilterFull.h"
 
 #include "RelzIndexHash.h"
-#include "RelzIndexHashCompacted.h"
 #include "FactorsIterator.h"
 
 using namespace sdsl;
@@ -42,7 +41,7 @@ int main(int argc, char* argv[]){
 	if( output_path.back() != '/' ){
 		output_path += "/";
 	}
-	output_path += "index_hash_compacted";
+	output_path += "index_hash";
 	
 	cout << "----- Testing load -----\n";
 	NanoTimer timer;
@@ -52,7 +51,7 @@ int main(int argc, char* argv[]){
 	unsigned int mod = 15485863;
 //	KarpRabin karp_rabin(bits, mod, 1100000000);
 	KarpRabin karp_rabin(bits, mod, 10000000);
-	RelzIndexHashCompacted index;
+	RelzIndexHash index;
 	index.load(output_path, &karp_rabin);
 	index.printSize();
 	
