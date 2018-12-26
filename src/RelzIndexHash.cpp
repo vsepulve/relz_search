@@ -262,7 +262,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 //	kr_factors = new KarpRabinFactorsSuffixesv1(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
 	
 	// New
-	kr_factors = new KarpRabinFactorsSuffixesv2(n_factors, &arr_kr_s, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv, &factors_start);
+	kr_factors = new KarpRabinFactorsSuffixesv2(n_factors, &arr_kr_s, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
 	
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
 	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
