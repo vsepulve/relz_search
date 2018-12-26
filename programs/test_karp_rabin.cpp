@@ -80,7 +80,7 @@ int main() {
 	KarpRabinFactorsSuffixesv2 kr_factors(krs_file, &karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
 	
 	unsigned int hash = kr_factors.hash(1000, 1000000, 1000000);
-//	cout << "hash \n";
+	cout << "hash: " << hash << "\n";
 	
 	
 	/*
