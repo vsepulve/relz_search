@@ -26,6 +26,7 @@ void HashTriev3Node::compactData(unsigned int &next_pos, int_vector<> &positions
 		positions_childs[cur_pos] = next_pos;
 //		cout << "HashTriev3Node::compactData - positions_childs[" << cur_pos << "]: " << next_pos << "\n";
 		n_childs[cur_pos] = childs_vector[i].childs_vector.size();
+		// TODO : We can limit the maximum length here (for example to 1M -> 20 bits) with no problem
 		len_childs[cur_pos] = childs_vector[i].len;
 		min_childs[cur_pos] = childs_vector[i].min;
 		hash_childs[cur_pos] = childs_vector[i].hash;
@@ -433,7 +434,6 @@ void HashTriev3::compactData(HashTriev3Node &root_node){
 	cout << "HashTriev3::compactData - bits/node len_childs: " << (8.0*size_in_bytes(len_childs)/n_nodes) << "\n";
 	cout << "HashTriev3::compactData - bits/node min_childs: " << (8.0*size_in_bytes(min_childs)/n_nodes) << "\n";
 	cout << "HashTriev3::compactData - bits/node hash_childs: " << (8.0*size_in_bytes(hash_childs)/n_nodes) << "\n";
-//	cout << "HashTriev3::compactData - bits/node first_childs: 8\n";
 	cout << "HashTriev3::compactData - bits/node first_childs: " << (8.0*size_in_bytes(first_childs)/n_nodes) << "\n";
 	
 	total_bits += (8.0*size_in_bytes(positions_childs)/n_nodes);
@@ -663,11 +663,6 @@ void HashTriev3::save(const string &file){
 	store_to_file(hash_childs, hash_file);
 	
 	string first_file = file + ".first";
-//	fstream writer(first_file, fstream::out | fstream::trunc);
-//	for(unsigned int i = 0; i < positions_childs.size(); ++i){
-//		writer.write(&(first_childs[i]), 1);
-//	}
-//	writer.close();
 	store_to_file(first_childs, first_file);
 	
 	cout << "HashTriev3::save - End\n";
@@ -695,27 +690,12 @@ void HashTriev3::load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_fact
 	load_from_file(hash_childs, hash_file);
 	
 	string first_file = file + ".first";
-//	fstream reader(first_file, fstream::in);
-//	first_childs.resize(positions_childs.size());
-//	for(unsigned int i = 0; i < positions_childs.size(); ++i){
-//		char c;
-//		reader.read(&c, 1);
-//		first_childs[i] = c;
-//	}
-//	reader.close();
 	load_from_file(first_childs, first_file);
 	
 	cout << "HashTriev3::load - End\n";
 }
 
 unsigned int HashTriev3::getSizeBytes(){
-
-//	int_vector<> positions_childs;
-//	int_vector<> n_childs;
-//	int_vector<> len_childs;
-//	int_vector<> min_childs;
-//	int_vector<> hash_childs;
-//	int_vector<> first_childs;
 	
 	unsigned int total = 0;
 	total += size_in_bytes(positions_childs);
