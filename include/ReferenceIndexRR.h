@@ -18,7 +18,6 @@
 #include "NanoTimer.h"
 #include "ReferenceIndex.h"
 #include "ComparatorUtils.h"
-#include "CompactSequence.h"
 
 using namespace std;
 	
