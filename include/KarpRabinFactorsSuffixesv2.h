@@ -32,11 +32,7 @@ protected:
 	
 	KarpRabin *karp_rabin;
 	
-	vector<unsigned int> *factors_start;
-	bool delete_start;
-	
 public: 
-	
 	
 	// Public while testing, to give easy acces to HashTrie
 	
@@ -52,8 +48,6 @@ public:
 	// Permutation to turn positional factors to its id
 	int_vector<> *pi_inv;
 	
-	
-	
 	KarpRabinFactorsSuffixesv2();
 	
 	KarpRabinFactorsSuffixesv2(unsigned int _n_factors, 
@@ -63,8 +57,7 @@ public:
 			bits_s_type::select_1_type *_select1_s, 
 			bits_b_type::select_1_type *_select1_b, 
 			bits_b_type::select_0_type *_select0_b, 
-			int_vector<> *_pi_inv, 
-			vector<unsigned int> *_factors_start);
+			int_vector<> *_pi_inv);
 	
 	KarpRabinFactorsSuffixesv2(const string &file, 
 			KarpRabin *_karp_rabin, 
@@ -78,27 +71,13 @@ public:
 	
 	// Returns the hash from a suffix from a factor (positional), offset and length
 	unsigned long long hash(unsigned int factor_ini, unsigned int offset, unsigned int length);
-//	unsigned long long hashBin(unsigned int factor_ini, unsigned int offset, unsigned int length);
 	
 	// REturns the hash from the start of factor_ini (positional) of length length
 	unsigned long long hash(unsigned int factor_ini, unsigned int length);
 	
-	// Returns the hash from a suffix from a factor (positional), offset and length
-	// Fast version, only valid for offset and length < karp_rabin->getTableSize()
-//	unsigned long long hashFast(unsigned int factor_ini, unsigned int offset, unsigned int length);
-	
-	// REturns the hash from the start of factor_ini (positional) of length length
-	// Fast version, only valid for offset and length < karp_rabin->getTableSize()
-//	unsigned long long hashFast(unsigned int factor_ini, unsigned int length);
-	
 	void save(const string &file);
 	
 	void load(const string &file);
-	
-	unsigned long long nano1;
-	unsigned long long nano2;
-	unsigned long long nano3;
-	unsigned long long nano4;
 	
 };
 
