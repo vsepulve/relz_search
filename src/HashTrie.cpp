@@ -268,11 +268,8 @@ pair<unsigned int, unsigned int> HashTrieNode::getRange(vector<unsigned long lon
 			
 			unsigned int min_factor_pos = (*arr_y)[childs_vector[pos_child].min];
 			
-//			cout << "Node: \n";
-//			childs_vector[pos_child].print(0);
-			// Caso de borde detectado a veces en kr_factors->hashFast(childs_vector[pos_child].min_factor_pos, processed, pat_len
-			
-			unsigned long long hash = kr_factors->hashFast(min_factor_pos, processed, pat_len);
+//			unsigned long long hash = kr_factors->hashFast(min_factor_pos, processed, pat_len);
+			unsigned long long hash = kr_factors->hash(min_factor_pos, processed, pat_len);
 			
 			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
 //			cout << "HashTrieNode::getRange - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
