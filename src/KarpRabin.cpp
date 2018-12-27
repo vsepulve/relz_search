@@ -74,18 +74,23 @@ unsigned long long KarpRabin::hash(const string &str){
 }
 
 unsigned long long KarpRabin::hash(const char *str, unsigned long long str_len){
-	
 //	string s(str, str_len);
 //	cout << "KarpRabin::hash - Start (" << s << ")\n";
-	
 	unsigned long long ret = 0;
 	for(unsigned int i = 0, k = str_len-1; i < str_len; i++, k--) {
 		ret = ret + ((unsigned long long)(str[i]) * ullpow2(voc_bits, k)) % kr_mod;
 		ret = ret % kr_mod;
 	}
-	
 //	cout << "KarpRabin::hash - End (" << ret << ")\n";
-	
+	return ret;
+}
+
+unsigned long long KarpRabin::hash(CompactedText *text, unsigned int start, unsigned long long len){
+	unsigned long long ret = 0;
+	for(unsigned int i = 0, k = len-1; i < len; i++, k--) {
+		ret = ret + ((unsigned long long)(text->at(start + i)) * ullpow2(voc_bits, k)) % kr_mod;
+		ret = ret % kr_mod;
+	}
 	return ret;
 }
 
@@ -146,85 +151,6 @@ unsigned long long KarpRabin::subtract_prefix(unsigned long long kr12, unsigned 
 //	cout << "KarpRabin::subtract - kr12 - kr1 * B^" << len2 << ": " << (kr12 + kr_mod - ((kr1 * ullpow2(voc_bits, len2)) % kr_mod)) % kr_mod << "\n";
 	return (kr12 + kr_mod - ((kr1 * ullpow2(voc_bits, len2)) % kr_mod)) % kr_mod;
 }
-
-unsigned int KarpRabin::nextFactor(unsigned int start, vector<unsigned int> &factors_start){
-	
-//	cout << "KarpRabin::nextFactor - Start (" << start << ")\n";
-	
-	unsigned int l, h, m, res;
-	
-	l = 0;
-	h = factors_start.size() - 1;
-	
-	while(l < h){
-		m = l + ((h-l)>>1);
-//		cout << "KarpRabin::nextFactor - m: " << m << ", factor: " << factors_start[m] << ", start: " << start << "\n";
-		if( factors_start[m] <= start ){
-//			cout << "KarpRabin::nextFactor - caso 1: l = " << (m+1) << "\n";
-			l = m+1;
-		}
-		else{
-//			cout << "KarpRabin::nextFactor - caso 2: h = " << m << "\n";
-			h = m;
-		}
-	}
-	res = h;
-//	if( (res > 0) && factors_start[m] > start ){
-//		--res;
-//	}
-	
-//	cout << "KarpRabin::nextFactor - retornando " << res << " (" << factors_start[res] << " > " << start << " ?)\n";
-	return res;
-}
-
-unsigned long long KarpRabin::hash(const char *full_text, unsigned int start, unsigned int str_len, vector<unsigned int> &factors_start){
-	if( str_len < table_size ){
-		return hash(full_text + start, str_len);
-	}
-	else{
-		cout << "KarpRabin::hash - Starting special process using factors (start: " << start << ", str_len: " << str_len << ")\n";
-		
-		unsigned int next_factor = nextFactor(start, factors_start);
-		unsigned int next_start = factors_start[next_factor];
-		unsigned long long ret = 0;
-		unsigned long long kr1;
-		
-		unsigned int cur_start = start;
-		unsigned int cur_len = next_start - cur_start;
-		
-//		cout << "KarpRabin::hash - Begining while with cur_start: " << cur_start << ", cur_len: " << cur_len << ", next_start: " << next_start << "\n";
-		
-		while( cur_start < start + str_len ){
-//			cout << "KarpRabin::hash - hash cur_start: " << cur_start << ", cur_len: " << cur_len << "\n";
-			kr1 = hash(full_text + cur_start, cur_len);
-			// concat
-			ret = concat(ret, kr1, cur_len);
-			// Preparo siguiente
-//			cout << "KarpRabin::hash - Preparing next iteration\n";
-			cur_start = next_start;
-			++next_factor;
-//			cout << "KarpRabin::hash - next_factor: " << next_factor << "/ " << factors_start.size() << "\n";
-			if( next_factor < factors_start.size() ){
-				next_start = factors_start[next_factor];
-			}
-			else{
-				next_start = start + str_len;
-			}
-			cur_len = next_start - cur_start;
-//			cout << "KarpRabin::hash - Checking cur_len: " << cur_len << ", next_start: " << next_start << ", str_len: " << str_len << ", cur_start: " << cur_start << "\n";
-			if( cur_len > str_len - cur_start ){
-				cur_len = str_len - cur_start;
-			}
-//			cout << "KarpRabin::hash - next cur_start: " << cur_start << ", cur_len: " << cur_len << ", next_start: " << next_start << "\n";
-		}
-		
-		return ret;
-	}
-}
-
-
-
-
 
 
 

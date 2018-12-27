@@ -12,6 +12,8 @@
 
 #include <vector>
 
+#include "CompactedText.h"
+
 using namespace std;
 
 class KarpRabin{
@@ -28,9 +30,6 @@ protected:
 	// Logarithmic version for bit exponents
 	unsigned long long ullpow2_log(unsigned int bits, unsigned int y);
 	
-	// Returns the start from the first factor greater than start, from the sorted array
-	unsigned int nextFactor(unsigned int start, vector<unsigned int> &factors_start);
-	
 public: 
 	
 	KarpRabin();
@@ -43,9 +42,8 @@ public:
 	// Evaluate the full hash in str.length() operations
 	unsigned long long hash(const char *str, unsigned long long str_len);
 	
-	// This version uses, if str_len is too big, the hash from the factors
-	// Note that this version is only available during the building process
-	unsigned long long hash(const char *full_text, unsigned int start, unsigned int str_len, vector<unsigned int> &factors_start);
+	// Evaluate the full hash from start, in len operations
+	unsigned long long hash(CompactedText *text, unsigned int start, unsigned long long len);
 	
 	// Evaluate the hash of the concatenation in constant time
 	unsigned long long concat(unsigned long long kr1, unsigned long long kr2, unsigned int len2);
