@@ -44,31 +44,41 @@ cd ../build
 ./bin/generate_queries yeast_data.txt 10000 80 > yeast_queries_80.txt
 ```
 
+Indexes Construction (each process can take some time)
+-------------------
+```
+mkdir index_yeast
+./bin/build_relz_basic ../data/yeast_ref.bin yeast_data.txt index_yeast/
+./bin/build_relz_reference ../data/yeast_ref.bin yeast_data.txt index_yeast/
+./bin/build_relz_hash ../data/yeast_ref.bin yeast_data.txt index_yeast/
+```
+
+
 Testing Basic Version
 -------------------
 ```
-./bin/relz_search_basic ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_10.txt
-./bin/relz_search_basic ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_20.txt
-./bin/relz_search_basic ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_40.txt
-./bin/relz_search_basic ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_80.txt
+./bin/relz_search_basic index_yeast/ yeast_queries_10.txt
+./bin/relz_search_basic index_yeast/ yeast_queries_20.txt
+./bin/relz_search_basic index_yeast/ yeast_queries_40.txt
+./bin/relz_search_basic index_yeast/ yeast_queries_80.txt
 ```
 
 Testing Reference Version
 -------------------
 ```
-./bin/relz_search_reference ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_10.txt
-./bin/relz_search_reference ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_20.txt
-./bin/relz_search_reference ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_40.txt
-./bin/relz_search_reference ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_80.txt
+./bin/relz_search_reference index_yeast/ yeast_queries_10.txt
+./bin/relz_search_reference index_yeast/ yeast_queries_20.txt
+./bin/relz_search_reference index_yeast/ yeast_queries_40.txt
+./bin/relz_search_reference index_yeast/ yeast_queries_80.txt
 ```
 
 Testing Hash Version
 -------------------
 ```
-./bin/relz_search_hash ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_10.txt
-./bin/relz_search_hash ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_20.txt
-./bin/relz_search_hash ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_40.txt
-./bin/relz_search_hash ../data/yeast_ref.bin yeast_data.txt output.relz yeast_queries_80.txt
+./bin/relz_search_hash index_yeast/ yeast_queries_10.txt
+./bin/relz_search_hash index_yeast/ yeast_queries_20.txt
+./bin/relz_search_hash index_yeast/ yeast_queries_40.txt
+./bin/relz_search_hash index_yeast/ yeast_queries_80.txt
 ```
 
 
