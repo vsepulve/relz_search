@@ -675,7 +675,12 @@ pair<unsigned int, unsigned int> HashTrie::getRangeRevInternal(unsigned int node
 					}
 //					cout << "HashTrie::getRange - Adding " << len << " chars\n";
 					for(unsigned int i = 0; i < len; ++i){
-						test_text += *(kr_factors->ref_text + tu + lu - processed - i - 1);
+						if( kr_factors->ref_text != NULL ){
+							test_text += *(kr_factors->ref_text + tu + lu - processed - i - 1);
+						}
+						else{
+							test_text += kr_factors->compacted_text->at(tu + lu - processed - i - 1);
+						}
 					}
 				}
 			}
