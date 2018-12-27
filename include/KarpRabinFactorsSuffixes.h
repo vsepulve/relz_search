@@ -18,6 +18,7 @@
 #include "KarpRabin.h"
 #include "FactorsConfig.h"
 #include "BitsUtils.h"
+#include "CompactedText.h"
 
 using namespace std;
 using namespace sdsl;
@@ -41,6 +42,8 @@ public:
 	// This should be replaced by the KarpRabinReference object
 	const char *ref_text;
 	
+	CompactedText *compacted_text;
+	
 	// Select structures for S and B to process factors data (pos, len)
 	bits_s_type::select_1_type *select1_s;
 	bits_b_type::select_1_type *select1_b;
@@ -63,6 +66,23 @@ public:
 	KarpRabinFactorsSuffixes(const string &file, 
 			KarpRabin *_karp_rabin, 
 			const char *_ref_text, 
+			bits_s_type::select_1_type *_select1_s, 
+			bits_b_type::select_1_type *_select1_b, 
+			bits_b_type::select_0_type *_select0_b, 
+			int_vector<> *_pi_inv);
+	
+	KarpRabinFactorsSuffixes(unsigned int _n_factors, 
+			vector<unsigned long long> *_arr_kr_s, 
+			KarpRabin *_karp_rabin, 
+			CompactedText *_compacted_text, 
+			bits_s_type::select_1_type *_select1_s, 
+			bits_b_type::select_1_type *_select1_b, 
+			bits_b_type::select_0_type *_select0_b, 
+			int_vector<> *_pi_inv);
+	
+	KarpRabinFactorsSuffixes(const string &file, 
+			KarpRabin *_karp_rabin, 
+			CompactedText *_compacted_text, 
 			bits_s_type::select_1_type *_select1_s, 
 			bits_b_type::select_1_type *_select1_b, 
 			bits_b_type::select_0_type *_select0_b, 

@@ -6,6 +6,7 @@ KarpRabinFactorsSuffixes::KarpRabinFactorsSuffixes(){
 	delete_krs = false;
 	karp_rabin = NULL;
 	ref_text = NULL;
+	compacted_text = NULL;
 	select1_s = NULL;
 	select1_b = NULL;
 	select0_b = NULL;
@@ -28,6 +29,7 @@ KarpRabinFactorsSuffixes::KarpRabinFactorsSuffixes(unsigned int _n_factors,
 		cout << "KarpRabinFactorsSuffixes - Warning (insufficient prefixes, must include one for the whole collection)\n";
 	}
 	ref_text = _ref_text;
+	compacted_text = NULL;
 	select1_s = _select1_s;
 	select1_b = _select1_b;
 	select0_b = _select0_b;
@@ -50,6 +52,53 @@ KarpRabinFactorsSuffixes::KarpRabinFactorsSuffixes(const string &file,
 	// External variables
 	karp_rabin = _karp_rabin;
 	ref_text = _ref_text;
+	compacted_text = NULL;
+	select1_s = _select1_s;
+	select1_b = _select1_b;
+	select0_b = _select0_b;
+	pi_inv = _pi_inv;
+}
+
+KarpRabinFactorsSuffixes::KarpRabinFactorsSuffixes(unsigned int _n_factors, 
+		vector<unsigned long long> *_arr_kr_s, 
+		KarpRabin *_karp_rabin, 
+		CompactedText *_compacted_text, 
+		bits_s_type::select_1_type *_select1_s, 
+		bits_b_type::select_1_type *_select1_b, 
+		bits_b_type::select_0_type *_select0_b, 
+		int_vector<> *_pi_inv){
+	n_factors = _n_factors;
+	arr_kr_s = _arr_kr_s;
+	delete_krs = false;
+	karp_rabin = _karp_rabin;
+	if( arr_kr_s->size() < n_factors+1 ){
+		cout << "KarpRabinFactorsSuffixes - Warning (insufficient prefixes, must include one for the whole collection)\n";
+	}
+	ref_text = NULL;
+	compacted_text = _compacted_text;
+	select1_s = _select1_s;
+	select1_b = _select1_b;
+	select0_b = _select0_b;
+	pi_inv = _pi_inv;
+}
+
+KarpRabinFactorsSuffixes::KarpRabinFactorsSuffixes(const string &file, 
+		KarpRabin *_karp_rabin, 
+		CompactedText *_compacted_text, 
+		bits_s_type::select_1_type *_select1_s, 
+		bits_b_type::select_1_type *_select1_b, 
+		bits_b_type::select_0_type *_select0_b, 
+		int_vector<> *_pi_inv){
+	// Basic variables loaded from file
+	n_factors = 0;
+	arr_kr_s = 0;
+	delete_krs = false;
+	
+	load(file);
+	// External variables
+	karp_rabin = _karp_rabin;
+	ref_text = NULL;
+	compacted_text = _compacted_text;
 	select1_s = _select1_s;
 	select1_b = _select1_b;
 	select0_b = _select0_b;
@@ -65,6 +114,7 @@ KarpRabinFactorsSuffixes::~KarpRabinFactorsSuffixes(){
 	arr_kr_s = NULL;
 	karp_rabin = NULL;
 	ref_text = NULL;
+	compacted_text = NULL;
 }
 
 // Fast version, only valid for offset and length < karp_rabin->getTableSize()
@@ -123,7 +173,13 @@ unsigned long long KarpRabinFactorsSuffixes::hash(unsigned int factor_ini, unsig
 	// Notar que lo que sigue se puede extraer er KarpRabinReference (desde tu, de largo length - cur_len)
 	
 //	cout << "KarpRabinFactorsSuffixes::hash - karp_rabin->hash(ref_text + " << tu << ", " << length << " - " << cur_len << ")\n";
-	unsigned long long kr2 = karp_rabin->hash(ref_text + tu, length - cur_len);
+	unsigned long long kr2;
+	if( ref_text != NULL ){
+		kr2 = karp_rabin->hash(ref_text + tu, length - cur_len);
+	}
+	else{
+		kr2 = karp_rabin->hash(compacted_text, tu, length - cur_len);
+	}
 	
 //	cout << "KarpRabinFactorsSuffixes::hash - kr2: " << kr2 << ", len: " << length - cur_len << "\n";
 	unsigned long long kr12 = karp_rabin->concat(kr1, kr2, length - cur_len);
