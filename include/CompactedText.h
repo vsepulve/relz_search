@@ -35,6 +35,8 @@ public:
 	
 	char operator[](unsigned long long pos);
 	
+	char at(unsigned long long pos);
+	
 	unsigned long long length();
 	
 	void save(const string &file);

@@ -80,6 +80,13 @@ char CompactedText::operator[](unsigned long long pos){
 	return table[ ( bytes[pos>>2] >> ((pos&0x3)<<1) ) & 0x3 ];
 }
 
+char CompactedText::at(unsigned long long pos){
+	if( pos >= len ){
+		return 0;
+	}
+	return table[ ( bytes[pos>>2] >> ((pos&0x3)<<1) ) & 0x3 ];
+}
+
 unsigned long long CompactedText::length(){
 	return len;
 }
