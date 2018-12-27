@@ -106,8 +106,6 @@ int main(int argc, char* argv[]){
 	cout << "WT: " << ((long double)(index.querytime_p4))/(total_occ * 1000) << " microsec/occ (" << ((long double)index.querytime_p4/total_nano)*100 << " \%)\n";
 	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
 	
-	cout << "KarpRabin max used length: " <<  karp_rabin.max_len << "\n";
-	
 
 }
 
