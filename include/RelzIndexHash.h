@@ -74,7 +74,7 @@ public:
 	~RelzIndexHash();
 	
 	// void find(const string &pattern, vector<unsigned int> &results);
-	void findTimes(const string &pattern, vector<unsigned int> &results);
+	void findTimes(const string &pattern, vector<unsigned int> &results, bool use_hash = true);
 	
 	unsigned long long querytime_p1;
 	unsigned long long querytime_p2;

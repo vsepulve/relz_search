@@ -345,7 +345,7 @@ void RelzIndexHash::printSize(){
 	
 }
 
-void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &results){
+void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &results, bool use_hash){
 	
 //	cout << "RelzIndexHash::findTimes - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
@@ -397,7 +397,7 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 		
 //		cout << "-----  tree_x.getRange -----\n";
 //		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
-		pair<unsigned int, unsigned int> r1 = tree_x.getRangeRev(kr_pat_rev_vector, i, pattern_rev);
+		pair<unsigned int, unsigned int> r1 = tree_x.getRangeRev(kr_pat_rev_vector, i, pattern_rev, use_hash);
 		querytime_p3x += timer.getNanosec();
 		timer.reset();
 //		cout << "-----\n";
@@ -407,7 +407,7 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 		}
 		
 //		cout << "-----  tree_y.getRange -----\n";
-		pair<unsigned int, unsigned int> r2 = tree_y.getRange(kr_pat_vector, i, pattern);
+		pair<unsigned int, unsigned int> r2 = tree_y.getRange(kr_pat_vector, i, pattern, use_hash);
 		querytime_p3y += timer.getNanosec();
 		timer.reset();
 //		cout << "-----\n";
