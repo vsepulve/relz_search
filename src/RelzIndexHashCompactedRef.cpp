@@ -21,15 +21,10 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 	karp_rabin = _karp_rabin;
 	
 	ref_text = new CompactedText(_ref_text, _len_ref);
-//	ref_text = new char[_len_ref + 1];
-//	memcpy(ref_text, _ref_text, _len_ref);
-//	ref_text[_len_ref] = 0;
 	
 	NanoTimer timer;
 	
 	cout << "RelzIndexHashCompactedRef - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << ref_text->length() << ")\n";
-//	cout << "RelzIndexHashCompactedRef - Ref: " << ref_text << "\n";
-//	cout << "RelzIndexHashCompactedRef - Text: " << full_text << "\n";
 	
 	cout << "RelzIndexHashCompactedRef - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
@@ -420,7 +415,6 @@ void RelzIndexHashCompactedRef::findTimes(const string &pattern, vector<unsigned
 			// Verificacion
 			bool omit = false;
 			
-//			FactorsIteratorReverse it_x(f-1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
 			FactorsIteratorCompactedReverse it_x(f-1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, len_text);
 //			cout << "text_x: ";
 			for(unsigned int pos = 0; pos < i; ++pos){
@@ -433,7 +427,6 @@ void RelzIndexHashCompactedRef::findTimes(const string &pattern, vector<unsigned
 			}
 //			cout << "\n";
 			
-//			FactorsIterator it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
 			FactorsIteratorCompacted it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, len_text);
 //			cout << "text_y: ";
 			for(unsigned int pos = 0; pos < pattern.length()-i; ++pos){
@@ -570,8 +563,6 @@ void RelzIndexHashCompactedRef::save(const string &file_base){
 	string tree_y_file = file_base + ".tree_y";
 	tree_y.save(tree_y_file);
 	
-	
-	
 	cout << "RelzIndexHashCompactedRef::save - End\n";
 }
 
@@ -671,8 +662,6 @@ void RelzIndexHashCompactedRef::load(const string &file_base, KarpRabin *_karp_r
 	// tree_y
 	string tree_y_file = file_base + ".tree_y";
 	tree_y.load(karp_rabin, kr_factors, &arr_y, tree_y_file);
-	
-	
 	
 	cout << "RelzIndexHashCompactedRef::load - End\n";
 	

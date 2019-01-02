@@ -36,8 +36,6 @@ private:
 	unsigned int n_factors;
 	
 	CompactedText *ref_text;
-//	char *ref_text;
-//	unsigned int len_ref;
 	
 	fm_index_type fm_index;
 	
