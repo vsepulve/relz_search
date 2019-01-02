@@ -129,15 +129,15 @@ RelzIndex::RelzIndex(vector<pair<unsigned int, unsigned int> > &factors, char *f
 		arr_x[i] = arr_x_original[i];
 	}
 	
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-		char c = 0;
-		FactorsIteratorReverse it(arr_x[i] - 1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
-		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
-			cout << c;
-		cout << "\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+//		char c = 0;
+//		FactorsIteratorReverse it(arr_x[i] - 1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
+//		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
+//			cout << c;
+//		cout << "\n";
+//	}
+//	cout << "-----\n";
 	
 	cout << "RelzIndex - Preparing arr Y\n";
 	
@@ -155,15 +155,15 @@ RelzIndex::RelzIndex(vector<pair<unsigned int, unsigned int> > &factors, char *f
 		arr_y_inv[ arr_y_original[i] ] = i;
 	}
 	
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
-		char c = 0;
-		FactorsIterator it(arr_y[i], n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
-		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
-			cout << c;
-		cout << " (" << it.length() << ")\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
+//		char c = 0;
+//		FactorsIterator it(arr_y[i], n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, (omit_text)?NULL:ref_text, &fm_index, len_text);
+//		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
+//			cout << c;
+//		cout << " (" << it.length() << ")\n";
+//	}
+//	cout << "-----\n";
 	
 	cout << "RelzIndex - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
