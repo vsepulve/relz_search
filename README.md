@@ -80,7 +80,6 @@ Testing Hash Version
 ./bin/relz_search_hash index_yeast/ yeast_queries_40.txt
 ./bin/relz_search_hash index_yeast/ yeast_queries_80.txt
 ```
-```
 
 Testing No Hash Version
 -------------------
