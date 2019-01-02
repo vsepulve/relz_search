@@ -39,9 +39,9 @@ int main(int argc, char* argv[]){
 		buff[n_read] = 0;
 		for(unsigned int i = 0; i < n_read; ++i){
 			char c = toupper(buff[i]);
-//			if(c == 'A' || c == 'T' || c == 'C' || c == 'G'){
+			if(c == 'A' || c == 'T' || c == 'C' || c == 'G'){
 //				buff_output[cur_pos++] = buff[i];
-			if( (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ){
+//			if( (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ){
 				buff_output[cur_pos++] = c;
 				if( cur_pos == max_read ){
 					buff_output[cur_pos] = 0;
