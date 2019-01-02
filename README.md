@@ -24,7 +24,7 @@ make
 
 Building (indexing) the Reference
 -------------------
-The first step to use the system is the indexing of the reference text to generate binary references used for the rest of the processes. The program bin/build\_reference performs the indexing, and its arguments are the reference text file, the output to write the binary and indexed reference, and the number of threads used for construction.
+The first step to use the system is indexing of the reference text to generate the binary references used for the rest of the processes. The program bin/build\_reference performs the indexing, and its arguments are the reference text file, the output to write the binary and indexed reference, and the number of threads used for construction.
 An example could be:
 ```
 ./bin/build_reference reference_text reference_output n_threads
@@ -79,6 +79,17 @@ Testing Hash Version
 ./bin/relz_search_hash index_yeast/ yeast_queries_20.txt
 ./bin/relz_search_hash index_yeast/ yeast_queries_40.txt
 ./bin/relz_search_hash index_yeast/ yeast_queries_80.txt
+```
+```
+
+Testing No Hash Version
+-------------------
+This version uses the same index of Hash, but omits the usage of the rolling hash. Instead, it receives approximate (greater) ranges from the trees and filter the results with the correctness test before reporting them.
+```
+./bin/relz_search_hash_simple index_yeast/ yeast_queries_10.txt
+./bin/relz_search_hash_simple index_yeast/ yeast_queries_20.txt
+./bin/relz_search_hash_simple index_yeast/ yeast_queries_40.txt
+./bin/relz_search_hash_simple index_yeast/ yeast_queries_80.txt
 ```
 
 
