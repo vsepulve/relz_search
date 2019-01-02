@@ -70,9 +70,10 @@ int main(int argc, char* argv[]){
 	text_size = filter->readReferenceFull(reference_text, text);
 	
 	// Additional text could be added (N's, the full alphabet, etc)
+	// Note that this is NOT compatible (currently) with the compacted references (ie, using 2 bits per base)
 	// ...
-	text[text_size] = '\n';
-	++text_size;
+//	text[text_size] = '\n';
+//	++text_size;
 	
 	cout << "Building Reference with " << text_size << " chars\n";
 	timer.reset();
