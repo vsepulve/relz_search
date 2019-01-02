@@ -1,5 +1,5 @@
-#ifndef _RELZ_INDEX_HASH_COMPACTED_H
-#define _RELZ_INDEX_HASH_COMPACTED_H
+#ifndef _RELZ_INDEX_HASH_UNCOMPACTED_H
+#define _RELZ_INDEX_HASH_UNCOMPACTED_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +17,6 @@
 #include "FactorsConfig.h"
 #include "FactorsIterator.h"
 #include "FactorsFastIteratorComparator.h"
-#include "FactorsIteratorCompacted.h"
 #include "NanoTimer.h"
 
 #include "BitsUtils.h"
@@ -28,14 +27,14 @@
 using namespace sdsl;
 using namespace std;
 
-class RelzIndexHashCompactedRef {
+class RelzIndexHashUncompacted {
 
 private: 
 	
 	unsigned int len_text;
 	unsigned int n_factors;
-	
-	CompactedText *ref_text;
+	unsigned int len_ref;
+	char *ref_text;
 	
 	fm_index_type fm_index;
 	
@@ -69,10 +68,10 @@ private:
 	void recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results);
 	
 public: 
-	RelzIndexHashCompactedRef();
-	RelzIndexHashCompactedRef(KarpRabin *_karp_rabin);
-	RelzIndexHashCompactedRef(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin);
-	~RelzIndexHashCompactedRef();
+	RelzIndexHashUncompacted();
+	RelzIndexHashUncompacted(KarpRabin *_karp_rabin);
+	RelzIndexHashUncompacted(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin);
+	~RelzIndexHashUncompacted();
 	
 	// void find(const string &pattern, vector<unsigned int> &results);
 	void findTimes(const string &pattern, vector<unsigned int> &results, bool use_hash = true);

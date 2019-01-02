@@ -21,7 +21,7 @@
 #include "DecoderBlocksRelz.h"
 #include "TextFilterFull.h"
 
-#include "RelzIndexHashCompactedRef.h"
+#include "RelzIndexHashUncompacted.h"
 
 using namespace sdsl;
 using namespace std;
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
 	if( output_path.back() != '/' ){
 		output_path += "/";
 	}
-	output_path += "index_hash_compacted_ref";
+	output_path += "index_hash_uncompacted";
 	
 	cout << "----- Testing load -----\n";
 	NanoTimer timer;
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]){
 	unsigned int mod = 15485863;
 //	KarpRabin karp_rabin(bits, mod, 1100000000);
 	KarpRabin karp_rabin(bits, mod, 10000000);
-	RelzIndexHashCompactedRef index;
+	RelzIndexHashUncompacted index;
 	index.load(output_path, &karp_rabin);
 	index.printSize();
 	

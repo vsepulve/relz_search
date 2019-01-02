@@ -2,7 +2,6 @@
 
 RelzIndexHash::RelzIndexHash(){
 	len_text = 0;
-	len_ref = 0;
 	n_factors = 0;
 	karp_rabin = NULL;
 	ref_text = NULL;
@@ -10,7 +9,6 @@ RelzIndexHash::RelzIndexHash(){
 
 RelzIndexHash::RelzIndexHash(KarpRabin *_karp_rabin){
 	len_text = 0;
-	len_ref = 0;
 	n_factors = 0;
 	karp_rabin = _karp_rabin;
 	ref_text = NULL;
@@ -19,19 +17,14 @@ RelzIndexHash::RelzIndexHash(KarpRabin *_karp_rabin){
 RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin){
 	
 	len_text = _len_text;
-	len_ref = _len_ref;
 	n_factors = factors.size();
 	karp_rabin = _karp_rabin;
 	
-	ref_text = new char[_len_ref + 1];
-	memcpy(ref_text, _ref_text, _len_ref);
-	ref_text[_len_ref] = 0;
+	ref_text = new CompactedText(_ref_text, _len_ref);
 	
 	NanoTimer timer;
 	
-	cout << "RelzIndexHash - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
-//	cout << "RelzIndexHash - Ref: " << ref_text << "\n";
-//	cout << "RelzIndexHash - Text: " << full_text << "\n";
+	cout << "RelzIndexHash - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << ref_text->length() << ")\n";
 	
 	cout << "RelzIndexHash - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
@@ -59,7 +52,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	
 	// Bit vector S
 	cout << "RelzIndexHash - Preparing Vector S\n";
-	bit_vector arr_s(len_ref + n_factors, 0);
+	bit_vector arr_s(ref_text->length() + n_factors, 0);
 	unsigned cur_ref = 0;
 	cur_pos = 0;
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -213,18 +206,18 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	// Ademas necesito la firma de cada sufijo de factor quizas?
 	
 	BitsUtils bits_utils;
-	unsigned int log_n = bits_utils.n_bits(len_ref);
+	unsigned int log_n = bits_utils.n_bits(ref_text->length());
 	cout << "RelzIndexHash - Adding hash for Reference prefixes\n";
-	cout << "log_n: " << log_n << " de " << len_ref << "\n";
-	arr_kr_ref.push_back( karp_rabin->hash(ref_text, log_n) );
+	cout << "log_n: " << log_n << " de " << ref_text->length() << "\n";
+	arr_kr_ref.push_back( karp_rabin->hash(ref_text, 0, log_n) );
 	unsigned int processed_text = log_n;
-	while( processed_text < len_ref ){
+	while( processed_text < ref_text->length() ){
 		unsigned int word_len = log_n;
-		if( len_ref - processed_text < word_len ){
-			word_len = len_ref - processed_text;
+		if( ref_text->length() - processed_text < word_len ){
+			word_len = ref_text->length() - processed_text;
 		}
 		unsigned long long kr1 = arr_kr_ref.back();
-		unsigned long long kr2 = karp_rabin->hash(ref_text + processed_text, word_len);
+		unsigned long long kr2 = karp_rabin->hash(ref_text, processed_text, word_len);
 		unsigned long long kr_total = karp_rabin->concat(kr1, kr2, word_len);
 //		unsigned long long kr_test = karp_rabin->hash(ref_text, processed_text + word_len);
 //		cout << "Agregando " << kr_total << " / " << kr_test << " (kr1: " << kr1 << ", " << kr2 << ", word_len: " << word_len << ")\n";
@@ -258,10 +251,6 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	cout << "RelzIndexHash - KarpRobin prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-	// Original
-//	kr_factors = new KarpRabinFactorsSuffixesv1(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
-	
-	// New
 	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
 	
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
@@ -294,7 +283,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 }
 
 RelzIndexHash::~RelzIndexHash(){
-	delete [] ref_text;
+	delete ref_text;
 	ref_text = NULL;
 }
 
@@ -302,9 +291,9 @@ void RelzIndexHash::printSize(){
 	double total_bytes = 0;
 	
 	// texto descomprimido
-//	unsigned int len_ref = ref_text->length();
+	unsigned int len_ref = ref_text->length();
 	total_bytes += len_ref;
-	cout << "RelzIndexReference::printSize - Reference Text: " << (8.0*len_ref/len_text) << " bps\n";
+	cout << "RelzIndexHash::printSize - Reference Text: " << (2.0*len_ref/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(fm_index);
 	cout << "RelzIndexHash::printSize - fm_index: " << (8.0*size_in_bytes(fm_index)/len_text) << " bps\n";
@@ -426,7 +415,7 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 			// Verificacion
 			bool omit = false;
 			
-			FactorsIteratorReverse it_x(f-1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
+			FactorsIteratorCompactedReverse it_x(f-1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, len_text);
 //			cout << "text_x: ";
 			for(unsigned int pos = 0; pos < i; ++pos){
 				char c = it_x.next();
@@ -438,7 +427,7 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 			}
 //			cout << "\n";
 			
-			FactorsIterator it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
+			FactorsIteratorCompacted it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, len_text);
 //			cout << "text_y: ";
 			for(unsigned int pos = 0; pos < pattern.length()-i; ++pos){
 				char c = it_y.next();
@@ -519,10 +508,9 @@ void RelzIndexHash::save(const string &file_base){
 	writer.write((char*)&len_text, sizeof(int));
 	// n_factors
 	writer.write((char*)&n_factors, sizeof(int));
-	// len_ref
-	writer.write((char*)&len_ref, sizeof(int));
-	// Reference Text
-	writer.write((char*)ref_text, len_ref);
+	// ref_text
+	ref_text->save(&writer);
+	
 	// Close Base
 	writer.close();
 	
@@ -575,8 +563,6 @@ void RelzIndexHash::save(const string &file_base){
 	string tree_y_file = file_base + ".tree_y";
 	tree_y.save(tree_y_file);
 	
-	
-	
 	cout << "RelzIndexHash::save - End\n";
 }
 
@@ -597,16 +583,10 @@ void RelzIndexHash::load(const string &file_base, KarpRabin *_karp_rabin){
 	reader.read((char*)&len_text, sizeof(int));
 	// n_factors
 	reader.read((char*)&n_factors, sizeof(int));
-	// len_ref
-	reader.read((char*)&len_ref, sizeof(int));
-	// Reference Text
-	if( ref_text != NULL ){
-		delete [] ref_text;
-		ref_text = NULL;
-	}
-	ref_text = new char[len_ref + 1];
-	reader.read((char*)ref_text, len_ref);
-	ref_text[len_ref] = 0;
+	// ref_text
+	ref_text = new CompactedText();
+	ref_text->load(&reader);
+	
 	// Close Base
 	reader.close();
 	
@@ -682,8 +662,6 @@ void RelzIndexHash::load(const string &file_base, KarpRabin *_karp_rabin){
 	// tree_y
 	string tree_y_file = file_base + ".tree_y";
 	tree_y.load(karp_rabin, kr_factors, &arr_y, tree_y_file);
-	
-	
 	
 	cout << "RelzIndexHash::load - End\n";
 	

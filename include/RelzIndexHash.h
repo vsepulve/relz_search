@@ -1,5 +1,5 @@
-#ifndef _RELZ_INDEX_HASH_COMPACTED_H
-#define _RELZ_INDEX_HASH_COMPACTED_H
+#ifndef _RELZ_INDEX_HASH_H
+#define _RELZ_INDEX_HASH_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +17,7 @@
 #include "FactorsConfig.h"
 #include "FactorsIterator.h"
 #include "FactorsFastIteratorComparator.h"
+#include "FactorsIteratorCompacted.h"
 #include "NanoTimer.h"
 
 #include "BitsUtils.h"
@@ -33,8 +34,8 @@ private:
 	
 	unsigned int len_text;
 	unsigned int n_factors;
-	unsigned int len_ref;
-	char *ref_text;
+	
+	CompactedText *ref_text;
 	
 	fm_index_type fm_index;
 	

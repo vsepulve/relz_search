@@ -1,32 +1,39 @@
-#include "RelzIndexHashCompactedRef.h"
+#include "RelzIndexHashUncompacted.h"
 
-RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(){
+RelzIndexHashUncompacted::RelzIndexHashUncompacted(){
 	len_text = 0;
+	len_ref = 0;
 	n_factors = 0;
 	karp_rabin = NULL;
 	ref_text = NULL;
 }
 
-RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(KarpRabin *_karp_rabin){
+RelzIndexHashUncompacted::RelzIndexHashUncompacted(KarpRabin *_karp_rabin){
 	len_text = 0;
+	len_ref = 0;
 	n_factors = 0;
 	karp_rabin = _karp_rabin;
 	ref_text = NULL;
 }
 
-RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin){
+RelzIndexHashUncompacted::RelzIndexHashUncompacted(vector<pair<unsigned int, unsigned int> > &factors, char *full_text, unsigned int _len_text, const char *_ref_text, unsigned int _len_ref, KarpRabin *_karp_rabin){
 	
 	len_text = _len_text;
+	len_ref = _len_ref;
 	n_factors = factors.size();
 	karp_rabin = _karp_rabin;
 	
-	ref_text = new CompactedText(_ref_text, _len_ref);
+	ref_text = new char[_len_ref + 1];
+	memcpy(ref_text, _ref_text, _len_ref);
+	ref_text[_len_ref] = 0;
 	
 	NanoTimer timer;
 	
-	cout << "RelzIndexHashCompactedRef - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << ref_text->length() << ")\n";
+	cout << "RelzIndexHashUncompacted - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
+//	cout << "RelzIndexHashUncompacted - Ref: " << ref_text << "\n";
+//	cout << "RelzIndexHashUncompacted - Text: " << full_text << "\n";
 	
-	cout << "RelzIndexHashCompactedRef - Preparing Factors\n";
+	cout << "RelzIndexHashUncompacted - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
 	vector<pair<unsigned int, pair<unsigned int, unsigned int> > > factors_sort;
 //	vector<unsigned int> factors_start;
@@ -43,7 +50,7 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 		cur_start += factor.second;
 	}
 	sort(factors_sort.begin(), factors_sort.end());
-	cout << "RelzIndexHashCompactedRef - Factors Sorted prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHashUncompacted - Factors Sorted prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 //	cout << "Factors Sorted: \n";
 //	for( unsigned int i = 0; i < factors_sort.size(); ++i ){
@@ -51,8 +58,8 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 //	}
 	
 	// Bit vector S
-	cout << "RelzIndexHashCompactedRef - Preparing Vector S\n";
-	bit_vector arr_s(ref_text->length() + n_factors, 0);
+	cout << "RelzIndexHashUncompacted - Preparing Vector S\n";
+	bit_vector arr_s(len_ref + n_factors, 0);
 	unsigned cur_ref = 0;
 	cur_pos = 0;
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -66,7 +73,7 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 			--i;
 		}
 	}
-	cout << "RelzIndexHashCompactedRef - Vector S prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHashUncompacted - Vector S prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	bits_s = bits_s_type(arr_s);
@@ -74,7 +81,7 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 	select0_s = bits_s_type::select_0_type(&bits_s);
 	
 	// Permutacion 
-	cout << "RelzIndexHashCompactedRef - Preparing Permutation PI\n";
+	cout << "RelzIndexHashUncompacted - Preparing Permutation PI\n";
 	pi = int_vector<>(n_factors);
 	pi_inv = int_vector<>(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -82,7 +89,7 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 		pi_inv[ factors_sort[i].second.second ] = i;
 	}
 	
-	cout << "RelzIndexHashCompactedRef - PI prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHashUncompacted - PI prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Posiciones finales Ez
@@ -93,7 +100,7 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 	rmq = rmq_type(&ez);
 	
 	// Bit vector B (inicio de las frases en texto)
-	cout << "RelzIndexHashCompactedRef - Preparing Vector B\n";
+	cout << "RelzIndexHashUncompacted - Preparing Vector B\n";
 	bit_vector arr_b(len_text, 0);
 	unsigned int pos_text = 0;
 	for( unsigned int i = 0; i < n_factors; ++i ){
@@ -101,7 +108,7 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 		arr_b[ pos_text ] = 1;
 		pos_text += len;
 	}
-	cout << "RelzIndexHashCompactedRef - Vector B prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHashUncompacted - Vector B prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	bits_b = bits_b_type(arr_b);
@@ -110,13 +117,13 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 	
 	// Construccion del FM Index (aunque use el SA original para la compresion, esto es para la busqueda)
 	// Construccion con datos en memoria, en un string
-	cout << "RelzIndexHashCompactedRef - Preparing fm_index\n";
+	cout << "RelzIndexHashUncompacted - Preparing fm_index\n";
 	construct_im(fm_index, _ref_text, 1);
-	cout << "RelzIndexHashCompactedRef - fm_index prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHashUncompacted - fm_index prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Preparacion de permutaciones X e Y
-	cout << "RelzIndexHashCompactedRef - Preparing arr X\n";
+	cout << "RelzIndexHashUncompacted - Preparing arr X\n";
 	vector<unsigned int> arr_x_original(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_x_original[i] = i;
@@ -138,7 +145,7 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 //	}
 //	cout << "-----\n";
 	
-	cout << "RelzIndexHashCompactedRef - Preparing arr Y\n";
+	cout << "RelzIndexHashUncompacted - Preparing arr Y\n";
 	vector<unsigned int> arr_y_original(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		arr_y_original[i] = i;
@@ -164,17 +171,17 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 //	}
 //	cout << "-----\n";
 
-	cout << "RelzIndexHashCompactedRef - X & Y prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHashUncompacted - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
-	cout << "RelzIndexHashCompactedRef - Preparing WT\n";
+	cout << "RelzIndexHashUncompacted - Preparing WT\n";
 	int_vector<> values_wt(n_factors);
 	for( unsigned int i = 0; i < n_factors; ++i ){
 		values_wt[i] = arr_y_inv[ arr_x[ i ] ];
 	}
 	
 	construct_im(wt, values_wt);
-	cout << "RelzIndexHashCompactedRef - WT prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHashUncompacted - WT prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Prueba de aceleracion de recursive_rmq almacenando los datos de los factores descomprimidos
@@ -189,7 +196,7 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 		}
 	}
 	
-	cout << "RelzIndexHashCompactedRef - Testing factors_start\n";
+	cout << "RelzIndexHashUncompacted - Testing factors_start\n";
 	for(unsigned int i = 0; i < n_factors; ++i){
 		if(i < 10 || i > n_factors-10 ){
 			cout << "factors_start[" << i << "]: " << factors_start[i] << " (" << select1_b(i+1) << ")\n";
@@ -200,24 +207,24 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 		}
 	}
 	
-	cout << "RelzIndexHashCompactedRef - Preparing KarpRobin Structures\n";
+	cout << "RelzIndexHashUncompacted - Preparing KarpRobin Structures\n";
 	
 	// En principio se necesita un arreglo de un hash por cada log(n) caracteres de la referencia
 	// Ademas necesito la firma de cada sufijo de factor quizas?
 	
 	BitsUtils bits_utils;
-	unsigned int log_n = bits_utils.n_bits(ref_text->length());
-	cout << "RelzIndexHashCompactedRef - Adding hash for Reference prefixes\n";
-	cout << "log_n: " << log_n << " de " << ref_text->length() << "\n";
-	arr_kr_ref.push_back( karp_rabin->hash(ref_text, 0, log_n) );
+	unsigned int log_n = bits_utils.n_bits(len_ref);
+	cout << "RelzIndexHashUncompacted - Adding hash for Reference prefixes\n";
+	cout << "log_n: " << log_n << " de " << len_ref << "\n";
+	arr_kr_ref.push_back( karp_rabin->hash(ref_text, log_n) );
 	unsigned int processed_text = log_n;
-	while( processed_text < ref_text->length() ){
+	while( processed_text < len_ref ){
 		unsigned int word_len = log_n;
-		if( ref_text->length() - processed_text < word_len ){
-			word_len = ref_text->length() - processed_text;
+		if( len_ref - processed_text < word_len ){
+			word_len = len_ref - processed_text;
 		}
 		unsigned long long kr1 = arr_kr_ref.back();
-		unsigned long long kr2 = karp_rabin->hash(ref_text, processed_text, word_len);
+		unsigned long long kr2 = karp_rabin->hash(ref_text + processed_text, word_len);
 		unsigned long long kr_total = karp_rabin->concat(kr1, kr2, word_len);
 //		unsigned long long kr_test = karp_rabin->hash(ref_text, processed_text + word_len);
 //		cout << "Agregando " << kr_total << " / " << kr_test << " (kr1: " << kr1 << ", " << kr2 << ", word_len: " << word_len << ")\n";
@@ -227,7 +234,7 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 	
 	// factors_start almacena la posicion de inicio de cada frase (=> los caracteres ANTERIORES forman el prefijo)
 	// Por eso agrego un 0 para la primera frase (prefijo nulo)
-	cout << "RelzIndexHashCompactedRef - Adding hash for Frases prefixes\n";
+	cout << "RelzIndexHashUncompacted - Adding hash for Frases prefixes\n";
 	arr_kr_s.push_back(0);
 	for(unsigned int i = 1; i < factors_start.size(); ++i){
 		unsigned int word_len = factors_start[i] - factors_start[i-1];
@@ -236,7 +243,7 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 		unsigned long long kr_total = karp_rabin->concat(kr1, kr2, word_len);
 		
 //		string s(full_text, factors_start[i]);
-//		cout << "RelzIndexHashCompactedRef - Adding hash de \"" << s << "\" " << kr_total << " / " << karp_rabin->hash(s) << "\n";
+//		cout << "RelzIndexHashUncompacted - Adding hash de \"" << s << "\" " << kr_total << " / " << karp_rabin->hash(s) << "\n";
 		
 		arr_kr_s.push_back(kr_total);
 	}
@@ -248,28 +255,32 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 	unsigned long long kr_total = karp_rabin->concat(kr1, kr2, word_len);
 	arr_kr_s.push_back(kr_total);
 	
-	cout << "RelzIndexHashCompactedRef - KarpRobin prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHashUncompacted - KarpRobin prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
+	// Original
+//	kr_factors = new KarpRabinFactorsSuffixesv1(n_factors, &arr_kr_s, karp_rabin, ref_text, &pi_inv, &arr_tu, &arr_pu, &arr_lu, &factors_start);
+	
+	// New
 	kr_factors = new KarpRabinFactorsSuffixes(n_factors, &arr_kr_s, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
 	
 	// Para esta fase, en CONSTRUCCION usare datos descomprimidos para simplificarlo
 	// Obviamente esto es olo para construccion y los datos usados no se almacenan, solo los datos de los nodos
 	// Tambien, si hay un archivo para tree_y almacenado, lo cargo en lugar de construirlo
 	
-	cout << "RelzIndexHashCompactedRef - Building Tree X\n";
+	cout << "RelzIndexHashUncompacted - Building Tree X\n";
 	timer.reset();
 	tree_x.build(full_text, len_text, factors_start, &arr_x, karp_rabin, kr_factors, true);
-	cout << "RelzIndexHashCompactedRef - Tree X finished in (" << timer.getMilisec() << " ms)\n";
+	cout << "RelzIndexHashUncompacted - Tree X finished in (" << timer.getMilisec() << " ms)\n";
 //	tree_x.print();
 	
-	cout << "RelzIndexHashCompactedRef - Building Tree Y\n";
+	cout << "RelzIndexHashUncompacted - Building Tree Y\n";
 	timer.reset();
 	tree_y.build(full_text, len_text, factors_start, &arr_y, karp_rabin, kr_factors, false);
-	cout << "RelzIndexHashCompactedRef - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
+	cout << "RelzIndexHashUncompacted - Tree Y finished in (" << timer.getMilisec() << " ms)\n";
 //	tree_y.print();
 	
-	cout << "RelzIndexHashCompactedRef - Trees prepared in " << timer.getMilisec() << "\n";
+	cout << "RelzIndexHashUncompacted - Trees prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
 	
 	// Compactacion de arreglos descomprimidos
@@ -278,68 +289,68 @@ RelzIndexHashCompactedRef::RelzIndexHashCompactedRef(vector<pair<unsigned int, u
 	sdsl::util::bit_compress(arr_x);
 	sdsl::util::bit_compress(arr_y);
 	
-	cout << "RelzIndexHashCompactedRef - End\n";
+	cout << "RelzIndexHashUncompacted - End\n";
 	
 }
 
-RelzIndexHashCompactedRef::~RelzIndexHashCompactedRef(){
-	delete ref_text;
+RelzIndexHashUncompacted::~RelzIndexHashUncompacted(){
+	delete [] ref_text;
 	ref_text = NULL;
 }
 
-void RelzIndexHashCompactedRef::printSize(){
+void RelzIndexHashUncompacted::printSize(){
 	double total_bytes = 0;
 	
 	// texto descomprimido
-	unsigned int len_ref = ref_text->length();
+//	unsigned int len_ref = ref_text->length();
 	total_bytes += len_ref;
-	cout << "RelzIndexHashCompactedRef::printSize - Reference Text: " << (2.0*len_ref/len_text) << " bps\n";
+	cout << "RelzIndexReference::printSize - Reference Text: " << (8.0*len_ref/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(fm_index);
-	cout << "RelzIndexHashCompactedRef::printSize - fm_index: " << (8.0*size_in_bytes(fm_index)/len_text) << " bps\n";
+	cout << "RelzIndexHashUncompacted::printSize - fm_index: " << (8.0*size_in_bytes(fm_index)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(rmq);
-	cout << "RelzIndexHashCompactedRef::printSize - rmq: " << (8.0*size_in_bytes(rmq)/len_text) << " bps\n";
+	cout << "RelzIndexHashUncompacted::printSize - rmq: " << (8.0*size_in_bytes(rmq)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(bits_s);
-	cout << "RelzIndexHashCompactedRef::printSize - bits_s: " << (8.0*size_in_bytes(bits_s)/len_text) << " bps\n";
+	cout << "RelzIndexHashUncompacted::printSize - bits_s: " << (8.0*size_in_bytes(bits_s)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(bits_b);
-	cout << "RelzIndexHashCompactedRef::printSize - bits_b: " << (8.0*size_in_bytes(bits_b)/len_text) << " bps\n";
+	cout << "RelzIndexHashUncompacted::printSize - bits_b: " << (8.0*size_in_bytes(bits_b)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(pi);
-	cout << "RelzIndexHashCompactedRef::printSize - pi: " << (8.0*size_in_bytes(pi)/len_text) << " bps\n";
+	cout << "RelzIndexHashUncompacted::printSize - pi: " << (8.0*size_in_bytes(pi)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(pi_inv);
-	cout << "RelzIndexHashCompactedRef::printSize - pi_inv: " << (8.0*size_in_bytes(pi_inv)/len_text) << " bps\n";
+	cout << "RelzIndexHashUncompacted::printSize - pi_inv: " << (8.0*size_in_bytes(pi_inv)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(arr_x);
-	cout << "RelzIndexHashCompactedRef::printSize - arr_x: " << (8.0*size_in_bytes(arr_x)/len_text) << " bps\n";
+	cout << "RelzIndexHashUncompacted::printSize - arr_x: " << (8.0*size_in_bytes(arr_x)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(arr_y);
-	cout << "RelzIndexHashCompactedRef::printSize - arr_y: " << (8.0*size_in_bytes(arr_y)/len_text) << " bps\n";
+	cout << "RelzIndexHashUncompacted::printSize - arr_y: " << (8.0*size_in_bytes(arr_y)/len_text) << " bps\n";
 	
 	total_bytes += size_in_bytes(wt);
-	cout << "RelzIndexHashCompactedRef::printSize - wt: " << (8.0*size_in_bytes(wt)/len_text) << " bps\n";
+	cout << "RelzIndexHashUncompacted::printSize - wt: " << (8.0*size_in_bytes(wt)/len_text) << " bps\n";
 	
 //	tree_y
 	total_bytes += tree_y.getSizeBytes();
-	cout << "RelzIndexHashCompactedRef::printSize - tree_y: " << (8.0*tree_y.getSizeBytes()/(len_text)) << " bps\n";
+	cout << "RelzIndexHashUncompacted::printSize - tree_y: " << (8.0*tree_y.getSizeBytes()/(len_text)) << " bps\n";
 	
 //	tree_x
 	total_bytes += tree_x.getSizeBytes();
-	cout << "RelzIndexHashCompactedRef::printSize - tree_x: " << (8.0*tree_x.getSizeBytes()/(len_text)) << " bps\n";
+	cout << "RelzIndexHashUncompacted::printSize - tree_x: " << (8.0*tree_x.getSizeBytes()/(len_text)) << " bps\n";
 	
-	cout << "RelzIndexHashCompactedRef::printSize - Total " << total_bytes << " (" << (total_bytes/(1024*1024)) << " MB)\n";
+	cout << "RelzIndexHashUncompacted::printSize - Total " << total_bytes << " (" << (total_bytes/(1024*1024)) << " MB)\n";
 	
 }
 
-void RelzIndexHashCompactedRef::findTimes(const string &pattern, vector<unsigned int> &results, bool use_hash){
+void RelzIndexHashUncompacted::findTimes(const string &pattern, vector<unsigned int> &results, bool use_hash){
 	
-//	cout << "RelzIndexHashCompactedRef::findTimes - Start (\"" << pattern << "\")\n";
+//	cout << "RelzIndexHashUncompacted::findTimes - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
 	
-//	cout << "RelzIndexHashCompactedRef::findTimes - Section A, reference\n";
+//	cout << "RelzIndexHashUncompacted::findTimes - Section A, reference\n";
 	
 	size_t m = pattern.size();
 	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
@@ -367,7 +378,7 @@ void RelzIndexHashCompactedRef::findTimes(const string &pattern, vector<unsigned
 	}
 	querytime_p2 += timer.getNanosec();
 	
-//	cout << "RelzIndexHashCompactedRef::findTimes - Section B, ranges\n";
+//	cout << "RelzIndexHashUncompacted::findTimes - Section B, ranges\n";
 	
 	vector<unsigned long long> kr_pat_vector;
 	vector<unsigned long long> kr_pat_rev_vector;
@@ -405,9 +416,9 @@ void RelzIndexHashCompactedRef::findTimes(const string &pattern, vector<unsigned
 			continue;
 		}
 		
-//		cout << "RelzIndexHashCompactedRef::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+//		cout << "RelzIndexHashUncompacted::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
-//		cout << "RelzIndexHashCompactedRef::findTimes - Adding " << res.second.size() << " points\n";
+//		cout << "RelzIndexHashUncompacted::findTimes - Adding " << res.second.size() << " points\n";
 		for (auto point : res.second){
 			unsigned int f = arr_y[point.second];
 			unsigned int pu = select1_b(f + 1);
@@ -415,7 +426,7 @@ void RelzIndexHashCompactedRef::findTimes(const string &pattern, vector<unsigned
 			// Verificacion
 			bool omit = false;
 			
-			FactorsIteratorCompactedReverse it_x(f-1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, len_text);
+			FactorsIteratorReverse it_x(f-1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
 //			cout << "text_x: ";
 			for(unsigned int pos = 0; pos < i; ++pos){
 				char c = it_x.next();
@@ -427,7 +438,7 @@ void RelzIndexHashCompactedRef::findTimes(const string &pattern, vector<unsigned
 			}
 //			cout << "\n";
 			
-			FactorsIteratorCompacted it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, len_text);
+			FactorsIterator it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, &fm_index, len_text);
 //			cout << "text_y: ";
 			for(unsigned int pos = 0; pos < pattern.length()-i; ++pos){
 				char c = it_y.next();
@@ -440,7 +451,7 @@ void RelzIndexHashCompactedRef::findTimes(const string &pattern, vector<unsigned
 //			cout << "\n";
 			
 			if( omit ){
-//				cout << "RelzIndexHashCompactedRef::findTimes - Omiting bad result.\n";
+//				cout << "RelzIndexHashUncompacted::findTimes - Omiting bad result.\n";
 				continue;
 			}
 			
@@ -451,12 +462,12 @@ void RelzIndexHashCompactedRef::findTimes(const string &pattern, vector<unsigned
 		
 	}
 	
-//	cout << "RelzIndexHashCompactedRef::findTimes - End\n";
+//	cout << "RelzIndexHashUncompacted::findTimes - End\n";
 	
 }
 
-void RelzIndexHashCompactedRef::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results){
-//	cout << "RelzIndexHashCompactedRef::recursive_rmq - " << ini << ", " << fin << "\n";
+void RelzIndexHashUncompacted::recursive_rmq(unsigned int ini, unsigned int fin, unsigned int min_pos, unsigned int occ_ref, vector<unsigned int> &results){
+//	cout << "RelzIndexHashUncompacted::recursive_rmq - " << ini << ", " << fin << "\n";
 	
 	unsigned int pos_max = rmq(ini, fin);
 	
@@ -476,7 +487,7 @@ void RelzIndexHashCompactedRef::recursive_rmq(unsigned int ini, unsigned int fin
 		lu = select1_b(pi[pos_max] + 2) - pu;
 	}
 	
-//	cout << "RelzIndexHashCompactedRef::recursive_rmq - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
+//	cout << "RelzIndexHashUncompacted::recursive_rmq - tu: " << tu << ", pu: " << pu << ", lu: " << lu << "\n";
 	
 	if( tu + lu < min_pos ){
 		return;
@@ -495,8 +506,8 @@ void RelzIndexHashCompactedRef::recursive_rmq(unsigned int ini, unsigned int fin
 	}
 }
 
-void RelzIndexHashCompactedRef::save(const string &file_base){
-	cout << "RelzIndexHashCompactedRef::save - Start (base \"" << file_base << "\")\n";
+void RelzIndexHashUncompacted::save(const string &file_base){
+	cout << "RelzIndexHashUncompacted::save - Start (base \"" << file_base << "\")\n";
 	
 	// Base
 	string index_basic_file = file_base + ".base";
@@ -508,9 +519,10 @@ void RelzIndexHashCompactedRef::save(const string &file_base){
 	writer.write((char*)&len_text, sizeof(int));
 	// n_factors
 	writer.write((char*)&n_factors, sizeof(int));
-	// ref_text
-	ref_text->save(&writer);
-	
+	// len_ref
+	writer.write((char*)&len_ref, sizeof(int));
+	// Reference Text
+	writer.write((char*)ref_text, len_ref);
 	// Close Base
 	writer.close();
 	
@@ -563,11 +575,13 @@ void RelzIndexHashCompactedRef::save(const string &file_base){
 	string tree_y_file = file_base + ".tree_y";
 	tree_y.save(tree_y_file);
 	
-	cout << "RelzIndexHashCompactedRef::save - End\n";
+	
+	
+	cout << "RelzIndexHashUncompacted::save - End\n";
 }
 
-void RelzIndexHashCompactedRef::load(const string &file_base, KarpRabin *_karp_rabin){
-	cout << "RelzIndexHashCompactedRef::load - Start (base \"" << file_base << "\")\n";
+void RelzIndexHashUncompacted::load(const string &file_base, KarpRabin *_karp_rabin){
+	cout << "RelzIndexHashUncompacted::load - Start (base \"" << file_base << "\")\n";
 	
 	// Base
 	string index_basic_file = file_base + ".base";
@@ -576,39 +590,45 @@ void RelzIndexHashCompactedRef::load(const string &file_base, KarpRabin *_karp_r
 	unsigned char version = 0;
 	reader.read((char*)&version, 1);
 	if( version != 3 ){
-		cout << "RelzIndexHashCompactedRef::load - Wrong Version\n";
+		cout << "RelzIndexHashUncompacted::load - Wrong Version\n";
 		return;
 	}
 	// len_text
 	reader.read((char*)&len_text, sizeof(int));
 	// n_factors
 	reader.read((char*)&n_factors, sizeof(int));
-	// ref_text
-	ref_text = new CompactedText();
-	ref_text->load(&reader);
-	
+	// len_ref
+	reader.read((char*)&len_ref, sizeof(int));
+	// Reference Text
+	if( ref_text != NULL ){
+		delete [] ref_text;
+		ref_text = NULL;
+	}
+	ref_text = new char[len_ref + 1];
+	reader.read((char*)ref_text, len_ref);
+	ref_text[len_ref] = 0;
 	// Close Base
 	reader.close();
 	
 	// fm_index
-	cout << "RelzIndexHashCompactedRef::load - fm_index\n";
+	cout << "RelzIndexHashUncompacted::load - fm_index\n";
 	string fm_index_file = file_base + ".fm";
 	load_from_file(fm_index, fm_index_file);
 	
 	// rmq
-	cout << "RelzIndexHashCompactedRef::load - rmq\n";
+	cout << "RelzIndexHashUncompacted::load - rmq\n";
 	string rmq_file = file_base + ".rmq";
 	load_from_file(rmq, rmq_file);
 	
 	// bits_s
-	cout << "RelzIndexHashCompactedRef::load - bits_s\n";
+	cout << "RelzIndexHashUncompacted::load - bits_s\n";
 	string bits_s_file = file_base + ".arrs";
 	load_from_file(bits_s, bits_s_file);
 	select1_s = bits_s_type::select_1_type(&bits_s);
 	select0_s = bits_s_type::select_0_type(&bits_s);
 	
 	// bits_b
-	cout << "RelzIndexHashCompactedRef::load - bits_b\n";
+	cout << "RelzIndexHashUncompacted::load - bits_b\n";
 	string bits_b_file = file_base + ".arrb";
 	load_from_file(bits_b, bits_b_file);
 	select1_b = bits_b_type::select_1_type(&bits_b);
@@ -631,7 +651,7 @@ void RelzIndexHashCompactedRef::load(const string &file_base, KarpRabin *_karp_r
 	load_from_file(arr_y, y_file);
 	
 	// wt
-	cout << "RelzIndexHashCompactedRef::load - wt\n";
+	cout << "RelzIndexHashUncompacted::load - wt\n";
 	string wt_file = file_base + ".wt";
 	load_from_file(wt, wt_file);
 	
@@ -663,7 +683,9 @@ void RelzIndexHashCompactedRef::load(const string &file_base, KarpRabin *_karp_r
 	string tree_y_file = file_base + ".tree_y";
 	tree_y.load(karp_rabin, kr_factors, &arr_y, tree_y_file);
 	
-	cout << "RelzIndexHashCompactedRef::load - End\n";
+	
+	
+	cout << "RelzIndexHashUncompacted::load - End\n";
 	
 }
 
