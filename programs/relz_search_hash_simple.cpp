@@ -83,6 +83,7 @@ int main(int argc, char* argv[]){
 	index.occs_a = 0;
 	index.occs_b = 0;
 	index.occs_c = 0;
+	index.occs_d = 0;
 	for( string query : queries ){
 //		cout << "----- Query \"" << query << "\" -----\n";
 //		index.find(query, results);
@@ -97,6 +98,7 @@ int main(int argc, char* argv[]){
 	cout << "Occs A: " << index.occs_a << "\n";
 	cout << "Occs B: " << index.occs_b << "\n";
 	cout << "Occs C: " << index.occs_c << "\n";
+	cout << "Occs D: " << index.occs_d << "\n";
 //	double total_occ_ref = index.occs_a + index.occs_b + index.occs_c;
 	unsigned long long total_nano = index.querytime_p1 + index.querytime_p2 + index.querytime_p3x + index.querytime_p3y + index.querytime_p4;
 	

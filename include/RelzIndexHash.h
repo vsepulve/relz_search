@@ -86,6 +86,7 @@ public:
 	unsigned int occs_a;
 	unsigned int occs_b;
 	unsigned int occs_c;
+	unsigned int occs_d;
 	
 	KarpRabinFactorsSuffixes *getKRFactors(){
 		return kr_factors;

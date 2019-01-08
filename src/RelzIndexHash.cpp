@@ -427,20 +427,23 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 			}
 //			cout << "\n";
 			
-			FactorsIteratorCompacted it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, len_text);
-//			cout << "text_y: ";
-			for(unsigned int pos = 0; pos < pattern.length()-i; ++pos){
-				char c = it_y.next();
-//				cout << c << "|" << pattern[ i + pos ] << " ";
-				if( c != pattern[ i + pos ] ){
-					omit = true;
-					break;
+			if( !omit ){
+				FactorsIteratorCompacted it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, len_text);
+//				cout << "text_y: ";
+				for(unsigned int pos = 0; pos < pattern.length()-i; ++pos){
+					char c = it_y.next();
+//					cout << c << "|" << pattern[ i + pos ] << " ";
+					if( c != pattern[ i + pos ] ){
+						omit = true;
+						break;
+					}
 				}
+//				cout << "\n";
 			}
-//			cout << "\n";
 			
 			if( omit ){
 //				cout << "RelzIndexHash::findTimes - Omiting bad result.\n";
+				++occs_d;
 				continue;
 			}
 			
