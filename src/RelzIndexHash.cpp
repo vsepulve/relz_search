@@ -660,11 +660,11 @@ void RelzIndexHash::load(const string &file_base, KarpRabin *_karp_rabin){
 	
 	// tree_x
 	string tree_x_file = file_base + ".tree_x";
-	tree_x.load(karp_rabin, kr_factors, &arr_x, tree_x_file);
+	tree_x.load(len_text, karp_rabin, kr_factors, &arr_x, tree_x_file);
 	
 	// tree_y
 	string tree_y_file = file_base + ".tree_y";
-	tree_y.load(karp_rabin, kr_factors, &arr_y, tree_y_file);
+	tree_y.load(len_text, karp_rabin, kr_factors, &arr_y, tree_y_file);
 	
 	cout << "RelzIndexHash::load - End\n";
 	
