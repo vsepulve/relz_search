@@ -57,6 +57,7 @@ private:
 	KarpRabin *karp_rabin;
 	KarpRabinFactorsSuffixes *kr_factors;
 	int_vector<> *arr_factors;
+	unsigned int len_text;
 	
 	// Datos serializados de los nodos
 	int_vector<> positions_childs;
@@ -88,7 +89,7 @@ private:
 public: 
 	
 	HashTrie();
-	HashTrie(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, bool reverse = false);
+	HashTrie(const char *full_text, unsigned int _len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, bool reverse = false);
 	virtual ~HashTrie();
 	
 	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, bool reverse = false);
@@ -103,7 +104,7 @@ public:
 	
 	void save(const string &file);
 	
-	void load(KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, int_vector<> *_arr_factors, const string &file);
+	void load(unsigned int _len_text, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, int_vector<> *_arr_factors, const string &file);
 	
 	unsigned int totalChilds(){
 		return positions_childs.size();
