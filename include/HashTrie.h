@@ -56,7 +56,6 @@ class HashTrie{
 
 private: 
 	KarpRabin *karp_rabin;
-	KarpRabinFactorsSuffixes *kr_factors;
 	int_vector<> *arr_factors;
 	unsigned int len_text;
 	
@@ -85,15 +84,13 @@ private:
 	unsigned int findChildInternal(unsigned int node_pos, char c);
 
 	// Clone of HashTrieNode::getRange, but using compacted arrays and node_pos as the position for the current node
-	pair<unsigned int, unsigned int> getRangeInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int cur_max, const string &pattern);
-	pair<unsigned int, unsigned int> getRangeInternalNoHash(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int cur_max, const string &pattern);
-	
-	pair<unsigned int, unsigned int> getRangeInternalv2(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern);
+	pair<unsigned int, unsigned int> getRangeInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern);
+	pair<unsigned int, unsigned int> getRangeInternalNoHash(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern);
 	
 	// Clone of HashTrieNode::getRange, but using compacted arrays and node_pos as the position for the current node
 	// Version for Reverse factors
-	pair<unsigned int, unsigned int> getRangeRevInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int cur_max, const string &pattern_rev);
-	pair<unsigned int, unsigned int> getRangeRevInternalNoHash(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int cur_max, const string &pattern_rev);
+	pair<unsigned int, unsigned int> getRangeRevInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern_rev);
+	pair<unsigned int, unsigned int> getRangeRevInternalNoHash(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern_rev);
 	
 	// Clone of HashTrieNode::print, but using compacted arrays and node_pos as the position for the current node
 	void printInternal(unsigned int node_pos, unsigned int level);
@@ -101,10 +98,10 @@ private:
 public: 
 	
 	HashTrie();
-	HashTrie(const char *full_text, unsigned int _len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, bool reverse = false);
+	HashTrie(const char *full_text, unsigned int _len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *kr_factors, bool reverse = false);
 	virtual ~HashTrie();
 	
-	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, bool reverse = false);
+	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *kr_factors, bool reverse = false);
 	
 	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, const string &pattern, bool use_hash = true);
 	
@@ -115,8 +112,6 @@ public:
 	void printSize();
 	
 	void save(const string &file);
-	
-	void load(unsigned int _len_text, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, int_vector<> *_arr_factors, const string &file);
 	
 	void load(unsigned int _len_text, KarpRabin *_karp_rabin, CompactedText *_compacted_text, bits_s_type::select_1_type *_select1_s, bits_b_type::select_1_type *_select1_b, bits_b_type::select_0_type *_select0_b, int_vector<> *_pi_inv, int_vector<> *_arr_factors, const string &file);
 	
