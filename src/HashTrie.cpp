@@ -359,6 +359,7 @@ HashTrie::HashTrie(){
 }
 
 HashTrie::HashTrie(const char *full_text, unsigned int _len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *kr_factors, bool reverse){
+
 	len_text = _len_text;
 	karp_rabin = _karp_rabin;
 	arr_factors = _arr_factors;
@@ -381,7 +382,16 @@ HashTrie::~HashTrie(){
 	pi_inv = NULL;
 }
 
-void HashTrie::build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *kr_factors, bool reverse){
+void HashTrie::build(const char *full_text, unsigned int _len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *kr_factors, bool reverse){
+
+	len_text = _len_text;
+	karp_rabin = _karp_rabin;
+	arr_factors = _arr_factors;
+	compacted_text = kr_factors->compacted_text;
+	select1_s = kr_factors->select1_s;
+	select1_b = kr_factors->select1_b;
+	select0_b = kr_factors->select0_b;
+	pi_inv = kr_factors->pi_inv;
 	
 	cout << "HashTrie::build - Start (full text of " << len_text << ", " << factors_start.size() << " factors)\n";
 	HashTrieNode local_root;
