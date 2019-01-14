@@ -20,6 +20,7 @@
 #include "NanoTimer.h"
 #include "KarpRabin.h"
 #include "KarpRabinFactorsSuffixes.h"
+#include "FactorsIteratorCompacted.h"
 
 #define NOT_FOUND 0xffffffff
 
@@ -59,13 +60,22 @@ private:
 	int_vector<> *arr_factors;
 	unsigned int len_text;
 	
+	CompactedText *compacted_text;
+	
+	// Select structures for S and B to process factors data (pos, len)
+	bits_s_type::select_1_type *select1_s;
+	bits_b_type::select_1_type *select1_b;
+	bits_b_type::select_0_type *select0_b;
+	
+	// Permutation to turn positional factors to its id
+	int_vector<> *pi_inv;
+	
 	// Datos serializados de los nodos
 	int_vector<> positions_childs;
 	int_vector<> n_childs;
 	int_vector<> len_childs;
 	int_vector<> min_childs;
 	int_vector<> hash_childs;
-//	vector<char> first_childs;
 	int_vector<> first_childs;
 	
 	void compactData(HashTrieNode &root_node);
@@ -77,6 +87,8 @@ private:
 	// Clone of HashTrieNode::getRange, but using compacted arrays and node_pos as the position for the current node
 	pair<unsigned int, unsigned int> getRangeInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int cur_max, const string &pattern);
 	pair<unsigned int, unsigned int> getRangeInternalNoHash(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, KarpRabinFactorsSuffixes *kr_factors, unsigned int cur_max, const string &pattern);
+	
+	pair<unsigned int, unsigned int> getRangeInternalv2(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern);
 	
 	// Clone of HashTrieNode::getRange, but using compacted arrays and node_pos as the position for the current node
 	// Version for Reverse factors
@@ -105,6 +117,8 @@ public:
 	void save(const string &file);
 	
 	void load(unsigned int _len_text, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *_kr_factors, int_vector<> *_arr_factors, const string &file);
+	
+	void load(unsigned int _len_text, KarpRabin *_karp_rabin, CompactedText *_compacted_text, bits_s_type::select_1_type *_select1_s, bits_b_type::select_1_type *_select1_b, bits_b_type::select_0_type *_select0_b, int_vector<> *_pi_inv, int_vector<> *_arr_factors, const string &file);
 	
 	unsigned int totalChilds(){
 		return positions_childs.size();
