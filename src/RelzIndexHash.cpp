@@ -555,8 +555,8 @@ void RelzIndexHash::save(const string &file_base){
 	
 	
 	// KarpRabinFactorsSuffixes
-	string krs_file = file_base + ".krsuffixes";
-	kr_factors->save(krs_file);
+//	string krs_file = file_base + ".krsuffixes";
+//	kr_factors->save(krs_file);
 	
 	// tree_x
 	string tree_x_file = file_base + ".tree_x";
@@ -656,16 +656,14 @@ void RelzIndexHash::load(const string &file_base, KarpRabin *_karp_rabin){
 	string krs_file = file_base + ".krsuffixes";
 	// Instead of a load, we use a builder here to load, to pass the more specific parameters
 	// kr_factors->load(krs_file);
-	kr_factors = new KarpRabinFactorsSuffixes(krs_file, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
+//	kr_factors = new KarpRabinFactorsSuffixes(krs_file, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv);
 	
 	// tree_x
 	string tree_x_file = file_base + ".tree_x";
-//	tree_x.load(len_text, karp_rabin, kr_factors, &arr_x, tree_x_file);
 	tree_x.load(len_text, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv, &arr_x, tree_x_file);
 	
 	// tree_y
 	string tree_y_file = file_base + ".tree_y";
-//	tree_y.load(len_text, karp_rabin, kr_factors, &arr_y, tree_y_file);
 	tree_y.load(len_text, karp_rabin, ref_text, &select1_s, &select1_b, &select0_b, &pi_inv, &arr_y, tree_y_file);
 	
 	cout << "RelzIndexHash::load - End\n";
