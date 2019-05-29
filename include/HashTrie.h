@@ -77,6 +77,8 @@ private:
 	int_vector<> hash_childs;
 	int_vector<> first_childs;
 	
+	unordered_map<unsigned int, unsigned int> global_hash;
+	
 	void compactData(HashTrieNode &root_node);
 	
 	// Clone of HashTrieNode::findChild, but using compacted arrays and node_pos as the position for the current node
@@ -94,6 +96,9 @@ private:
 	
 	// Clone of HashTrieNode::print, but using compacted arrays and node_pos as the position for the current node
 	void printInternal(unsigned int node_pos, unsigned int level);
+	
+	void prepareHashMap(int node_pos, int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash);
+	void prepareHashMapRev(int node_pos, int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash);
 	
 public: 
 	
