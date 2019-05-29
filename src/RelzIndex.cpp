@@ -25,7 +25,7 @@ RelzIndex::RelzIndex(vector<pair<unsigned int, unsigned int> > &factors, char *f
 	
 	NanoTimer timer;
 	
-	cout << "RelzIndex - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
+	cout << "RelzIndex - Start (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << len_ref << ")\n";
 	
 	cout << "RelzIndex - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini

@@ -113,7 +113,7 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 		|| data->vector_bytes_data == NULL
 		|| data->vector_thread_block == NULL 
 		){
-		cerr << "Compressor::thread_compress - Error en Datos\n";
+		cerr << "Compressor::thread_compress - Error in Data\n";
 		return;
 	}
 	
@@ -128,11 +128,11 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 	vector<unsigned int> *vector_thread_block = data->vector_thread_block;
 	
 	shared_mutex->lock();
-	cout << "Compressor::Thread ["<<data->id<<"] - Start\n";
+	cout << "Compressor::Thread [" << data->id << "] - Start\n";
 	shared_mutex->unlock();
 	
 	//Archivos del thread
-//	cout << "Compressor::Thread ["<<data->id<<"] - Creando file_headers y file_data del thread\n";
+//	cout << "Compressor::Thread [" << data->id << "] - Creando file_headers y file_data del thread\n";
 	
 	fstream *file_headers = NULL;
 	fstream *file_data = NULL;
@@ -142,7 +142,7 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 		file_data = new fstream(data->file_data, fstream::trunc | fstream::binary | fstream::out);
 		if( (! file_headers->good()) || (! file_data->good()) ){
 			shared_mutex->lock();
-			cerr << "Compressor::Thread [" << data->id << "] - Error al abrir archivos\n";
+			cerr << "Compressor::Thread [" << data->id << "] - Error opening Files\n";
 			shared_mutex->unlock();
 			return;
 		}
@@ -150,7 +150,7 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 	
 	unsigned int buffer_size = coder->codingBufferSize(data->block_size);
 	//Se crea este buffer en lugar de dejarlo interno en coder porque puede ser bastante grande
-//	cout << "Compressor::Thread ["<<data->id<<"] - Preparando buffer de tamaño "<<buffer_size<<"\n";
+//	cout << "Compressor::Thread [" << data->id << "] - Preparando buffer de tamaño "<<buffer_size<<"\n";
 	char *full_buffer = new char[buffer_size];
 	
 	unsigned int block = 0;
@@ -165,7 +165,7 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 		
 		shared_mutex->lock();
 		block = (*shared_pos)++;
-		cout << "Compressor::Thread ["<<data->id<<"] - Procesando block "<<block<<" (salir? "<<(block >= data->n_blocks)<<")\n";
+//		cout << "Compressor::Thread [" << data->id << "] - Processing block " << block << " (out? " << (block >= data->n_blocks) << ")\n";
 		shared_mutex->unlock();
 		if(block >= data->n_blocks){
 			break;
@@ -196,7 +196,7 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 	delete coder;
 	
 	shared_mutex->lock();
-	cout << "Compressor::Thread ["<<data->id<<"] - End ("<<proc_blocks<<" blocks)\n";
+	cout << "Compressor::Thread [" << data->id << "] - End (" << proc_blocks << " blocks)\n";
 	shared_mutex->unlock();
 	
 	return;
@@ -204,7 +204,7 @@ void thread_compress(Compressor::ThreadCompressData *data, vector<pair<unsigned 
 
 char * Compressor::compressFactors(const char *in_file, unsigned int block_size, unsigned long long &text_length, vector<pair<unsigned int, unsigned int> > *external_factors){
 	if( filter == NULL || coder == NULL || decoder == NULL || in_file == NULL || strlen(in_file) < 1 ){
-		cerr << "Compressor::compressFactors - Datos incorrectos\n";
+		cerr << "Compressor::compressFactors - Data incorrect\n";
 		return NULL;
 	}
 	lock_guard<mutex> lock(mutex_interno);

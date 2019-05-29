@@ -3,7 +3,7 @@
 CoderBlocksRelz::CoderBlocksRelz(const ReferenceIndex *_referencia){
 	referencia = _referencia;
 	if(referencia == NULL){
-		cerr<<"CoderBlocksRelz - Advertencia, referencia NULL\n";
+		cerr<<"CoderBlocksRelz - Warning, NULL reference\n";
 	}
 }
 
@@ -17,7 +17,7 @@ unsigned int CoderBlocksRelz::codingBufferSize(unsigned int block_size){
 void CoderBlocksRelz::codeBlock(const char *text, unsigned int text_size, fstream *file_headers, fstream *file_data, unsigned int &bytes_headers, unsigned int &bytes_data, char *full_buffer, vector<pair<unsigned int, unsigned int> > *external_factors){
 	
 	if( file_headers == NULL || file_data == NULL ){
-		cout << "CoderBlocksRelz::codeBlock - Omiting Files\n";
+//		cout << "CoderBlocksRelz::codeBlock - Omiting Files\n";
 	}
 	if( referencia == NULL){
 		cerr << "CoderBlocksRelz::codeBlock - Reference not Found\n";
@@ -49,7 +49,7 @@ void CoderBlocksRelz::codeBlock(const char *text, unsigned int text_size, fstrea
 		
 		if(largo_prefijo == 0){
 			string s(text + compressed_text, 10);
-			cout<<"CoderBlocksRelz::codeBlock - Error - Prefijo de largo 0, saliendo (\"" << s << "\")\n";
+			cout<<"CoderBlocksRelz::codeBlock - Error - prefix of len 0, ending (\"" << s << "\")\n";
 			return;
 		}
 		text_size -= largo_prefijo;
