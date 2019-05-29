@@ -536,12 +536,12 @@ unsigned int HashTrie::findChildInternal(unsigned int node_pos, char c){
 
 pair<unsigned int, unsigned int> HashTrie::getRangeInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern){
 	
-//	cout << "HashTrie::getRangeInternal - Start (prefixes: " << kr_pat_vector.size() << ", pos: " << pos << ", processed: " << processed << ", node_pos: " << node_pos << ")\n";
+	cout << "HashTrie::getRangeInternal - Start (prefixes: " << kr_pat_vector.size() << ", pos: " << pos << ", processed: " << processed << ", node_pos: " << node_pos << ")\n";
 	
 	unsigned int min = min_childs[node_pos];
 	
 	if( pos + processed >= kr_pat_vector.size() ){
-//		cout << "HashTrie::getRangeInternal - [" << min << ", " << cur_max << "]\n";
+		cout << "HashTrie::getRangeInternal - [" << min << ", " << cur_max << "]\n";
 		return pair<unsigned int, unsigned int>(min, cur_max);
 	}
 	
@@ -551,7 +551,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeInternal(unsigned int node_po
 	char first_char_pat = pattern[pos + processed];
 //	cout << "HashTrie::getRangeInternal - pat_len: " << pat_len << "\n";
 	string pat = pattern.substr(pos + processed, pat_len);
-//	cout << "HashTrie::getRangeInternal - pat: " << pat << " (first_char_pat: " << first_char_pat << ")\n";
+	cout << "HashTrie::getRangeInternal - pat: " << pat << " (first_char_pat: " << first_char_pat << ")\n";
 	
 	unsigned int pos_child = findChildInternal(node_pos, first_char_pat);
 	if( pos_child != NOT_FOUND ){
@@ -605,13 +605,13 @@ pair<unsigned int, unsigned int> HashTrie::getRangeInternal(unsigned int node_po
 			hash_pat = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1], kr_pat_vector[pos + processed - 1], kr_pat_vector.size() - pos - processed);
 //			cout << "HashTrie::getRangeInternal - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
 			if( hash == hash_pat ){
-//				cout << "HashTrie::getRangeInternal - Child found -> [" << min_childs[pos_child_abs] << ", " << cur_max << "]\n";
+				cout << "HashTrie::getRangeInternal - Child found -> [" << min_childs[pos_child_abs] << ", " << cur_max << "]\n";
 				return pair<unsigned int, unsigned int>(min_childs[pos_child_abs], cur_max);
 			}
 		}
 	}
 	
-//	cout << "HashTrie::getRangeInternal - Pattern NOT found\n";
+	cout << "HashTrie::getRangeInternal - Pattern NOT found\n";
 	return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
 }
 
@@ -667,12 +667,12 @@ pair<unsigned int, unsigned int> HashTrie::getRangeInternalNoHash(unsigned int n
 
 pair<unsigned int, unsigned int> HashTrie::getRangeRevInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern_rev){
 	
-//	cout << "HashTrie::getRangeRevInternal - Start (prefixes: " << kr_pat_rev_vector.size() << ", pos: " << pos << ", processed: " << processed << ", pattern_rev: " << pattern_rev << ")\n";
+	cout << "HashTrie::getRangeRevInternal - Start (prefixes: " << kr_pat_rev_vector.size() << ", pos: " << pos << ", processed: " << processed << ", pattern_rev: " << pattern_rev << ")\n";
 	
 	unsigned int min = min_childs[node_pos];
 	
 	if( processed >= pos ){
-//		cout << "HashTrie::getRangeRevInternal - [" << min << ", " << cur_max << "]\n";
+		cout << "HashTrie::getRangeRevInternal - [" << min << ", " << cur_max << "]\n";
 		return pair<unsigned int, unsigned int>(min, cur_max);
 	}
 	
@@ -682,7 +682,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeRevInternal(unsigned int node
 	char first_char_pat = pattern_rev[kr_pat_rev_vector.size() - 1 - pos + processed];
 //	cout << "HashTrie::getRangeRevInternal - pat = pattern_rev.substr(" << (kr_pat_rev_vector.size() - 1 - pos + processed) << ", " << pat_len << ");\n";
 	string pat = pattern_rev.substr(kr_pat_rev_vector.size() - 1 - pos + processed, pat_len);
-//	cout << "HashTrie::getRangeRevInternal - pat: " << pat << ", first_char_pat: " << first_char_pat << "\n";
+	cout << "HashTrie::getRangeRevInternal - pat: " << pat << ", first_char_pat: " << first_char_pat << "\n";
 	
 	unsigned int pos_child = findChildInternal(node_pos, first_char_pat);
 	if( pos_child != NOT_FOUND ){
@@ -747,14 +747,14 @@ pair<unsigned int, unsigned int> HashTrie::getRangeRevInternal(unsigned int node
 			hash_pat = karp_rabin->hash(pattern_rev.c_str() + pattern_rev.length() - pos + processed, pat_len);
 //			cout << "HashTrie::getRange - hash: " << hash << ", hash_pat: " << hash_pat << "\n";
 			if( hash == hash_pat ){
-//				cout << "HashTrie::getRange - Child found -> [" << min_childs[pos_child_abs] << ", " << cur_max << "]\n";
+				cout << "HashTrie::getRange - Child found -> [" << min_childs[pos_child_abs] << ", " << cur_max << "]\n";
 				return pair<unsigned int, unsigned int>(min_childs[pos_child_abs], cur_max);
 			}
 			
 		}
 	}
 	
-//	cout << "HashTrie::getRange - Pattern NOT found\n";
+	cout << "HashTrie::getRange - Pattern NOT found\n";
 	return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
 }
 

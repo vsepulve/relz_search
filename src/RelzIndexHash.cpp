@@ -336,7 +336,7 @@ void RelzIndexHash::printSize(){
 
 void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &results, bool use_hash){
 	
-//	cout << "RelzIndexHash::findTimes - Start (\"" << pattern << "\")\n";
+	cout << "RelzIndexHash::findTimes - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
 	
 //	cout << "RelzIndexHash::findTimes - Section A, reference\n";
@@ -378,28 +378,28 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 	for(unsigned int i = 0; i < pattern.length(); ++i){
 		pattern_rev += pattern[pattern.length() - 1 - i];
 	}
-//	cout << "-----  pattern: " << pattern << " -----\n";
-//	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
+	cout << "-----  pattern: " << pattern << " -----\n";
+	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
 	
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
 		
-//		cout << "-----  tree_x.getRange -----\n";
+		cout << "-----  tree_x.getRange -----\n";
 //		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
 		pair<unsigned int, unsigned int> r1 = tree_x.getRangeRev(kr_pat_rev_vector, i, pattern_rev, use_hash);
 		querytime_p3x += timer.getNanosec();
 		timer.reset();
-//		cout << "-----\n";
+		cout << "-----\n";
 		
 		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
 			continue;
 		}
 		
-//		cout << "-----  tree_y.getRange -----\n";
+		cout << "-----  tree_y.getRange -----\n";
 		pair<unsigned int, unsigned int> r2 = tree_y.getRange(kr_pat_vector, i, pattern, use_hash);
 		querytime_p3y += timer.getNanosec();
 		timer.reset();
-//		cout << "-----\n";
+		cout << "-----\n";
 		
 		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 			continue;
