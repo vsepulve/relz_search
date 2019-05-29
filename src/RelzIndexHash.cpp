@@ -24,7 +24,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 	
 	NanoTimer timer;
 	
-	cout << "RelzIndexHash - Inicio (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << ref_text->length() << ")\n";
+	cout << "RelzIndexHash - Start (factors: " << factors.size() << ", len_text: " << len_text << ", len_ref: " << ref_text->length() << ")\n";
 	
 	cout << "RelzIndexHash - Preparing Factors\n";
 	// Factores en version ini, fin (absoluto) y ordenados por ini
