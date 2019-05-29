@@ -471,9 +471,9 @@ void HashTrie::compactData(HashTrieNode &root_node){
 	cout << "HashTrie::compactData - bytes/node: " << total_bits/8.0 << "\n";
 	
 	// Debug
-//	for(unsigned int i = 0; i < n_nodes; ++i){
-//		cout << "HashTrie::compactData - node[" << i << "]: (" << positions_childs[i] << ", " << n_childs[i] << ", " << len_childs[i] << ", " << min_childs[i] << ", " << hash_childs[i] << ", " << decodeChar[ first_childs[i] ] << ")\n";
-//	}
+	for(unsigned int i = 0; i < n_nodes; ++i){
+		cout << "HashTrie::compactData - node[" << i << "]: (" << positions_childs[i] << ", " << n_childs[i] << ", " << len_childs[i] << ", " << min_childs[i] << ", " << hash_childs[i] << ", " << decodeChar[ first_childs[i] ] << ")\n";
+	}
 	
 	cout << "HashTrie::compactData - End\n";
 }
