@@ -134,7 +134,7 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 		FactorsIteratorReverse it(arr_x[i] - 1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, _ref_text, &fm_index, len_text);
 		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
 			cout << c;
-		cout << "\n";
+		cout << " (" << it.length() << ")\n";
 	}
 	cout << "-----\n";
 	
