@@ -3,25 +3,25 @@
 CompressorSingleBuffer::CompressorSingleBuffer()
 : Compressor()
 {
-	cout<<"CompressorSingleBuffer - Inicio\n";
+	cout << "CompressorSingleBuffer - Start\n";
 	cur_block = 0xffffffff;
 	cur_block_size = 0;
 	buffer_size = 0;
 	buffer = NULL;
 	adjust_buffer = NULL;
-	cout<<"CompressorSingleBuffer - Fin\n";
+	cout << "CompressorSingleBuffer - End\n";
 }
 
 CompressorSingleBuffer::CompressorSingleBuffer(const char *_master_file, CoderBlocks *_coder, DecoderBlocks *_decoder, TextFilter *_filter)
 : Compressor(_master_file, _coder, _decoder, _filter)
 {
-	cout<<"CompressorSingleBuffer - Inicio\n";
+	cout << "CompressorSingleBuffer - Start\n";
 	cur_block = 0xffffffff;
 	cur_block_size = 0;
 	buffer_size = 0;
 	buffer = NULL;
 	adjust_buffer = NULL;
-	cout<<"CompressorSingleBuffer - Fin\n";
+	cout << "CompressorSingleBuffer - End\n";
 }
 
 CompressorSingleBuffer::~CompressorSingleBuffer(){
@@ -68,7 +68,7 @@ void CompressorSingleBuffer::prepareBuffer(unsigned int new_size){
 unsigned int CompressorSingleBuffer::read(unsigned long long pos_ini, unsigned int length, char *out_buff){
 	//Verificacion de seguridad
 	if( decoder == NULL || master_file == NULL || strlen(master_file) < 1 ){
-		cerr<<"CompressorSingleBuffer::read - Datos incorrectos ("<<(decoder == NULL)<<" || "<<(master_file == NULL)<<" || "<<(strlen(master_file) < 1)<<")\n";
+		cerr << "CompressorSingleBuffer::read - Wrong Data (" << (decoder == NULL) << " || " << (master_file == NULL) << " || " << (strlen(master_file) < 1) << ")\n";
 		return 0;
 	}
 	if( length == 0 ){
@@ -90,7 +90,7 @@ unsigned int CompressorSingleBuffer::read(unsigned long long pos_ini, unsigned i
 //		debug = true;
 //	}
 	
-	if(debug) cout<<"CompressorSingleBuffer::read - Inicio ("<<pos_ini<<", "<<length<<", total: "<<decoder->getTextSize()<<")\n";
+	if(debug) cout << "CompressorSingleBuffer::read - Start ("<<pos_ini<<", "<<length<<", total: "<<decoder->getTextSize()<<")\n";
 	
 	//Revision del buffer
 	//Aseguro que tena suficiente para el bloque y tambien para el texto pedido
@@ -104,24 +104,24 @@ unsigned int CompressorSingleBuffer::read(unsigned long long pos_ini, unsigned i
 	if( decoder->getHeaders() != NULL && adjust_text){
 		nl_izq = decoder->getHeaders()->countNewLines(pos_ini);
 		nl_med = decoder->getHeaders()->countNewLines(pos_ini + length);
-		if(debug) cout<<"CompressorSingleBuffer::read - nl_izq: "<<nl_izq<<", nl_med: "<<nl_med<<" - "<<nl_izq<<"\n";
+		if(debug) cout << "CompressorSingleBuffer::read - nl_izq: "<<nl_izq<<", nl_med: "<<nl_med<<" - "<<nl_izq<<"\n";
 		nl_med -= nl_izq;
 		if( (nl_izq > pos_ini) || (nl_med > length) ){
-			cerr<<"CompressorSingleBuffer::read - Error al ajustar posiciones ("<<nl_izq<<" de "<<pos_ini<<", "<<nl_med<<" de "<<length<<")\n";
+			cerr<<"CompressorSingleBuffer::read - Error adjusting position ("<<nl_izq<<" de "<<pos_ini<<", "<<nl_med<<" de "<<length<<")\n";
 			nl_izq = 0;
 			nl_med = 0;
 		}
 		else{
 			pos_ini -= nl_izq;
 			length -= nl_med;
-			if(debug) cout<<"CompressorSingleBuffer::read - pos/len relativas: ("<<pos_ini<<", "<<length<<")\n";
+			if(debug) cout << "CompressorSingleBuffer::read - pos/len relative: ("<<pos_ini<<", "<<length<<")\n";
 		}
 	}
 	
 	bool procesar = true;
 	
 	if( pos_ini >= decoder->getTextSize() || length == 0 ){
-		if(debug) cout<<"CompressorSingleBuffer::read - fuera de rango, omitiendo proceso\n";
+		if(debug) cout << "CompressorSingleBuffer::read - out of range, omiting\n";
 		procesar = false;
 	}
 	
@@ -131,7 +131,7 @@ unsigned int CompressorSingleBuffer::read(unsigned long long pos_ini, unsigned i
 		block_fin = decoder->getNumBlocks()-1;
 	}
 	
-	if(debug) cout<<"CompressorSingleBuffer::read - Procesando bloques ["<<block<<", "<<block_fin<<"] de "<<decoder->getNumBlocks()<<" (buffer_size: "<<buffer_size<<")\n";
+	if(debug) cout << "CompressorSingleBuffer::read - Processing blocks ["<<block<<", "<<block_fin<<"] of "<<decoder->getNumBlocks()<<" (buffer_size: "<<buffer_size<<")\n";
 	
 	//total de caracteres copiados
 	unsigned int copied_chars = 0;
@@ -144,37 +144,37 @@ unsigned int CompressorSingleBuffer::read(unsigned long long pos_ini, unsigned i
 	
 	for( ; (block <= block_fin) && procesar ; ++block ){
 		if(block != cur_block){
-			if(debug) cout<<"CompressorSingleBuffer::read - decoder->decodeBlock "<<block<<"\n";
+			if(debug) cout << "CompressorSingleBuffer::read - decoder->decodeBlock "<<block<<"\n";
 			cur_block_size = decoder->decodeBlock(block, buffer);
 			cur_block = block;
-			if(debug) cout<<"CompressorSingleBuffer::read - buff: \""<<( string(buffer, (cur_block_size<10)?cur_block_size:10 ) )<<"\"\n";
+			if(debug) cout << "CompressorSingleBuffer::read - buff: \""<<( string(buffer, (cur_block_size<10)?cur_block_size:10 ) )<<"\"\n";
 		}
 		cur_block_ini = (unsigned long long)block * decoder->getBlockSize();
 		
-		if(debug) cout<<"CompressorSingleBuffer::read - cur_block_ini: "<<cur_block_ini<<", cur_block_size: "<<cur_block_size<<"\n";
+		if(debug) cout << "CompressorSingleBuffer::read - cur_block_ini: "<<cur_block_ini<<", cur_block_size: "<<cur_block_size<<"\n";
 		
 		ini_copy = 0;
 		if(cur_block_ini < pos_ini){
 			if( pos_ini - cur_block_ini > 0xffffffff ){
-				cerr<<"CompressorSingleBuffer::read - Error, valor > 32 bits\n";
+				cerr<<"CompressorSingleBuffer::read - Error, value > 32 bits\n";
 				break;
 			}
 			ini_copy = (unsigned int)(pos_ini - cur_block_ini);
 		}
-		if(debug) cout<<"CompressorSingleBuffer::read - ini_copy: "<<ini_copy<<"\n";
+		if(debug) cout << "CompressorSingleBuffer::read - ini_copy: "<<ini_copy<<"\n";
 		
 		copy_length = cur_block_size - ini_copy;
 		if( copy_length > length ){
 			copy_length = length;
 		}
 		
-		if(debug) cout<<"CompressorSingleBuffer::read - memcpy (out_buff["<<copied_chars<<"], buffer["<<ini_copy<<"], "<<copy_length<<")\n";
+		if(debug) cout << "CompressorSingleBuffer::read - memcpy (out_buff["<<copied_chars<<"], buffer["<<ini_copy<<"], "<<copy_length<<")\n";
 		memcpy( out_buff + copied_chars, buffer + ini_copy, copy_length );
 		
 		length -= copy_length;
 		copied_chars += copy_length;
 		out_buff[copied_chars] = 0;
-//		cout<<"CompressorSingleBuffer::read - out_buff: \""<<out_buff<<"\"\n";
+//		cout << "CompressorSingleBuffer::read - out_buff: \""<<out_buff<<"\"\n";
 		
 		if( length < 1 ){
 			break;
@@ -184,7 +184,7 @@ unsigned int CompressorSingleBuffer::read(unsigned long long pos_ini, unsigned i
 	
 	out_buff[copied_chars] = 0;
 	
-	if(debug) cout<<"CompressorSingleBuffer::read - copied_chars: "<<copied_chars<<" (antes de ajustes: \""<<((strlen(out_buff)>10)?string(out_buff, 10):out_buff)<<"...\")\n";
+	if(debug) cout << "CompressorSingleBuffer::read - copied_chars: "<<copied_chars<<" (pre adjust: \""<<((strlen(out_buff)>10)?string(out_buff, 10):out_buff)<<"...\")\n";
 	
 	if( decoder->getHeaders() != NULL && adjust_text){
 		//Aqui habria que agregar '\n' si fueron filtradas.
@@ -200,16 +200,16 @@ unsigned int CompressorSingleBuffer::read(unsigned long long pos_ini, unsigned i
 		decoder->getHeaders()->adjustCase(out_buff, pos_ini, copied_chars);
 	}
 	
-	if(debug) cout<<"CompressorSingleBuffer::read - Fin (copied_chars: "<<copied_chars<<", strlen: "<<strlen(out_buff)<<")\n";
+	if(debug) cout << "CompressorSingleBuffer::read - End (copied_chars: "<<copied_chars<<", strlen: "<<strlen(out_buff)<<")\n";
 	
 	return copied_chars;
 }
 
 bool CompressorSingleBuffer::decompress(const char *out_file, unsigned int line_size){
-	cout<<"CompressorSingleBuffer::decompress - Inicio\n";
+	cout << "CompressorSingleBuffer::decompress - Start\n";
 	//Verificacion de seguridad
 	if( decoder == NULL || out_file == NULL || strlen(out_file) < 1 || master_file == NULL || strlen(master_file) < 1){
-		cerr<<"CompressorSingleBuffer::decompress - Datos incorrectos\n";
+		cerr<<"CompressorSingleBuffer::decompress - Wrong Data\n";
 		return false;
 	}
 	//El lock esta en el read, no es necesario aqui
@@ -217,17 +217,17 @@ bool CompressorSingleBuffer::decompress(const char *out_file, unsigned int line_
 	NanoTimer timer;
 	fstream escritor(out_file, fstream::trunc | fstream::out);
 	if(! escritor.good() ){
-		cerr<<"CompressorSingleBuffer::decompress - Problemas al abrir archivo\n";
+		cerr<<"CompressorSingleBuffer::decompress - Problems opening file\n";
 		return false;
 	}
-//	cout<<"CompressorSingleBuffer::decompress - Preparando buffer de linea\n";
+//	cout << "CompressorSingleBuffer::decompress - Preparando buffer de linea\n";
 	char *line = new char[line_size + 1];
 	unsigned int real_size = 0;
 	unsigned long long ini = 0;
-	cout<<"CompressorSingleBuffer::decompress - Iniciando read por linea\n";
+	cout << "CompressorSingleBuffer::decompress - Starting read by line\n";
 	ini += read(ini, line_size, line);
-//	cout<<"CompressorSingleBuffer::decompress - Linea ("<<strlen(line)<<" chars, \""<<line<<"\")\n";
-//	cout<<"CompressorSingleBuffer::decompress - Linea ("<<strlen(line)<<" chars)\n";
+//	cout << "CompressorSingleBuffer::decompress - Linea ("<<strlen(line)<<" chars, \""<<line<<"\")\n";
+//	cout << "CompressorSingleBuffer::decompress - Linea ("<<strlen(line)<<" chars)\n";
 	while( (real_size = strlen(line)) > 0 ){
 	
 		//Agregación artificial del newline
@@ -238,28 +238,22 @@ bool CompressorSingleBuffer::decompress(const char *out_file, unsigned int line_
 		escritor.write(line, real_size );
 		
 		ini += read(ini, line_size, line);
-//		cout<<"CompressorSingleBuffer::decompress - Linea ("<<strlen(line)<<" chars, \""<<line<<"\")\n";
-//		cout<<"CompressorSingleBuffer::decompress - Linea ("<<strlen(line)<<" chars)\n";
+//		cout << "CompressorSingleBuffer::decompress - Linea ("<<strlen(line)<<" chars, \""<<line<<"\")\n";
+//		cout << "CompressorSingleBuffer::decompress - Linea ("<<strlen(line)<<" chars)\n";
 	}
-	cout<<"CompressorSingleBuffer::decompress - Escritura terminada, cerrando y liberando buffer\n";
+	cout << "CompressorSingleBuffer::decompress - Writing finished, closing and releasing buffer\n";
 	escritor.flush();
 	escritor.close();
 	delete [] line;
-	cout<<"CompressorSingleBuffer::decompress - Fin ("<<ini<<" chars en "<<timer.getMilisec()<<" ms)\n";
+	cout << "CompressorSingleBuffer::decompress - End ("<<ini<<" chars en "<<timer.getMilisec()<<" ms)\n";
 	return true;
 }
 
 unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned int original_length, unsigned long long original_pos_ini){
-
-	bool implementacion_terminada = true;
-	if(! implementacion_terminada){
-		cerr<<"CompressorSingleBuffer::write - No Implementado\n";
-		return 0;
-	}
 	
 	//Verificacion de seguridad
 	if(coder == NULL || decoder == NULL || decoder->getHeaders() == NULL || master_file == NULL || strlen(master_file) < 1){
-		cerr<<"CompressorSingleBuffer::write - Datos incorrectos\n";
+		cerr<<"CompressorSingleBuffer::write - Wrong Data\n";
 		return 0;
 	}
 	//Calcular bloques afectados
@@ -273,16 +267,16 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 	lock_guard<mutex> lock(mutex_interno);
 	
 	if( original_pos_ini > decoder->getTextSize() || original_length == 0 ){
-		cout<<"CompressorSingleBuffer::write - Escritura invalida (original_pos_ini: "<<original_pos_ini<<" de "<<decoder->getTextSize()<<", original_length: "<<original_length<<")\n";
+		cout << "CompressorSingleBuffer::write - Invalid writing (original_pos_ini: "<<original_pos_ini<<" of "<<decoder->getTextSize()<<", original_length: "<<original_length<<")\n";
 		return 0;
 	}
 	
 	//Prepara archivos temporales (idealmente basados en master_file, que esta lockeado)
-	const char *path_headers = "/cebib_yeast_real/headers.tmp";
-	const char *path_data = "/cebib_yeast_real/data.tmp";
-	const char *path_merge = "/cebib_yeast_real/merge.tmp";
+	const char *path_headers = "./headers.tmp";
+	const char *path_data = "./data.tmp";
+	const char *path_merge = "./merge.tmp";
 	
-	cout<<"CompressorSingleBuffer::write - Inicio ("<<original_length<<" chars en "<<original_pos_ini<<" usando "<<path_headers<<", "<<path_data<<", "<<path_merge<<")\n";
+	cout << "CompressorSingleBuffer::write - Start ("<<original_length<<" chars in "<<original_pos_ini<<" using "<<path_headers<<", "<<path_data<<", "<<path_merge<<")\n";
 	
 	//Revision del buffer
 	prepareBuffer(decoder->getBlockSize() + 1);
@@ -295,7 +289,7 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 	if( adjust_text ){
 		// Usar un metodo de metadatos que reciba el buffer, lo revise y guarde todo lo necesario, y lo deje filtrado
 		decoder->getHeaders()->filterNewText(original_text, original_length, original_pos_ini, text, length, pos_ini);
-		cout<<"CompressorSingleBuffer::write - Texto filtrado (length: "<<length<<", pos_ini: "<<pos_ini<<")\n";
+		cout << "CompressorSingleBuffer::write - Text filtered (length: "<<length<<", pos_ini: "<<pos_ini<<")\n";
 		
 	}
 	
@@ -330,7 +324,7 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 	// Notar que luego sera necesario un prepare solo desde block (se puede redefinir con block = 0 por defecto)
 	// Tambien notar que ambos procesos son SIEMPRE desde un cierto block en adelante
 	BlockHeaders *headers = decoder->getHeaders();
-	cout<<"CompressorSingleBuffer::write - n_blocks original: "<<headers->getNumBlocks()<<"\n";
+	cout << "CompressorSingleBuffer::write - n_blocks original: "<<headers->getNumBlocks()<<"\n";
 	// Muevo el unprepare para justo antes de cargar los headers pues lo necesito usable en la compresion
 //	headers->unprepare(block);
 	// Para la primera copia se necesita la pos de inicio y termino en bytes del rango de bloques
@@ -358,14 +352,14 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 		// En ese caso simplemente se necesita el buffer (decodeBlock deberia funcionar en cualquier caso)
 		
 		real_size = decoder->decodeBlock(block, buffer);
-		cout<<"CompressorSingleBuffer::write - buffer: \""<<buffer<<"\"\n";
+		cout << "CompressorSingleBuffer::write - buffer: \""<<buffer<<"\"\n";
 		
 		cur_block_ini = (unsigned long long)block * decoder->getBlockSize();
 		
 		ini_copy = 0;
 		if(cur_block_ini < pos_ini){
 			if( pos_ini - cur_block_ini > 0xffffffff ){
-				cerr<<"CompressorSingleBuffer::write - Error, valor > 32 bits\n";
+				cerr<<"CompressorSingleBuffer::write - Error, value > 32 bits\n";
 				break;
 			}
 			ini_copy = (unsigned int)(pos_ini - cur_block_ini);
@@ -394,7 +388,7 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 		}
 		
 		// Notar que text y length se mueven para copiar siempre desde el inicio
-		cout<<"CompressorSingleBuffer::write - memcpy( buffer + "<<ini_copy<<", text + "<<total_copied_chars<<", "<<copy_length<<" )\n";
+		cout << "CompressorSingleBuffer::write - memcpy( buffer + "<<ini_copy<<", text + "<<total_copied_chars<<", "<<copy_length<<" )\n";
 		memcpy( buffer + ini_copy, text + total_copied_chars, copy_length );
 		
 		cout<<"buffer: \""<<(string(buffer, ini_copy+copy_length))<<"\"\n";
@@ -403,10 +397,10 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 		// Notar que file_x son fstreams abiertos y validos
 		// Tambien se requiere un buffer externo pedido previamente (full_buffer, no se si del metodo o de la clase)
 		// por ultimo, hay que guardar bytes_x
-		cout<<"CompressorSingleBuffer::write - coder->codeBlock...\n";
+		cout << "CompressorSingleBuffer::write - coder->codeBlock...\n";
 		coder->codeBlock(buffer, ini_copy+copy_length, &file_headers, &file_data, bytes_headers, bytes_data, full_buffer);
 		
-		cout<<"CompressorSingleBuffer::write - bytes_headers: "<<bytes_headers<<", bytes_data: "<<bytes_data<<", ini_copy+copy_length: "<<ini_copy+copy_length<<"\n";
+		cout << "CompressorSingleBuffer::write - bytes_headers: "<<bytes_headers<<", bytes_data: "<<bytes_data<<", ini_copy+copy_length: "<<ini_copy+copy_length<<"\n";
 		vector_bytes_headers.push_back(bytes_headers);
 		vector_bytes_headers.push_back(bytes_data);
 		total_bytes_data += bytes_data;
@@ -424,13 +418,13 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 	
 	// Merge de archivos (ojo con el header que puede ser mas grande)
 	
-	cout<<"CompressorSingleBuffer::write - merge de headers\n";
+	cout << "CompressorSingleBuffer::write - merge of headers\n";
 	// Headers
 	// Notar que aqui podria necesitar un BlockHeaders::reloadBlock() que reemplace sus valores
 	headers->unprepare(block_ini);
 	file_headers.open(path_headers, fstream::binary | fstream::in);
 	if( (! file_headers.good()) || (! file_headers.is_open()) ){
-		cerr<<"CompressorSingleBuffer::write - Error en lectura de \""<<path_headers<<"\"\n";
+		cerr<<"CompressorSingleBuffer::write - Error reading \"" << path_headers << "\"\n";
 		delete [] full_buffer;
 		delete [] text;
 		return 0;
@@ -440,9 +434,9 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 	}
 	file_headers.close();
 	headers->prepare();
-	cout<<"CompressorSingleBuffer::write - n_blocks final: "<<headers->getNumBlocks()<<"\n";
+	cout << "CompressorSingleBuffer::write - n_blocks final: "<<headers->getNumBlocks()<<"\n";
 	fstream file_merge(path_merge, fstream::trunc | fstream::binary | fstream::out);
-	cout<<"CompressorSingleBuffer::write - BlockHeadersFactory::save...\n";
+	cout << "CompressorSingleBuffer::write - BlockHeadersFactory::save...\n";
 	BlockHeadersFactory::save(headers, &file_merge);
 	
 	// Data
@@ -453,7 +447,7 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 	unsigned int this_copy = 0;
 	
 	// Primera copia [0, block_ini) (excluyente, me basta con los margenes)
-	cout<<"CompressorSingleBuffer::write - Primera copia de data (copiar?: "<<(block_ini > 0)<<")\n";
+	cout << "CompressorSingleBuffer::write - First data copy (copy?: "<<(block_ini > 0)<<")\n";
 	if( block_ini > 0 ){
 		// Desde getDataPosition() hasta getBlockPosition(block_ini)
 		// Esos datos los guardo en first_copy_start y first_copy_end
@@ -474,7 +468,7 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 	}
 	
 	// Segunda copia (archivo nuevo completo)
-	cout<<"CompressorSingleBuffer::write - Segunda copia (total_bytes_data: "<<total_bytes_data<<")\n";
+	cout << "CompressorSingleBuffer::write - Second copy (total_bytes_data: "<<total_bytes_data<<")\n";
 	file_data.open(path_data, fstream::binary | fstream::in);
 	copied = 0;
 	this_copy = full_buffer_size;
@@ -489,7 +483,7 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 	file_data.close();
 	
 	// Tercera copia (resto del archivo original)
-	cout<<"CompressorSingleBuffer::write - Tercera copia (copiar?: "<<(third_copy_start > 0)<<")\n";
+	cout << "CompressorSingleBuffer::write - Third copy (copy?: "<<(third_copy_start > 0)<<")\n";
 	if( (third_copy_start > 0) && (third_copy_end > 0) ){
 		file_data.open(master_file, fstream::binary | fstream::in);
 		file_data.seekg(third_copy_start, file_data.beg);
@@ -507,23 +501,23 @@ unsigned int CompressorSingleBuffer::write(const char *original_text, unsigned i
 		file_data.close();
 	}
 	
-	cout<<"CompressorSingleBuffer::write - file_merge.close()\n";
+	cout << "CompressorSingleBuffer::write - file_merge.close()\n";
 	file_merge.close();
-	cout<<"CompressorSingleBuffer::write - delete full_buffer\n";
+	cout << "CompressorSingleBuffer::write - delete full_buffer\n";
 	delete [] full_buffer;
-	cout<<"CompressorSingleBuffer::write - delete text\n";
+	cout << "CompressorSingleBuffer::write - delete text\n";
 	delete [] text;
 	
 	// Rename del archivo merge
-	cout<<"CompressorSingleBuffer::write - rename (\""<<path_merge<<"\", \""<<master_file<<"\")\n";
+	cout << "CompressorSingleBuffer::write - rename (\""<<path_merge<<"\", \""<<master_file<<"\")\n";
 //	remove(master_file);
 	rename(path_merge, master_file);
 	
 	// Reload del decoder
-	cout<<"CompressorSingleBuffer::write - reload...\n";
+	cout << "CompressorSingleBuffer::write - reload...\n";
 	reloadDecoder();
 	
-	cout<<"CompressorSingleBuffer::write - Fin (total_copied_chars: "<<total_copied_chars<<", original: "<<original_length<<")\n";
+	cout << "CompressorSingleBuffer::write - End (total_copied_chars: "<<total_copied_chars<<", original: "<<original_length<<")\n";
 	
 	return original_length;
 }
