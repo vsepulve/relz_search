@@ -9,14 +9,14 @@ TextFilter::~TextFilter(){
 // Retorna true para los chars validos para este TextFilter (No filtrados)
 // Retoran false para todo char invalido (que sera filtrado)
 bool TextFilter::validChar(char c){
-	cerr<<"TextFilter::validChar - No Implementado\n";
+	cerr << "TextFilter::validChar - Not Implemented\n";
 	return false;
 }
 
 // Almacena el alfabeto valido completo en alphabet (si es NULL lo omite)
 // Retorna el total de chars validos (incluso si alphabet == NULL)
 unsigned int TextFilter::getAlphabet(vector<char> *alphabet){
-	cerr<<"TextFilter::getAlphabet - No Implementado\n";
+	cerr << "TextFilter::getAlphabet - Not Implemented\n";
 	return 0;
 }
 
@@ -26,12 +26,12 @@ unsigned int TextFilter::getAlphabet(vector<char> *alphabet){
 // Almacena los runs (pares ini, fin) de lowcase solo si lowcase_runs != NULL (de otro modo, lo omite)
 char *TextFilter::readText(const char *in_file, unsigned long long &text_length, vector< pair<unsigned long long, unsigned long long> > *lowcase_runs){
 
-	cout<<"TextFilter::readText - Inicio (leyendo \""<<in_file<<"\", lowcase_runs? "<<(lowcase_runs != NULL)<<")\n";
+	cout << "TextFilter::readText - Start (reading \"" << in_file << "\", lowcase_runs? " << (lowcase_runs != NULL) << ")\n";
 	
 	NanoTimer timer;
 	fstream lector(in_file, fstream::in);
 	if(! lector.good() ){
-		cerr<<"TextFilter::readText - Error en lectura\n";
+		cerr<<"TextFilter::readText - Error in reader\n";
 		return NULL;
 	}
 	// Tomo el largo para cargarlo completo (notar que text_length sera menor a file_size por el filtrado)
@@ -39,7 +39,7 @@ char *TextFilter::readText(const char *in_file, unsigned long long &text_length,
 	unsigned long long file_size = lector.tellg();
 	lector.seekg (0, lector.beg);
 	
-//	cout<<"TextFilter::readText - Preparando buffer para archivo de "<<file_size<<" bytes\n";
+//	cout << "TextFilter::readText - Preparando buffer para archivo de "<<file_size<<" bytes\n";
 	//Notar que se cargaran MENOS bytes (por el filtrado)
 	char *text = new char[file_size + 1];
 	
@@ -111,12 +111,12 @@ char *TextFilter::readText(const char *in_file, unsigned long long &text_length,
 	delete [] buff;
 	
 //	if(lowcase_runs != NULL){
-//		cout<<"TextFilter::readText - lowcase_runs: "<<lowcase_runs->size()<<" pares\n";
+//		cout << "TextFilter::readText - lowcase_runs: "<<lowcase_runs->size()<<" pares\n";
 //	}
 	
 	lector.close();
 	text[text_length] = 0;
-	cout<<"TextFilter::readText - Fin (chars: "<<text_length<<" en "<<timer.getMilisec()<<" ms)\n";
+	cout << "TextFilter::readText - End (chars: " << text_length << " in "<<timer.getMilisec()<<" ms)\n";
 	
 	return text;
 	
@@ -124,14 +124,14 @@ char *TextFilter::readText(const char *in_file, unsigned long long &text_length,
 
 unsigned int TextFilter::readReference(const char *in_file, char *text){
 
-	cout<<"TextFilter::readReference - Inicio (leyendo \""<<in_file<<"\")\n";
+	cout << "TextFilter::readReference - Start (reading \"" << in_file << "\")\n";
 	
 	text[0] = 0;
 	unsigned int text_length = 0;
 	NanoTimer timer;
 	fstream lector(in_file, fstream::in);
 	if(! lector.good() ){
-		cerr<<"TextFilter::readReference - Error en lectura\n";
+		cerr<<"TextFilter::readReference - Error in reader\n";
 		return 0;
 	}
 	//Tomo el largo para cargarlo completo
@@ -159,21 +159,21 @@ unsigned int TextFilter::readReference(const char *in_file, char *text){
 	lector.close();
 	text[text_length] = 0;
 	
-	cout<<"TextFilter::readReference - Fin (chars: "<<text_length<<" en "<<timer.getMilisec()<<" ms)\n";
+	cout << "TextFilter::readReference - End (chars: " << text_length << " in " << timer.getMilisec() << " ms)\n";
 	return text_length;
 	
 }
 
 unsigned int TextFilter::readReferenceFull(const char *in_file, char *text){
 
-	cout<<"TextFilter::readReferenceFull - Inicio (leyendo \""<<in_file<<"\")\n";
+	cout << "TextFilter::readReferenceFull - Start (reading \"" << in_file << "\")\n";
 	
 	text[0] = 0;
 	unsigned int text_length = 0;
 	NanoTimer timer;
 	fstream lector(in_file, fstream::in);
 	if(! lector.good() ){
-		cerr<<"TextFilter::readReferenceFull - Error en lectura\n";
+		cerr<<"TextFilter::readReferenceFull - Error in erader\n";
 		return 0;
 	}
 	//Tomo el largo para cargarlo completo
@@ -201,7 +201,7 @@ unsigned int TextFilter::readReferenceFull(const char *in_file, char *text){
 	lector.close();
 	text[text_length] = 0;
 	
-	cout<<"TextFilter::readReferenceFull - Fin (chars: "<<text_length<<" en "<<timer.getMilisec()<<" ms)\n";
+	cout << "TextFilter::readReferenceFull - End (chars: " << text_length << " in " << timer.getMilisec() << " ms)\n";
 	return text_length;
 	
 }
@@ -246,7 +246,7 @@ unsigned long long TextFilter::filterNewLines(char *text, unsigned long long tex
 			// NL encontrado, agregar pos absoluta
 			if( nl_pos != NULL ){
 				nl_pos->push_back(i);
-//				cout<<"TextFilter::filterNewLines - "<<i<<"\n";
+//				cout << "TextFilter::filterNewLines - "<<i<<"\n";
 			}
 			++mov;
 		}

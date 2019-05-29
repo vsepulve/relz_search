@@ -263,7 +263,7 @@ char * Compressor::compressFactors(const char *in_file, unsigned int block_size,
 	datos_thread.vector_bytes_data = &vector_bytes_data;
 	datos_thread.vector_thread_block = &vector_thread_block;
 	
-	cout << "Compressor::compressFactors - Iniciando Threads de Compresion\n";
+	cout << "Compressor::compressFactors - Starting Compression Threads\n";
 	NanoTimer timer;
 	std::thread compress_thread(thread_compress, &datos_thread, external_factors);
 	compress_thread.join();
