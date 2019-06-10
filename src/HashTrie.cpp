@@ -410,6 +410,10 @@ void HashTrie::build(const char *full_text, unsigned int _len_text, vector<unsig
 	else{
 		prepareHashMap(0, 0, marked_hash);
 	}
+	for(auto it : marked_hash){
+		cout << "HashTrie::build - global_hash[" << it.first << "] = " << it.second.second << "\n";
+		global_hash[it.first] = it.second.second;
+	}
 	
 	cout << "HashTrie::build - End\n";
 }
@@ -490,17 +494,22 @@ void HashTrie::compactData(HashTrieNode &root_node){
 void HashTrie::prepareHashMapRev(int node_pos, int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash){
 	
 	for(unsigned int i = 0; i < n_childs[node_pos]; ++i){
-		int pos_child_abs = i + positions_childs[node_pos];
+		unsigned int pos_child_abs = i + positions_childs[node_pos];
 		
-		int child_len = len_childs[pos_child_abs];
+		unsigned int child_len = len_childs[pos_child_abs];
 		child_len += path_len;
 //		cout << "HashTrie::prepareHashMapRev - child_len: " << child_len << "\n";
 		// Si es hoja, ajustar el largo
 		unsigned int num_childs = n_childs[pos_child_abs];
+		
+		// Datos para formar el texto
+		unsigned int min_factor_pos = (*arr_factors)[ min_childs[pos_child_abs] ];
+		unsigned int cur_pi = (*pi_inv)[min_factor_pos-1];
+		unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
+		unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
+		unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
+		
 		if( num_childs == 0 ){
-			unsigned int min_factor_pos = (*arr_factors)[ min_childs[pos_child_abs] ];
-			unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
-			unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
 			child_len = lu;
 //			cout << "HashTrie::prepareHashMapRev - child_len corrected: " << child_len << "\n";
 		}
@@ -508,6 +517,23 @@ void HashTrie::prepareHashMapRev(int node_pos, int path_len, unordered_map<unsig
 //		int child_len = path_len + len_childs[pos_child_abs];
 		char c = decodeChar[ first_childs[pos_child_abs] ];
 		cout << "HashTrie::prepareHashMapRev - Child[" << pos_child_abs << "]: " << c << ", child_len " << child_len << "\n";
+		
+		string test_text = "";
+		for(unsigned int p = 1; p <= child_len; p <<= 1){
+//			cout << "HashTrie::prepareHashMapRev - Len P: " << p << " \n";
+			for(unsigned int k = p>>1; k < p; ++k){
+				test_text += compacted_text->at(tu + lu - k - 1);
+			}
+			unsigned int hash = karp_rabin->hash(test_text);
+			cout << "HashTrie::prepareHashMapRev - String P: " << test_text << " \n";
+			auto it = marked_hash.find(hash);
+			if( it == marked_hash.end()
+				|| child_len < it->second.first ){
+				cout << "HashTrie::prepareHashMapRev - Agregando marked_hash[" << hash << "] -> " << pos_child_abs << "\n";
+				marked_hash[hash] = pair<unsigned int, unsigned int>(child_len, pos_child_abs);
+			}
+		}
+		
 		prepareHashMapRev(pos_child_abs, child_len, marked_hash);
 	}
 	
@@ -516,9 +542,9 @@ void HashTrie::prepareHashMapRev(int node_pos, int path_len, unordered_map<unsig
 void HashTrie::prepareHashMap(int node_pos, int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash){
 	
 	for(unsigned int i = 0; i < n_childs[node_pos]; ++i){
-		int pos_child_abs = i + positions_childs[node_pos];
+		unsigned int pos_child_abs = i + positions_childs[node_pos];
 		
-		int child_len = len_childs[pos_child_abs];
+		unsigned int child_len = len_childs[pos_child_abs];
 		child_len += path_len;
 		// Si es hoja, ajustar el largo
 		unsigned int num_childs = n_childs[pos_child_abs];
