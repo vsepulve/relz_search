@@ -48,7 +48,8 @@ public:
 	
 	unsigned int totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height);
 	
-	void compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs);
+/*	void compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs);*/
+	void compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs, int_vector<> &arr_max_childs, unsigned int max);
 	
 };
 
@@ -60,6 +61,8 @@ private:
 	unsigned int len_text;
 	
 	CompactedText *compacted_text;
+	// Para esta busqueda necesito max_child explicito tambien
+	int_vector<> arr_max_childs;
 	
 	// Select structures for S and B to process factors data (pos, len)
 	bits_s_type::select_1_type *select1_s;
