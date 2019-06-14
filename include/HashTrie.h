@@ -93,12 +93,13 @@ private:
 	// Version for Reverse factors
 	pair<unsigned int, unsigned int> getRangeRevInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern_rev);
 	pair<unsigned int, unsigned int> getRangeRevInternalNoHash(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern_rev);
+	pair<unsigned int, unsigned int> getRangeTableRevInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern_rev);
 	
 	// Clone of HashTrieNode::print, but using compacted arrays and node_pos as the position for the current node
 	void printInternal(unsigned int node_pos, unsigned int level);
 	
-	void prepareHashMap(int node_pos, int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash);
-	void prepareHashMapRev(int node_pos, int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash);
+	void prepareHashMap(unsigned int node_pos, unsigned int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash);
+	void prepareHashMapRev(unsigned int node_pos, unsigned int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash);
 	
 public: 
 	
@@ -111,6 +112,8 @@ public:
 	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, const string &pattern, bool use_hash = true);
 	
 	pair<unsigned int, unsigned int> getRangeRev(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, const string &pattern_rev, bool use_hash = true);
+	
+	pair<unsigned int, unsigned int> getRangeTableRev(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, const string &pattern_rev);
 	
 	void print();
 	
