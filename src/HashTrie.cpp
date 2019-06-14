@@ -16,11 +16,14 @@ HashTrieNode::~HashTrieNode(){
 }
 
 //void HashTrieNode::compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs){
-void HashTrieNode::compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs, int_vector<> &arr_min_childs, unsigned int max){
+void HashTrieNode::compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs, int_vector<> &arr_min_childs, unsigned int max, int_vector<> &len_path){
 	// Guardo la posicion para los hijos de este nodo
 	// El valor de next_pos cambiara con cada hijo
 	unsigned int cur_pos = next_pos;
 	next_pos += childs_vector.size();
+	
+	unsigned int ini_path = len_path[cur_pos];
+	
 //	cout << "HashTrieNode::compactData - childs_vector.size(): " << childs_vector.size() << "\n";
 	for(unsigned int i = 0; i < childs_vector.size(); ++i){
 		// Data for the child
@@ -39,17 +42,18 @@ void HashTrieNode::compactData(unsigned int &next_pos, int_vector<> &positions_c
 		first_childs[cur_pos] = HashTrie::codeChar(childs_vector[i].first);
 		
 		unsigned int this_max = 0;
-		if( i < childs_vector.size() - 1 ){
-			this_max = childs_vector[i+1].min - 1;
-		}
-		else{
-			this_max = max;
-		}
-		arr_min_childs[cur_pos] = this_max;
+//		if( i < childs_vector.size() - 1 ){
+//			this_max = childs_vector[i+1].min - 1;
+//		}
+//		else{
+//			this_max = max;
+//		}
+		arr_min_childs[cur_pos] = childs_vector[i].max;
+		len_path[cur_pos] = len_childs[cur_pos] + ini_path;
 		
 		// Recursive call
 //		childs_vector[i].compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs);
-		childs_vector[i].compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs, arr_min_childs, this_max);
+		childs_vector[i].compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs, arr_min_childs, this_max, len_path);
 		++cur_pos;
 	}
 }
@@ -292,6 +296,9 @@ void HashTrieNode::buildRev(const char *full_text, unsigned int len_text, vector
 			childs_vector.back().first = first_char;
 			childs_vector.back().len = min_common_text;
 			childs_vector.back().min = min_pos;
+			
+			childs_vector.back().max = cur_pos;
+			
 			childs_vector.back().hash = hash;
 			childs_vector.back().buildRev(full_text, len_text, factors_start, arr_x, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_common_text);
 		}
@@ -455,6 +462,7 @@ void HashTrie::compactData(HashTrieNode &root_node){
 	first_childs.resize(n_nodes);
 	
 	arr_max_childs.resize(n_nodes);
+	len_path.resize(n_nodes);
 	
 	unsigned int next_pos = 0;
 	
@@ -470,12 +478,13 @@ void HashTrie::compactData(HashTrieNode &root_node){
 	first_childs[next_pos] = codeChar(root_node.first);
 	
 	arr_max_childs[next_pos] = arr_factors->size()-1;
+	len_path[next_pos] = 0;
 	
 	++next_pos;
 	
 //	root_node.compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs);
 
-	root_node.compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs, arr_max_childs, arr_factors->size()-1);
+	root_node.compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs, arr_max_childs, arr_factors->size()-1, len_path);
 	
 	sdsl::util::bit_compress(positions_childs);
 	sdsl::util::bit_compress(n_childs);
@@ -485,6 +494,7 @@ void HashTrie::compactData(HashTrieNode &root_node){
 	sdsl::util::bit_compress(first_childs);
 	
 	sdsl::util::bit_compress(arr_max_childs);
+	sdsl::util::bit_compress(len_path);
 	
 	float total_bits = 0;
 	
@@ -954,6 +964,13 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 	unsigned int v_min = 0;
 	unsigned int v_max = 0;
 	unsigned int total = 0;
+	
+	unsigned int min_factor_pos = 0;
+	unsigned int cur_pi = 0;
+	unsigned int tu = 0;
+	unsigned int pu = 0;
+	unsigned int lu = 0;
+	
 	--bits_pat;
 	for(; bits_pat >= 0; --bits_pat){
 		cout << "HashTrie::getRangeTableRev - v_pos: " << v_pos << ", v_len: " << v_len << ", total: " << total << "\n";
@@ -974,14 +991,25 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 				total = next;
 				v_pos = it->second;
 				// Largo (absoluto del hijo)
-				unsigned int min_factor_pos = (*arr_factors)[ min_childs[v_pos] ];
+				min_factor_pos = (*arr_factors)[ min_childs[v_pos] ];
 //				unsigned int cur_pi = (*pi_inv)[min_factor_pos-1];
 //				unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
-				unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
-				unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
+				pu = select1_b->operator()(min_factor_pos-1 + 1);
+				lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
 				v_len = lu;
+				// TODO: Corregir este largo, debe contar solo el prefijo del camino hasta el nodo (no el resto del factor)
+				
+				if( n_childs[v_pos] != 0 ){
+					v_len = len_path[v_pos];
+				}
+				
+				
 				v_min = min_childs[v_pos];
 				v_max = arr_max_childs[v_pos];
+				cout << "HashTrie::getRangeTableRev - v_len: " << v_len << " (v_min: " << v_min << ", v_max: " << v_max << ")\n";
+				if( v_len >= pat_len ){
+					break;
+				}
 			}
 		}
 		// Condicion de salida por contenido total?
@@ -997,16 +1025,39 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 		return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
 	}
 	else if( v_len >= pat_len ){
-		cout << "HashTrie::getRangeTableRev - Fully contained (" << v_min << ", " << v_max << ")\n";
-		// Hipotesis
-		// Si los heramnos son consecutivos, puede compararse el nodo que sigue a v_pos
-		// Quizas podria usarse eso para determinar el max sin tener que agregarlo axplicitamente
-		return pair<unsigned int, unsigned int>(v_min, v_max);
+		cout << "HashTrie::getRangeTableRev - Fully contained\n";
+		// Notar que aca solo tengo certeza del prefijo del nodo que hizo match
+		// El resto del mismo nodo habria que verificarlo
+		
+		string test_text = "";
+		unsigned int len = lu;
+		if( pat_len < len ){
+			len = pat_len;
+		}
+		cur_pi = (*pi_inv)[min_factor_pos-1];
+		tu = select1_s->operator()(cur_pi + 1) - cur_pi;
+		for(unsigned int i = 0; i < len; ++i){
+			test_text += compacted_text->at(tu + lu - processed - i - 1);
+		}
+		unsigned long long hash = karp_rabin->hash(test_text.c_str(), len);
+		
+		cout << "HashTrie::getRangeTableRev - test_text: " << test_text << " (hash: " << hash << ", " << kr_pat_rev_vector[pat_len] << ")\n";
+		if( hash == kr_pat_rev_vector[pat_len] ){
+			cout << "HashTrie::getRangeTableRev - Child found -> [" << v_min << ", " << v_max << "]\n";
+			return pair<unsigned int, unsigned int>(v_min, v_max);
+		}
+		else{
+			cout << "HashTrie::getRangeTableRev - Pattern NOT found\n";
+			return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
+		}
+		
+//		return pair<unsigned int, unsigned int>(v_min, v_max);
+//		return getRangeRevInternal(v_pos, kr_pat_rev_vector, pos, total, karp_rabin, cur_max, pattern_rev);
 	}
 	else{
 		cout << "HashTrie::getRangeTableRev - Case 3, checking childs\n";
 //		return getRangeRevInternal(v_pos, kr_pat_rev_vector, pos, processed + child_len, karp_rabin, cur_max, pattern_rev);
-		return getRangeRevInternal(v_pos, kr_pat_rev_vector, pos, total, karp_rabin, cur_max, pattern_rev);
+		return getRangeRevInternal(v_pos, kr_pat_rev_vector, pos, total, karp_rabin, v_max, pattern_rev);
 	}
 	
 	return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
@@ -1047,6 +1098,10 @@ void HashTrie::save(const string &file){
 	// New Max childs
 	string max_file = file + ".max";
 	store_to_file(arr_max_childs, max_file);
+	
+	// len_path
+	string lpath_file = file + ".lpath";
+	store_to_file(len_path, lpath_file);
 	
 	cout << "HashTrie::save - End\n";
 }
@@ -1098,6 +1153,10 @@ void HashTrie::load(unsigned int _len_text, KarpRabin *_karp_rabin, CompactedTex
 	// New Max childs
 	string max_file = file + ".max";
 	load_from_file(arr_max_childs, max_file);
+	
+	// len_path
+	string lpath_file = file + ".lpath";
+	load_from_file(len_path, lpath_file);
 	
 	cout << "HashTrie::load - End\n";
 }
