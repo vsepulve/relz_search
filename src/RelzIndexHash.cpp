@@ -391,6 +391,12 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 		timer.reset();
 		cout << "-----\n";
 		
+		cout << "-----  tree_x.getRangeTable -----\n";
+		tree_x.getRangeTableRev(kr_pat_rev_vector, i, pattern_rev);
+//		querytime_p3x += timer.getNanosec();
+//		timer.reset();
+		cout << "-----\n";
+		
 		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
 			continue;
 		}
