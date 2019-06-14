@@ -491,7 +491,7 @@ void HashTrie::compactData(HashTrieNode &root_node){
 	cout << "HashTrie::compactData - End\n";
 }
 
-void HashTrie::prepareHashMapRev(int node_pos, int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash){
+void HashTrie::prepareHashMapRev(unsigned int node_pos, unsigned int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash){
 	
 	for(unsigned int i = 0; i < n_childs[node_pos]; ++i){
 		unsigned int pos_child_abs = i + positions_childs[node_pos];
@@ -511,35 +511,53 @@ void HashTrie::prepareHashMapRev(int node_pos, int path_len, unordered_map<unsig
 		
 		if( num_childs == 0 ){
 			child_len = lu;
-//			cout << "HashTrie::prepareHashMapRev - child_len corrected: " << child_len << "\n";
+//			cout << "HashTrie::prepareHashMapRev - child_len corrected: " << child_len << " (leaf)\n";
 		}
 		
-//		int child_len = path_len + len_childs[pos_child_abs];
 		char c = decodeChar[ first_childs[pos_child_abs] ];
 		cout << "HashTrie::prepareHashMapRev - Child[" << pos_child_abs << "]: " << c << ", child_len " << child_len << "\n";
 		
-		string test_text = "";
-		for(unsigned int p = 1; p <= child_len; p <<= 1){
-//			cout << "HashTrie::prepareHashMapRev - Len P: " << p << " \n";
-			for(unsigned int k = p>>1; k < p; ++k){
-				test_text += compacted_text->at(tu + lu - k - 1);
-			}
-			unsigned int hash = karp_rabin->hash(test_text);
-			cout << "HashTrie::prepareHashMapRev - String P: " << test_text << " \n";
-			auto it = marked_hash.find(hash);
-			if( it == marked_hash.end()
-				|| child_len < it->second.first ){
-				cout << "HashTrie::prepareHashMapRev - Agregando marked_hash[" << hash << "] -> " << pos_child_abs << "\n";
-				marked_hash[hash] = pair<unsigned int, unsigned int>(child_len, pos_child_abs);
-			}
+		unsigned int mask = 0xffffffff;
+		while( (child_len & (mask<<1)) > path_len){
+			mask <<= 1;
 		}
+		cout << "HashTrie::prepareHashMapRev - child_len usado: " << (child_len & mask) << " (> " << path_len << ")\n";
+		string test_text = "";
+		for(unsigned int k = 0; k < (child_len & mask); ++k){
+			test_text += compacted_text->at(tu + lu - k - 1);
+		}
+		cout << "HashTrie::prepareHashMapRev - String P: " << test_text << " \n";
+		unsigned int hash = karp_rabin->hash(test_text);
+		auto it = marked_hash.find(hash);
+		if( it == marked_hash.end()
+			|| child_len < it->second.first ){
+			cout << "HashTrie::prepareHashMapRev - Agregando marked_hash[" << hash << "] -> " << pos_child_abs << "\n";
+			marked_hash[hash] = pair<unsigned int, unsigned int>(child_len, pos_child_abs);
+		}
+		
+		// El siguiente for esta calculando basado en los leading bits (por ejemplo de 15 -> 8, 4, 2, 1)
+		// La version definitiva tiene que sacar los trailing bits, (por ejemplo de 15 -> 14, 12, 8)
+//		for(unsigned int p = 1; p <= child_len; p <<= 1){
+////			cout << "HashTrie::prepareHashMapRev - Len P: " << p << " \n";
+//			for(unsigned int k = p>>1; k < p; ++k){
+//				test_text += compacted_text->at(tu + lu - k - 1);
+//			}
+//			unsigned int hash = karp_rabin->hash(test_text);
+//			cout << "HashTrie::prepareHashMapRev - String P: " << test_text << " \n";
+//			auto it = marked_hash.find(hash);
+//			if( it == marked_hash.end()
+//				|| child_len < it->second.first ){
+//				cout << "HashTrie::prepareHashMapRev - Agregando marked_hash[" << hash << "] -> " << pos_child_abs << "\n";
+//				marked_hash[hash] = pair<unsigned int, unsigned int>(child_len, pos_child_abs);
+//			}
+//		}
 		
 		prepareHashMapRev(pos_child_abs, child_len, marked_hash);
 	}
 	
 }
 
-void HashTrie::prepareHashMap(int node_pos, int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash){
+void HashTrie::prepareHashMap(unsigned int node_pos, unsigned int path_len, unordered_map<unsigned int, pair<unsigned int, unsigned int>> &marked_hash){
 	
 	for(unsigned int i = 0; i < n_childs[node_pos]; ++i){
 		unsigned int pos_child_abs = i + positions_childs[node_pos];
@@ -895,6 +913,46 @@ pair<unsigned int, unsigned int> HashTrie::getRangeRevInternalNoHash(unsigned in
 	return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
 }
 
+pair<unsigned int, unsigned int> HashTrie::getRangeTableRev(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, const string &pattern_rev){
+	return getRangeTableRevInternal(0, kr_pat_rev_vector, pos, 0, karp_rabin, arr_factors->size() - 1, pattern_rev);
+}
+
+pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern_rev){
+	
+	int bits_pat = 1;
+	unsigned int pat_len = pos - processed;
+	while( pat_len >>= 1 ){
+		++bits_pat;
+	}
+	pat_len = pos - processed;
+	cout << "HashTrie::getRangeTableRev - pat_len: " << pat_len << " (bits_pat: " << bits_pat << ", global_hash size: " << global_hash.size() << ")\n";
+	
+	unsigned int v_pos = 0;
+	unsigned int total = 0;
+	--bits_pat;
+	for(; bits_pat >= 0; --bits_pat){
+		cout << "HashTrie::getRangeTableRev - v_pos: " << v_pos << "\n";
+		unsigned int next = total + (1<<bits_pat);
+		if( next > pat_len ){
+			cout << "HashTrie::getRangeTableRev - next > pat_len (" << next << " > " << pat_len << ")\n";
+			continue;
+		}
+		string pat = pattern_rev.substr(kr_pat_rev_vector.size() - 1 - pos + processed, next);
+		unsigned int hash_pat = karp_rabin->hash(pattern_rev.c_str() + pattern_rev.length() - pos + processed, next);
+		cout << "HashTrie::getRangeTableRev - pat: " << pat << " (len " << next << ", hash_pat: " << hash_pat << ")\n";
+		auto it = global_hash.find(hash_pat);
+		if( it != global_hash.end() ){
+			cout << "HashTrie::getRangeTableRev - Match\n";
+			total = next;
+			v_pos = it->second;
+		}
+		
+	}
+	
+	
+	return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
+}
+
 void HashTrie::save(const string &file){
 	cout << "HashTrie::save - Start (" << file << ")\n";
 	
@@ -915,6 +973,17 @@ void HashTrie::save(const string &file){
 	
 	string first_file = file + ".first";
 	store_to_file(first_childs, first_file);
+	
+	// First version to save global hash table
+	string table_file = file + ".table";
+	fstream writer(table_file, fstream::out | fstream::trunc);
+	unsigned int size_table = global_hash.size();
+	writer.write((char*)&size_table, sizeof(int));
+	for( auto it : global_hash ){
+		writer.write((char*)&(it.first), sizeof(int));
+		writer.write((char*)&(it.second), sizeof(int));
+	}
+	writer.close();
 	
 	cout << "HashTrie::save - End\n";
 }
@@ -948,6 +1017,20 @@ void HashTrie::load(unsigned int _len_text, KarpRabin *_karp_rabin, CompactedTex
 	
 	string first_file = file + ".first";
 	load_from_file(first_childs, first_file);
+	
+	// First version to save global hash table
+	string table_file = file + ".table";
+	fstream reader(table_file, fstream::in);
+	unsigned int size_table = 0;
+	reader.read((char*)&size_table, sizeof(int));
+	for(unsigned int i = 0; i < size_table; ++i){
+		unsigned int hash = 0;
+		unsigned int pos = 0;
+		reader.read((char*)&(hash), sizeof(int));
+		reader.read((char*)&(pos), sizeof(int));
+		global_hash[hash] = pos; 
+	}
+	reader.close();
 	
 	cout << "HashTrie::load - End\n";
 }
