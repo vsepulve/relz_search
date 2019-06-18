@@ -128,15 +128,15 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 		arr_x[i] = arr_x_original[i];
 	}
 	
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
-		char c = 0;
-		FactorsIteratorReverse it(arr_x[i] - 1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, _ref_text, &fm_index, len_text);
-		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
-			cout << c;
-		cout << " (" << it.length() << ")\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_x[" << i << "]: " << arr_x[i] << " -> ";
+//		char c = 0;
+//		FactorsIteratorReverse it(arr_x[i] - 1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, _ref_text, &fm_index, len_text);
+//		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
+//			cout << c;
+//		cout << " (" << it.length() << ")\n";
+//	}
+//	cout << "-----\n";
 	
 	cout << "RelzIndexHash - Preparing arr Y\n";
 	vector<unsigned int> arr_y_original(n_factors);
@@ -154,15 +154,15 @@ RelzIndexHash::RelzIndexHash(vector<pair<unsigned int, unsigned int> > &factors,
 		arr_y_inv[ arr_y_original[i] ] = i;
 	}
 	
-	for( unsigned int i = 0; i < n_factors; ++i ){
-		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
-		char c = 0;
-		FactorsIterator it(arr_y[i], n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, _ref_text, &fm_index, len_text);
-		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
-			cout << c;
-		cout << " (" << it.length() << ")\n";
-	}
-	cout << "-----\n";
+//	for( unsigned int i = 0; i < n_factors; ++i ){
+//		cout << " arr_y[" << i << "]: " << arr_y[i] << " -> ";
+//		char c = 0;
+//		FactorsIterator it(arr_y[i], n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, _ref_text, &fm_index, len_text);
+//		for(unsigned int k = 0; k < 20 && it.hasNext() && (c = it.next()) != 0; ++k ) 
+//			cout << c;
+//		cout << " (" << it.length() << ")\n";
+//	}
+//	cout << "-----\n";
 
 	cout << "RelzIndexHash - X & Y prepared in " << timer.getMilisec() << "\n";
 	timer.reset();
@@ -380,6 +380,12 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 	}
 	cout << "-----  pattern: " << pattern << " -----\n";
 	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
+	for(unsigned int i = 0; i < kr_pat_rev_vector.size(); ++i){
+	cout << "kr_pat_rev_vector[" << i << "]: " << kr_pat_rev_vector[i] << " \n";
+	}
+	cout << "-----  -----\n";
+	
+	
 	
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
@@ -392,10 +398,16 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 		cout << "-----\n";
 		
 		cout << "-----  tree_x.getRangeTable -----\n";
-		tree_x.getRangeTableRev(kr_pat_rev_vector, i, pattern_rev);
+		pair<unsigned int, unsigned int> r1_v2 = tree_x.getRangeTableRev(kr_pat_rev_vector, i, pattern_rev);
 //		querytime_p3x += timer.getNanosec();
 //		timer.reset();
 		cout << "-----\n";
+		
+		if( r1.first != r1_v2.first || r1.second != r1_v2.second ){
+			cout << "ERROR [" << r1_v2.first << ", " << r1_v2.second << "] vs [" << r1.first << ", " << r1.second << "]\n";
+			cout << "-----\n";
+			exit(0);
+		}
 		
 		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
 			continue;
