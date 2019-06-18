@@ -24,13 +24,17 @@ using namespace sdsl;
 #include "FactorsConfig.h"
 #include "KarpRabinFactorsSuffixes.h"
 
-int main() {
+int main(int argc, char* argv[]){
 	
 	cout << "Start\n";
 	
 	unsigned int bits = 8;
 //	unsigned int mod = 787;
 	unsigned int mod = 15485863;
+
+	if(argc == 2){
+		mod = atoi(argv[1]);
+	}
 	
 	cout << "Preparing KarpRabin(bits: " << bits << ", mod: " << mod << ")\n";
 	KarpRabin karp_rabin(bits, mod, 10000000);
