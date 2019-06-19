@@ -22,7 +22,7 @@ protected:
 	unsigned int voc_bits;
 	unsigned int kr_mod;
 	unsigned int table_size;
-	unsigned int *pow_table;
+	unsigned long long  *pow_table;
 	
 	// Version using precomputed table
 	unsigned long long ullpow2(unsigned int bits, unsigned int y);
