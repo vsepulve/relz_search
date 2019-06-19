@@ -48,7 +48,9 @@ int main(int argc, char* argv[]){
 	vector<unsigned int> results;
 	unsigned int bits = 8;
 //	unsigned int mod = 787;
-	unsigned int mod = 15485863;
+//	unsigned int mod = 15485863;
+	unsigned int mod = 44939137;
+//	unsigned int mod = 2050009847;
 //	KarpRabin karp_rabin(bits, mod, 1100000000);
 	KarpRabin karp_rabin(bits, mod, 10000000);
 	RelzIndexHash index;
