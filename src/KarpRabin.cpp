@@ -13,7 +13,7 @@ KarpRabin::KarpRabin(unsigned int _voc_bits, unsigned int _kr_mod, unsigned int 
 	voc_bits = _voc_bits;
 	kr_mod = _kr_mod;
 	table_size = _table_size + 1;
-	pow_table = new unsigned int[table_size];
+	pow_table = new unsigned long long[table_size];
 	pow_table[0] = 1;
 	for(unsigned int i = 1; i < table_size; ++i){
 		pow_table[i] = (pow_table[i-1] * (1<<voc_bits)) % kr_mod;
@@ -35,8 +35,6 @@ unsigned long long KarpRabin::ullpow2(unsigned int bits, unsigned int y){
 		max_len = y;
 	}
 	if( (pow_table == NULL) || (y >= table_size) ){
-//		cerr << "KarpRabin::ullpow2 - Error, out of table size (" << y << " >= " << table_size << ")\n";
-//		exit(0);
 		return ullpow2_log(bits, y);
 	}
 	return pow_table[y];
@@ -64,13 +62,7 @@ unsigned long long KarpRabin::ullpow2_log(unsigned int bits, unsigned int b){
 
 // Evaluate the full hash in str.length() operations
 unsigned long long KarpRabin::hash(const string &str){
-	unsigned long long ret = 0;
-	size_t str_len = str.length();
-	for(unsigned int i = 0, k = str_len-1; i < str_len; i++, k--) {
-		ret = ret + ((unsigned long long)(str[i]) * ullpow2(voc_bits, k)) % kr_mod;
-		ret = ret % kr_mod;
-	}
-	return ret;
+	return hash(str.c_str(), str.length());
 }
 
 unsigned long long KarpRabin::hash(const char *str, unsigned long long str_len){
@@ -78,7 +70,7 @@ unsigned long long KarpRabin::hash(const char *str, unsigned long long str_len){
 //	cout << "KarpRabin::hash - Start (" << s << ")\n";
 	unsigned long long ret = 0;
 	for(unsigned int i = 0, k = str_len-1; i < str_len; i++, k--) {
-		ret = ret + ((unsigned long long)(str[i]) * ullpow2(voc_bits, k)) % kr_mod;
+		ret = ret + (unsigned long long)(str[i]) * ullpow2(voc_bits, k);
 		ret = ret % kr_mod;
 	}
 //	cout << "KarpRabin::hash - End (" << ret << ")\n";
@@ -88,7 +80,7 @@ unsigned long long KarpRabin::hash(const char *str, unsigned long long str_len){
 unsigned long long KarpRabin::hash(CompactedText *text, unsigned int start, unsigned long long len){
 	unsigned long long ret = 0;
 	for(unsigned int i = 0, k = len-1; i < len; i++, k--) {
-		ret = ret + ((unsigned long long)(text->at(start + i)) * ullpow2(voc_bits, k)) % kr_mod;
+		ret = ret + (unsigned long long)(text->at(start + i)) * ullpow2(voc_bits, k);
 		ret = ret % kr_mod;
 	}
 	return ret;
