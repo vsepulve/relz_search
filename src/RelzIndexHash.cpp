@@ -380,12 +380,10 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 	}
 	cout << "-----  pattern: " << pattern << " -----\n";
 	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
-	for(unsigned int i = 0; i < kr_pat_rev_vector.size(); ++i){
-	cout << "kr_pat_rev_vector[" << i << "]: " << kr_pat_rev_vector[i] << " \n";
-	}
+//	for(unsigned int i = 0; i < kr_pat_rev_vector.size(); ++i){
+//		cout << "kr_pat_rev_vector[" << i << "]: " << kr_pat_rev_vector[i] << " \n";
+//	}
 	cout << "-----  -----\n";
-	
-	
 	
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
