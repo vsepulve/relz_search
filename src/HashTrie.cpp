@@ -996,6 +996,9 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 	for(; bits_pat >= 0; --bits_pat){
 		cout << "HashTrie::getRangeTableRev - v_pos: " << v_pos << ", v_len: " << v_len << ", total: " << total << "\n";
 		unsigned int next = total + (1<<bits_pat);
+		if( next > pat_len ){
+			continue;
+		}
 		if( v_len > next ){
 			cout << "HashTrie::getRangeTableRev - Case 1\n";
 			total = next;
@@ -1005,7 +1008,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 			unsigned int hash_pat = karp_rabin->hash(pattern_rev.c_str() + pattern_rev.length() - pos, next);
 			// Notar que puedo calcular el hash con kr_pat_rev_vector sin necesidad de generar el string
 			
-			cout << "HashTrie::getRangeTableRev - pat: " << pat << " (len " << next << ", hash_pat: " << hash_pat << ")\n";
+			cout << "HashTrie::getRangeTableRev - pat: " << pat << " / [" << (pattern_rev.c_str() + pattern_rev.length() - pos) << ", " << next << "] (len " << next << ", hash_pat: " << hash_pat << ")\n";
 			auto it = global_hash.find(hash_pat);
 			if( it != global_hash.end() ){
 				cout << "HashTrie::getRangeTableRev - Match\n";
@@ -1052,7 +1055,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 					string pat_alt = pattern_rev.substr(kr_pat_rev_vector.size() - 1 - pos, len_hash[v_pos] + rest_len);
 					unsigned int hash_pat_alt = karp_rabin->hash(pattern_rev.c_str() + pattern_rev.length() - pos, len_hash[v_pos] + rest_len);
 					cout << "HashTrie::getRangeTableRev - hash_pat_alt: " << hash_pat_alt << " (" << pat_alt << ")\n";
-			
+					
 					if( path_hash != hash_pat_alt ){
 						cout << "HashTrie::getRangeTableRev - Not Match en nodo completo (" << path_hash << " != " << kr_pat_rev_vector[v_len] << ")\n";
 						v_len = 0;
@@ -1110,9 +1113,6 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 			cout << "HashTrie::getRangeTableRev - Pattern NOT found\n";
 			return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
 		}
-		
-//		return pair<unsigned int, unsigned int>(v_min, v_max);
-//		return getRangeRevInternal(v_pos, kr_pat_rev_vector, pos, total, karp_rabin, cur_max, pattern_rev);
 	}
 	else{
 		cout << "HashTrie::getRangeTableRev - Case 3, checking childs\n";
