@@ -435,7 +435,7 @@ void HashTrie::build(const char *full_text, unsigned int _len_text, vector<unsig
 		prepareHashMap(0, 0, marked_hash);
 	}
 	for(auto it : marked_hash){
-		cout << "HashTrie::build - global_hash[" << it.first << "] = " << it.second.second << "\n";
+//		cout << "HashTrie::build - global_hash[" << it.first << "] = " << it.second.second << "\n";
 		global_hash[it.first] = it.second.second;
 	}
 	
@@ -555,7 +555,7 @@ void HashTrie::prepareHashMapRev(unsigned int node_pos, unsigned int path_len, u
 		}
 		
 		char c = decodeChar[ first_childs[pos_child_abs] ];
-		cout << "HashTrie::prepareHashMapRev - Child[" << pos_child_abs << "]: " << c << ", child_len " << child_len << " (" << len_path[pos_child_abs] << ")\n";
+//		cout << "HashTrie::prepareHashMapRev - Child[" << pos_child_abs << "]: " << c << ", child_len " << child_len << " (" << len_path[pos_child_abs] << ")\n";
 		
 		unsigned int mask = 0xffffffff;
 		while( (child_len & (mask<<1)) > path_len){
@@ -567,12 +567,17 @@ void HashTrie::prepareHashMapRev(unsigned int node_pos, unsigned int path_len, u
 			exit(0);
 		}
 		
-		cout << "HashTrie::prepareHashMapRev - child_len usado: " << (child_len & mask) << " (" << len_hash[pos_child_abs] << " > " << path_len << ")\n";
+		cout << "HashTrie::prepareHashMapRev - child_len usado: " << (child_len & mask) << " (" << len_hash[pos_child_abs] << " > " << path_len << ", child_len " << child_len << ", " << c << ")\n";
 		string test_text = "";
 		for(unsigned int k = 0; k < (child_len & mask); ++k){
 			test_text += compacted_text->at(tu + lu - k - 1);
 		}
-//		cout << "HashTrie::prepareHashMapRev - String P: " << test_text << " \n";
+		if( test_text.length() < 20 ){
+			cout << "HashTrie::prepareHashMapRev - String P: " << test_text << " \n";
+		}
+		else{
+			cout << "HashTrie::prepareHashMapRev - String P: " << test_text.substr(0, 20) << " ... \n";
+		}
 		unsigned int hash = karp_rabin->hash(test_text);
 		auto it = marked_hash.find(hash);
 		if( it == marked_hash.end()
@@ -1027,6 +1032,28 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 					cout << "HashTrie::getRangeTableRev - Error de largo (" << len_path[it->second] << " < " << next << "), omitiendo por colision\n";
 					continue;
 				}
+				// Quizas habria que agregar una verificacion de texto adicional en este caso
+				// Esa verificacion es relativamente cara, pero solo se realiza si hubo match de hash
+				bool collision = false;
+				unsigned int min_factor_pos = (*arr_factors)[ min_childs[it->second] ];
+				unsigned int cur_pi = (*pi_inv)[min_factor_pos-1];
+				unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
+				unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
+				unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
+				string rest_text = "";
+				for(unsigned int i = 0; i < next; ++i){
+					char c = compacted_text->at(tu + lu - i - 1);
+					rest_text += c;
+					if( pat[i] != c ){
+						collision = true;
+						break;
+					}
+				}
+				if( collision ){
+					cout << "HashTrie::getRangeTableRev - Error de texto (" << rest_text << " != " << pat << "), omitiendo por colision\n";
+					continue;
+				}
+				
 				total = next;
 				v_pos = it->second;
 				// Largo (absoluto del hijo)
@@ -1053,12 +1080,13 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 						rest_len -= (v_len - pat_len);
 					}
 					
-					string rest_text = "";
-					unsigned int min_factor_pos = (*arr_factors)[ min_childs[v_pos] ];
-					unsigned int cur_pi = (*pi_inv)[min_factor_pos-1];
-					unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
-					unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
-					unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
+					rest_text = "";
+//					string rest_text = "";
+//					unsigned int min_factor_pos = (*arr_factors)[ min_childs[v_pos] ];
+//					unsigned int cur_pi = (*pi_inv)[min_factor_pos-1];
+//					unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
+//					unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
+//					unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
 					for(unsigned int i = 0; i < rest_len; ++i){
 						rest_text += compacted_text->at(tu + lu - len_hash[v_pos] - i - 1);
 					}
