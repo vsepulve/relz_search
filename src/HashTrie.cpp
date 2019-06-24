@@ -1013,17 +1013,16 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 		}
 		else{
 			// Notar que puedo calcular el hash con kr_pat_rev_vector sin necesidad de generar el string
-			string pat = pattern_rev.substr(pat_ini, next);
-			unsigned int hash_pat = karp_rabin->hash(pattern_rev.c_str() + pattern_rev.length() - pat_len, next);
+//			string pat_str = pattern_rev.substr(pat_ini, next);
+//			unsigned int hash_pat_str = karp_rabin->hash(pattern_rev.c_str() + pattern_rev.length() - pat_len, next);
 			// Hash en tiempo cte
-			unsigned int hash_pat_alt = karp_rabin->subtract_prefix(kr_pat_rev_vector[kr_pat_rev_vector.size() - 1 - (pat_len - next)], kr_pat_rev_vector[pat_ini], next);
-//			unsigned int hash_pat = hash_pat_alt;
+			unsigned int hash_pat = karp_rabin->subtract_prefix(kr_pat_rev_vector[kr_pat_rev_vector.size() - 1 - (pat_len - next)], kr_pat_rev_vector[pat_ini], next);
 			
-			cout << "HashTrie::getRangeTableRev - pat: " << pat << " / [" << (pattern_rev.c_str() + pattern_rev.length() - pat_len) << ", " << next << "] (len " << next << ", hash_pat: " << hash_pat << ", hash_pat_alt: " << hash_pat_alt << ")\n";
-			if( hash_pat != hash_pat_alt ){
-				cerr << "HashTrie::getRangeTableRev - ERROR in hash (" << hash_pat_alt << " != " << hash_pat << ")\n";
-				exit(0);
-			}
+//			cout << "HashTrie::getRangeTableRev - pat: " << pat_str << " / [" << (pattern_rev.c_str() + pattern_rev.length() - pat_len) << ", " << next << "] (len " << next << ", hash_pat_str: " << hash_pat_str << ", hash_pat: " << hash_pat << ")\n";
+//			if( hash_pat_str != hash_pat ){
+//				cerr << "HashTrie::getRangeTableRev - ERROR in hash (" << hash_pat << " != " << hash_pat_str << ")\n";
+//				exit(0);
+//			}
 			
 			auto it = global_hash.find(hash_pat);
 			if( it != global_hash.end() ){
@@ -1060,6 +1059,8 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 				v_pos = it->second;
 				// Largo (absoluto del hijo)
 				v_len = len_path[v_pos];
+				v_min = min_childs[v_pos];
+				v_max = arr_max_childs[v_pos];
 				
 				// Notar que aqui, si el largo del trailing es menor que el largo del path del nodo, se puede verificar el hash del nodo
 				// Si el hash del nodo completo NO calza con el patron, se sabe de inmediato que no puede haber resultado
@@ -1069,6 +1070,9 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 					// El resto podria ser mas largo que el patron
 					if( v_len > pat_len ){
 						rest_len -= (v_len - pat_len);
+						if( rest_len == 0 ){
+							break;
+						}
 					}
 					
 					test_text = "";
@@ -1108,8 +1112,8 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 					
 				}
 				
-				v_min = min_childs[v_pos];
-				v_max = arr_max_childs[v_pos];
+//				v_min = min_childs[v_pos];
+//				v_max = arr_max_childs[v_pos];
 				cout << "HashTrie::getRangeTableRev - v_len: " << v_len << ", len_hash: " << len_hash[v_pos] << " (v_min: " << v_min << ", v_max: " << v_max << ")\n";
 				if( v_len >= pat_len ){
 					break;
