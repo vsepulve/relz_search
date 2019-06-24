@@ -51,7 +51,7 @@ public:
 	unsigned int totalChilds(unsigned int &max_len, unsigned int &max_childs, unsigned int &max_height, unsigned int height);
 	
 /*	void compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs);*/
-	void compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs, int_vector<> &arr_max_childs, unsigned int max, int_vector<> &len_path, unsigned int ini_path, int_vector<> &len_hash);
+	void compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs, int_vector<> &arr_max_childs, int_vector<> &len_path, unsigned int ini_path, int_vector<> &len_hash);
 	
 };
 
@@ -103,7 +103,7 @@ private:
 	// Version for Reverse factors
 	pair<unsigned int, unsigned int> getRangeRevInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern_rev);
 	pair<unsigned int, unsigned int> getRangeRevInternalNoHash(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern_rev);
-	pair<unsigned int, unsigned int> getRangeTableRevInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern_rev);
+	pair<unsigned int, unsigned int> getRangeTableRevInternal(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, KarpRabin *karp_rabin, const string &pattern_rev);
 	
 	// Clone of HashTrieNode::print, but using compacted arrays and node_pos as the position for the current node
 	void printInternal(unsigned int node_pos, unsigned int level);

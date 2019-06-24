@@ -16,7 +16,7 @@ HashTrieNode::~HashTrieNode(){
 }
 
 //void HashTrieNode::compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs){
-void HashTrieNode::compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs, int_vector<> &arr_max_childs, unsigned int max, int_vector<> &len_path, unsigned int ini_path, int_vector<> &len_hash){
+void HashTrieNode::compactData(unsigned int &next_pos, int_vector<> &positions_childs, int_vector<> &n_childs, int_vector<> &len_childs, int_vector<> &min_childs, int_vector<> &hash_childs, int_vector<> &first_childs, int_vector<> &arr_max_childs, int_vector<> &len_path, unsigned int ini_path, int_vector<> &len_hash){
 	// Guardo la posicion para los hijos de este nodo
 	// El valor de next_pos cambiara con cada hijo
 	unsigned int cur_pos = next_pos;
@@ -38,15 +38,8 @@ void HashTrieNode::compactData(unsigned int &next_pos, int_vector<> &positions_c
 		min_childs[cur_pos] = childs_vector[i].min;
 		hash_childs[cur_pos] = childs_vector[i].hash;
 		first_childs[cur_pos] = HashTrie::codeChar(childs_vector[i].first);
-		
-		unsigned int this_max = 0;
-//		if( i < childs_vector.size() - 1 ){
-//			this_max = childs_vector[i+1].min - 1;
-//		}
-//		else{
-//			this_max = max;
-//		}
 		arr_max_childs[cur_pos] = childs_vector[i].max;
+		
 //		cout << "HashTrieNode::compactData - len_path[" << cur_pos << "] = " << childs_vector[i].len << " + " << ini_path << "\n";
 		len_path[cur_pos] = childs_vector[i].len + ini_path;
 		
@@ -58,7 +51,7 @@ void HashTrieNode::compactData(unsigned int &next_pos, int_vector<> &positions_c
 		
 		// Recursive call
 //		childs_vector[i].compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs);
-		childs_vector[i].compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs, arr_max_childs, this_max, len_path, len_path[cur_pos], len_hash);
+		childs_vector[i].compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs, arr_max_childs, len_path, len_path[cur_pos], len_hash);
 		++cur_pos;
 	}
 }
@@ -150,6 +143,9 @@ void HashTrieNode::build(const char *full_text, unsigned int len_text, vector<un
 			childs_vector.back().first = first_char;
 			childs_vector.back().len = min_text_len;
 			childs_vector.back().min = min_pos;
+			
+			childs_vector.back().max = cur_pos;
+			
 			childs_vector.back().hash = hash;
 //			cout << "HashTrieNode::build - Child Ready, starting recursive build\n";
 			childs_vector.back().build(full_text, len_text, factors_start, arr_y, karp_rabin, kr_factors, min_pos, cur_pos, processed_len + min_text_len);
@@ -491,7 +487,7 @@ void HashTrie::compactData(HashTrieNode &root_node){
 	
 //	root_node.compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs);
 	
-	root_node.compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs, arr_max_childs, arr_factors->size()-1, len_path, 0, len_hash);
+	root_node.compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs, arr_max_childs, len_path, 0, len_hash);
 	
 	sdsl::util::bit_compress(positions_childs);
 	sdsl::util::bit_compress(n_childs);
@@ -525,7 +521,7 @@ void HashTrie::compactData(HashTrieNode &root_node){
 	// Debug
 	for(unsigned int i = 0; i < n_nodes; ++i){
 //		cout << "HashTrie::compactData - node[" << i << "]: (" << positions_childs[i] << ", " << n_childs[i] << ", " << len_childs[i] << ", " << min_childs[i] << ", " << hash_childs[i] << ", " << decodeChar[ first_childs[i] ] << ")\n"
-//		cout << "HashTrie::compactData - node[" << i << "]: (" << positions_childs[i] << ", " << n_childs[i] << ", " << len_childs[i] << " (" << len_path[i] << "), " << min_childs[i] << ", " << arr_max_childs[i] << ", " << hash_childs[i] << ", " << decodeChar[ first_childs[i] ] << ")\n";
+		cout << "HashTrie::compactData - node[" << i << "]: (" << positions_childs[i] << ", " << n_childs[i] << ", " << len_childs[i] << " (" << len_path[i] << "), " << min_childs[i] << ", " << arr_max_childs[i] << ", " << hash_childs[i] << ", " << decodeChar[ first_childs[i] ] << ")\n";
 	}
 	
 	cout << "HashTrie::compactData - End\n";
@@ -536,11 +532,14 @@ void HashTrie::prepareHashMapRev(unsigned int node_pos, unsigned int path_len, u
 	for(unsigned int i = 0; i < n_childs[node_pos]; ++i){
 		unsigned int pos_child_abs = i + positions_childs[node_pos];
 		
-		unsigned int child_len = len_childs[pos_child_abs];
-		child_len += path_len;
+//		unsigned int child_len = len_childs[pos_child_abs];
+//		child_len += path_len;
+		unsigned int child_len = len_path[pos_child_abs];
 //		cout << "HashTrie::prepareHashMapRev - child_len: " << child_len << "\n";
 		// Si es hoja, ajustar el largo
-		unsigned int num_childs = n_childs[pos_child_abs];
+//		unsigned int num_childs = n_childs[pos_child_abs];
+		unsigned int hash_len = len_hash[pos_child_abs];
+		char c = decodeChar[ first_childs[pos_child_abs] ];
 		
 		// Datos para formar el texto
 		unsigned int min_factor_pos = (*arr_factors)[ min_childs[pos_child_abs] ];
@@ -549,27 +548,19 @@ void HashTrie::prepareHashMapRev(unsigned int node_pos, unsigned int path_len, u
 		unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
 		unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
 		
-		if( num_childs == 0 ){
-			child_len = lu;
+//		if( num_childs == 0 ){
+//			child_len = lu;
 //			cout << "HashTrie::prepareHashMapRev - child_len corrected: " << child_len << " (leaf)\n";
-		}
+//		}
 		
-		char c = decodeChar[ first_childs[pos_child_abs] ];
-//		cout << "HashTrie::prepareHashMapRev - Child[" << pos_child_abs << "]: " << c << ", child_len " << child_len << " (" << len_path[pos_child_abs] << ")\n";
+//		if( child_len != len_path[pos_child_abs] ){
+//			cerr << "HashTrie::prepareHashMapRev - ERROR - child_len: " << child_len << " != " << len_path[pos_child_abs] << "\n";
+//			exit(0);
+//		}
 		
-		unsigned int mask = 0xffffffff;
-		while( (child_len & (mask<<1)) > path_len){
-			mask <<= 1;
-		}
-		
-		if( (child_len & mask) != len_hash[pos_child_abs] ){
-			cout << "HashTrie::prepareHashMapRev - ERROR (" << (child_len & mask) << " != " << len_hash[pos_child_abs] << ")\n";
-			exit(0);
-		}
-		
-		cout << "HashTrie::prepareHashMapRev - child_len usado: " << (child_len & mask) << " (" << len_hash[pos_child_abs] << " > " << path_len << ", child_len " << child_len << ", " << c << ")\n";
+		cout << "HashTrie::prepareHashMapRev - child_len usado: " << hash_len << " ( > " << path_len << ", child_len " << child_len << ", " << c << ")\n";
 		string test_text = "";
-		for(unsigned int k = 0; k < (child_len & mask); ++k){
+		for(unsigned int k = 0; k < hash_len; ++k){
 			test_text += compacted_text->at(tu + lu - k - 1);
 		}
 		if( test_text.length() < 20 ){
@@ -974,10 +965,10 @@ pair<unsigned int, unsigned int> HashTrie::getRangeRevInternalNoHash(unsigned in
 }
 
 pair<unsigned int, unsigned int> HashTrie::getRangeTableRev(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, const string &pattern_rev){
-	return getRangeTableRevInternal(0, kr_pat_rev_vector, pos, karp_rabin, arr_factors->size() - 1, pattern_rev);
+	return getRangeTableRevInternal(kr_pat_rev_vector, pos, karp_rabin, pattern_rev);
 }
 
-pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern_rev){
+pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, KarpRabin *karp_rabin, const string &pattern_rev){
 	
 	int bits_pat = 1;
 	unsigned int pat_len = pos;
@@ -993,12 +984,6 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(unsigned int
 	unsigned int v_min = 0;
 	unsigned int v_max = 0;
 	unsigned int total = 0;
-	
-//	unsigned int min_factor_pos = 0;
-//	unsigned int cur_pi = 0;
-//	unsigned int tu = 0;
-//	unsigned int pu = 0;
-//	unsigned int lu = 0;
 	
 	--bits_pat;
 	for(; bits_pat >= 0; --bits_pat){
