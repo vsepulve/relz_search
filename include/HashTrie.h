@@ -24,6 +24,10 @@
 
 #define NOT_FOUND 0xffffffff
 
+// Maximum length for hashes to traverse global table
+// it must be in the form 00..01..11 (2^M-1), here we are using 8 bits
+#define MAX_LEN_HASH 0xff
+
 using namespace std;
 
 class HashTrieNode{
