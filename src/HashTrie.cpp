@@ -602,14 +602,16 @@ void HashTrie::prepareHashMap(unsigned int node_pos, unsigned int path_len, unor
 		
 		cout << "HashTrie::prepareHashMap - pos_child_abs: " << pos_child_abs << ", min_childs: " << min_childs[pos_child_abs] << ", min_factor_pos: " << (*arr_factors)[ min_childs[pos_child_abs] ] << "\n";
 		unsigned int min_factor_pos = (*arr_factors)[ min_childs[pos_child_abs] ];
+		
 //		unsigned int cur_pi = (*pi_inv)[min_factor_pos-1];
 //		unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
 //		unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
 //		unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
-		unsigned int cur_pi = (*pi_inv)[min_factor_pos];
-		unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
-		unsigned int pu = select1_b->operator()(min_factor_pos + 1);
-		unsigned int lu = select1_b->operator()(min_factor_pos + 2) - pu;
+
+//		unsigned int cur_pi = (*pi_inv)[min_factor_pos];
+//		unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
+//		unsigned int pu = select1_b->operator()(min_factor_pos + 1);
+//		unsigned int lu = select1_b->operator()(min_factor_pos + 2) - pu;
 		
 //		if( num_childs == 0 ){
 //			child_len = lu;
@@ -621,15 +623,16 @@ void HashTrie::prepareHashMap(unsigned int node_pos, unsigned int path_len, unor
 //			exit(0);
 //		}
 		
-		cout << "HashTrie::prepareHashMap - child_len usado: " << hash_len << " ( > " << path_len << ", child_len " << child_len << ", " << c << ", lu: " << lu <<  ")\n";
+//		cout << "HashTrie::prepareHashMap - child_len usado: " << hash_len << " ( > " << path_len << ", child_len " << child_len << ", " << c << ", lu: " << lu <<  ")\n";
+		cout << "HashTrie::prepareHashMap - child_len usado: " << hash_len << " ( > " << path_len << ", child_len " << child_len << ", " << c << ")\n";
 		string test_text = "";
 		
 		FactorsIteratorCompacted it_y(min_factor_pos, arr_factors->size(), select1_s, select1_b, select0_b, pi_inv, compacted_text, len_text);
-		
 		for(unsigned int k = 0; k < hash_len; ++k){
 //			test_text += compacted_text->at(tu + lu - k - 1);
-			test_text += compacted_text->at(tu + k);
-			cout << "HashTrie::prepareHashMap - char[" << k << "]: " << compacted_text->at(tu + k) << " / " << it_y.next() << "\n";
+//			test_text += compacted_text->at(tu + k);
+			test_text += it_y.next();
+//			cout << "HashTrie::prepareHashMap - char[" << k << "]: " << compacted_text->at(tu + k) << " / " << it_y.next() << "\n";
 		}
 		if( test_text.length() < 20 ){
 			cout << "HashTrie::prepareHashMap - String P: " << test_text << " \n";
@@ -767,6 +770,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeInternal(unsigned int node_po
 			// TEST HASH
 			string test_text = "";
 			FactorsIteratorCompacted it_y(min_factor_pos, arr_factors->size(), select1_s, select1_b, select0_b, pi_inv, compacted_text, len_text);
+//			it_y.reset(processed);
 			for(unsigned int i = 0; i < processed; ++i){
 				it_y.next();
 			}
@@ -774,16 +778,16 @@ pair<unsigned int, unsigned int> HashTrie::getRangeInternal(unsigned int node_po
 				test_text += it_y.next();
 			}
 			
-			// Test for it reset(start_pos)
-			string test_text2 = "";
-			it_y.reset(processed);
-			for(unsigned int i = 0; i < pat_len; ++i){
-				test_text2 += it_y.next();
-			}
-			if( test_text2.compare(test_text) != 0 ){
-				cerr << "HashTrie::getRangeInternal - ERROR (" << test_text2 << " != " << test_text << ")\n";
-				exit(0);
-			}
+//			// Test for it reset(start_pos)
+//			string test_text2 = "";
+//			it_y.reset(processed);
+//			for(unsigned int i = 0; i < pat_len; ++i){
+//				test_text2 += it_y.next();
+//			}
+//			if( test_text2.compare(test_text) != 0 ){
+//				cerr << "HashTrie::getRangeInternal - ERROR (" << test_text2 << " != " << test_text << ")\n";
+//				exit(0);
+//			}
 			
 			unsigned long long hash = karp_rabin->hash(test_text);
 //			cout << "HashTrie::getRangeInternal - Test Hash: " << hash_test << " / " << hash << "\n";
