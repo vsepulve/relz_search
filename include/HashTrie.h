@@ -102,6 +102,7 @@ private:
 	// Clone of HashTrieNode::getRange, but using compacted arrays and node_pos as the position for the current node
 	pair<unsigned int, unsigned int> getRangeInternal(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern);
 	pair<unsigned int, unsigned int> getRangeInternalNoHash(unsigned int node_pos, vector<unsigned long long> &kr_pat_vector, unsigned int pos, unsigned int processed, KarpRabin *karp_rabin, unsigned int cur_max, const string &pattern);
+	pair<unsigned int, unsigned int> getRangeTableInternal(vector<unsigned long long> &kr_pat_vector, unsigned int pos, KarpRabin *karp_rabin, const string &pattern);
 	
 	// Clone of HashTrieNode::getRange, but using compacted arrays and node_pos as the position for the current node
 	// Version for Reverse factors
@@ -124,6 +125,8 @@ public:
 	void build(const char *full_text, unsigned int len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *kr_factors, bool reverse = false);
 	
 	pair<unsigned int, unsigned int> getRange(vector<unsigned long long> &kr_pat_vector, unsigned int pos, const string &pattern, bool use_hash = true);
+	
+	pair<unsigned int, unsigned int> getRangeTable(vector<unsigned long long> &kr_pat_vector, unsigned int pos, const string &pattern);
 	
 	pair<unsigned int, unsigned int> getRangeRev(vector<unsigned long long> &kr_pat_rev_vector, unsigned int pos, const string &pattern_rev, bool use_hash = true);
 	
