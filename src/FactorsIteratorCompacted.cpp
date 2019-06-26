@@ -73,6 +73,26 @@ void FactorsIteratorCompacted::reset(){
 	loadFactor( start_f, true );
 }
 
+void FactorsIteratorCompacted::reset(unsigned int start_pos){
+	cout << "FactorsIteratorCompacted::reset - Start (start_f: " << start_f << ", start_pos: " << start_pos << ")\n";
+	reset();
+	cout << "FactorsIteratorCompacted::reset - " << start_pos << " vs " << (cur_f_fin - cur_f_ini + 1) << ", cur_f: [" << cur_f_ini << ", " << cur_f_fin << "]\n";
+	while( start_pos >= (cur_f_fin - cur_f_ini + 1) ){
+		cout << "FactorsIteratorCompacted::reset - jumping to cur_f " << (cur_f+1) << "\n";
+		start_pos -= (cur_f_fin - cur_f_ini + 1);
+		text_pos += (cur_f_fin - cur_f_ini + 1);
+		loadFactor(++cur_f);
+		cout << "FactorsIteratorCompacted::reset - cur_f: [" << cur_f_ini << ", " << cur_f_fin << "], start_pos: " << start_pos << ", text_pos: " << text_pos << "\n";
+	}
+//	while( start_pos > (cur_pos - cur_f_ini) ){
+//		++cur_pos;
+//		++text_pos;
+//	}
+	cur_pos += start_pos;
+	text_pos += start_pos;
+	cout << "FactorsIteratorCompacted::reset - cur_pos: " << cur_pos << " (text_pos: " << text_pos << ")\n";
+}
+
 char FactorsIteratorCompacted::next(){
 //	cout << "FactorsIteratorCompacted::next - cur_pos: " << cur_pos << ", cur_f_fin: " << cur_f_fin << ", cur_f: " << cur_f << " / " << n_factors << "\n";
 	char ret = 0;

@@ -61,6 +61,8 @@ public:
 	
 	void reset();
 	
+	void reset(unsigned int start_pos);
+	
 	char next();
 	
 	bool hasNext();
