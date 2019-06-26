@@ -379,6 +379,9 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 		pattern_rev += pattern[pattern.length() - 1 - i];
 	}
 	cout << "-----  pattern: " << pattern << " -----\n";
+	for(unsigned int i = 0; i < kr_pat_vector.size(); ++i){
+		cout << "kr_pat_vector[" << i << "]: " << kr_pat_vector[i] << " \n";
+	}
 	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
 //	for(unsigned int i = 0; i < kr_pat_rev_vector.size(); ++i){
 //		cout << "kr_pat_rev_vector[" << i << "]: " << kr_pat_rev_vector[i] << " \n";
@@ -418,6 +421,18 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 		querytime_p3y += timer.getNanosec();
 		timer.reset();
 		cout << "-----\n";
+		
+		cout << "-----  tree_y.getRangeTable -----\n";
+		pair<unsigned int, unsigned int> r2_v2 = tree_y.getRangeTable(kr_pat_vector, i, pattern);
+//		querytime_p3x += timer.getNanosec();
+//		timer.reset();
+		cout << "-----\n";
+		
+		if( r2.first != r2_v2.first || r2.second != r2_v2.second ){
+			cout << "ERROR [" << r2_v2.first << ", " << r2_v2.second << "] vs [" << r2.first << ", " << r2.second << "]\n";
+			cout << "-----\n";
+			exit(0);
+		}
 		
 		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 			continue;
