@@ -26,7 +26,7 @@ void HashTrieNode::compactData(unsigned int &next_pos, int_vector<> &positions_c
 	for(unsigned int i = 0; i < childs_vector.size(); ++i){
 		// Data for the child
 		positions_childs[cur_pos] = next_pos;
-//		cout << "HashTrieNode::compactData - positions_childs[" << cur_pos << "]: " << next_pos << "\n";
+		cout << "HashTrieNode::compactData - positions_childs[" << cur_pos << "]: " << next_pos << "\n";
 		n_childs[cur_pos] = childs_vector[i].childs_vector.size();
 		// Omit the length for the leaf nodes
 		if( n_childs[cur_pos] == 0 ){
@@ -40,16 +40,36 @@ void HashTrieNode::compactData(unsigned int &next_pos, int_vector<> &positions_c
 		first_childs[cur_pos] = HashTrie::codeChar(childs_vector[i].first);
 		arr_max_childs[cur_pos] = childs_vector[i].max;
 		
-//		cout << "HashTrieNode::compactData - len_path[" << cur_pos << "] = " << childs_vector[i].len << " + " << ini_path << "\n";
+		cout << "HashTrieNode::compactData - len_path[" << cur_pos << "] = " << childs_vector[i].len << " + " << ini_path << "\n";
 		len_path[cur_pos] = childs_vector[i].len + ini_path;
 		
-		// MAX LEN HASH
-//		unsigned int mask = 0xffffffff;
-		unsigned int mask = MAX_LEN_HASH;
-		while( (len_path[cur_pos] & (mask<<1)) > ini_path){
-			mask <<= 1;
+		// If the path to the parent is already greater than MAX_LEN_HASH, omit this node
+		// If there is no valid bits inside the range of MAX_LEN_HASH, also omit it
+		if( ini_path >= MAX_LEN_HASH || ini_path >= (len_path[cur_pos] & MAX_LEN_HASH) ){
+			len_hash[cur_pos] = 0;
 		}
-		len_hash[cur_pos] = mask & len_path[cur_pos];
+		else{
+			// MAX LEN HASH
+	//		unsigned int mask = 0xffffffff;
+			unsigned int mask = MAX_LEN_HASH;
+//			while( (len_path[cur_pos] & (mask<<1)) > ini_path){
+			while( (len_path[cur_pos] & (mask<<1) & MAX_LEN_HASH) > ini_path){
+				mask <<= 1;
+//				cout << "HashTrieNode::compactData - mask: " << mask << " for " << (len_path[cur_pos] & mask & MAX_LEN_HASH) << " > " << ini_path << "\n";
+			}
+			len_hash[cur_pos] = mask & len_path[cur_pos] & MAX_LEN_HASH;
+//			cout << "HashTrieNode::compactData - len_hash[" << cur_pos << "]: " << len_hash[cur_pos] << " for (" << mask << " & " << len_path[cur_pos] << " & " << MAX_LEN_HASH << ")\n";
+			
+			if( len_hash[cur_pos] > MAX_LEN_HASH ){
+				cerr << "HashTrieNode::compactData - Error in len_hash[" << cur_pos << "]: " << len_hash[cur_pos] << "\n";
+				exit(0);
+			}
+		}
+		if( len_hash[cur_pos] != 0 && len_hash[cur_pos] <= ini_path ){
+			cerr << "HashTrieNode::compactData - Error in len_hash[" << cur_pos << "]: " << len_hash[cur_pos] << "\n";
+			exit(0);
+			len_hash[cur_pos] = 0;
+		}
 		
 		// Recursive call
 //		childs_vector[i].compactData(next_pos, positions_childs, n_childs, len_childs, min_childs, hash_childs, first_childs);
@@ -415,7 +435,7 @@ void HashTrie::build(const char *full_text, unsigned int _len_text, vector<unsig
 	select0_b = kr_factors->select0_b;
 	pi_inv = kr_factors->pi_inv;
 	
-	cout << "HashTrie::build - Start (full text of " << len_text << ", " << factors_start.size() << " factors)\n";
+	cout << "HashTrie::build - Start (full text of " << len_text << ", " << factors_start.size() << " factors, reverse: " << reverse << ", MAX_LEN_HASH: " << MAX_LEN_HASH << ")\n";
 	HashTrieNode local_root;
 	if( reverse ){
 		local_root.buildRev(full_text, len_text, factors_start, arr_factors, karp_rabin, kr_factors, 0, factors_start.size()-1, 0);
@@ -541,7 +561,7 @@ void HashTrie::prepareHashMapRev(unsigned int node_pos, unsigned int path_len, u
 		// Si es hoja, ajustar el largo
 //		unsigned int num_childs = n_childs[pos_child_abs];
 		unsigned int hash_len = len_hash[pos_child_abs];
-		char c = decodeChar[ first_childs[pos_child_abs] ];
+//		char c = decodeChar[ first_childs[pos_child_abs] ];
 		
 		// Datos para formar el texto
 		unsigned int min_factor_pos = (*arr_factors)[ min_childs[pos_child_abs] ];
@@ -560,22 +580,22 @@ void HashTrie::prepareHashMapRev(unsigned int node_pos, unsigned int path_len, u
 //			exit(0);
 //		}
 		
-		cout << "HashTrie::prepareHashMapRev - child_len usado: " << hash_len << " ( > " << path_len << ", child_len " << child_len << ", " << c << ")\n";
+//		cout << "HashTrie::prepareHashMapRev - child_len usado: " << hash_len << " ( > " << path_len << ", child_len " << child_len << ", " << c << ")\n";
 		string test_text = "";
 		for(unsigned int k = 0; k < hash_len; ++k){
 			test_text += compacted_text->at(tu + lu - k - 1);
 		}
 		if( test_text.length() < 20 ){
-			cout << "HashTrie::prepareHashMapRev - String P: " << test_text << " \n";
+//			cout << "HashTrie::prepareHashMapRev - String P: " << test_text << " \n";
 		}
 		else{
-			cout << "HashTrie::prepareHashMapRev - String P: " << test_text.substr(0, 20) << " ... \n";
+//			cout << "HashTrie::prepareHashMapRev - String P: " << test_text.substr(0, 20) << " ... \n";
 		}
 		unsigned int hash = karp_rabin->hash(test_text);
 		auto it = marked_hash.find(hash);
 		if( it == marked_hash.end()
 			|| child_len < it->second.first ){
-			cout << "HashTrie::prepareHashMapRev - Agregando marked_hash[" << hash << "] -> " << pos_child_abs << "\n";
+//			cout << "HashTrie::prepareHashMapRev - Agregando marked_hash[" << hash << "] -> " << pos_child_abs << "\n";
 			marked_hash[hash] = pair<unsigned int, unsigned int>(child_len, pos_child_abs);
 		}
 		
@@ -609,6 +629,12 @@ void HashTrie::prepareHashMap(unsigned int node_pos, unsigned int path_len, unor
 //		unsigned int lu = select1_b->operator()(min_factor_pos + 2) - pu;
 		
 		cout << "HashTrie::prepareHashMap - child_len usado: " << hash_len << " ( > " << path_len << ", child_len " << child_len << ", " << c << ")\n";
+		
+		if( hash_len > MAX_LEN_HASH ){
+			cerr << "HashTrie::prepareHashMap - Error in child_len usado\n";
+			exit(0);
+		}
+		
 		string test_text = "";
 		
 		FactorsIteratorCompacted it_y(min_factor_pos, arr_factors->size(), select1_s, select1_b, select0_b, pi_inv, compacted_text, len_text);
@@ -650,7 +676,7 @@ void HashTrie::printInternal(unsigned int node_pos, unsigned int level){
 	for(unsigned int i = 0; i < level; ++i){
 		cout << "- ";
 	}
-	cout << "hash: " << hash_childs[node_pos] << ", len: " << len_childs[node_pos] << " , range [" << min_childs[node_pos] << "]\n";
+	cout << "hash: " << hash_childs[node_pos] << ", len: " << len_childs[node_pos] << " , range [" << min_childs[node_pos] << ", " << arr_max_childs[node_pos] << "]\n";
 	for(unsigned int i = 0; i < n_childs[node_pos]; ++i){
 		cout << decodeChar[ first_childs[ i + positions_childs[node_pos] ] ] << " ";
 		printInternal(i + positions_childs[node_pos], level+1);
@@ -1067,13 +1093,15 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableInternal(vector<unsigned
 				// Esa verificacion es relativamente cara, pero solo se realiza si hubo match de hash
 				bool collision = false;
 				unsigned int min_factor_pos = (*arr_factors)[ min_childs[it->second] ];
-				unsigned int cur_pi = (*pi_inv)[min_factor_pos-1];
-				unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
-				unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
-				unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
+//				unsigned int cur_pi = (*pi_inv)[min_factor_pos-1];
+//				unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
+//				unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
+//				unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
+				FactorsIteratorCompacted it_y(min_factor_pos, arr_factors->size(), select1_s, select1_b, select0_b, pi_inv, compacted_text, len_text);
 				string test_text = "";
 				for(unsigned int i = 0; i < next; ++i){
-					char c = compacted_text->at(tu + lu - i - 1);
+//					char c = compacted_text->at(tu + lu - i - 1);
+					char c = it_y.next();
 					test_text += c;
 //					cout << "HashTrie::getRangeTable - Verificando " << c << " vs " << pattern[pat_ini + i] << "\n";
 					if( pattern[pat_ini + i] != c ){
@@ -1106,6 +1134,13 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableInternal(vector<unsigned
 						}
 					}
 					
+					// DEBUG
+//					it_y.reset();
+//					for(unsigned int i = 0; i < (len_hash[v_pos] + rest_len); ++i){
+//						cout << "HashTrie::getRangeTable - test_char[" << i << "]: " << it_y.next() << "\n";
+//					}
+					// END DEBUG
+					
 					test_text = "";
 //					string test_text = "";
 //					unsigned int min_factor_pos = (*arr_factors)[ min_childs[v_pos] ];
@@ -1113,8 +1148,10 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableInternal(vector<unsigned
 //					unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
 //					unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
 //					unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
+					it_y.reset(len_hash[v_pos]);
 					for(unsigned int i = 0; i < rest_len; ++i){
-						test_text += compacted_text->at(tu + lu - len_hash[v_pos] - i - 1);
+//						test_text += compacted_text->at(tu + lu - len_hash[v_pos] - i - 1);
+						test_text += it_y.next();
 					}
 					unsigned int test_hash = karp_rabin->hash(test_text.c_str(), rest_len);
 					cout << "HashTrie::getRangeTable - test_hash: " << test_hash << " (" << test_text << ")\n";
@@ -1125,7 +1162,8 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableInternal(vector<unsigned
 //					unsigned int hash_pat_alt_str = karp_rabin->hash(pattern.c_str() + pattern.length() - pat_len, len_hash[v_pos] + rest_len);
 //					cout << "HashTrie::getRangeTable - hash_pat_alt_str: " << hash_pat_alt_str << " (" << pat_alt_str << ")\n";
 
-					unsigned int hash_pat_alt = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1 - (pat_len - (len_hash[v_pos] + rest_len))], kr_pat_vector[pat_ini], (len_hash[v_pos] + rest_len));
+					unsigned int hash_pat_alt = karp_rabin->subtract_prefix(kr_pat_vector[pat_ini + (len_hash[v_pos] + rest_len) - 1], kr_pat_vector[pat_ini - 1], (len_hash[v_pos] + rest_len));
+//					unsigned int hash_pat_alt = karp_rabin->subtract_prefix(kr_pat_vector[kr_pat_vector.size() - 1 - (pat_len - (len_hash[v_pos] + rest_len))], kr_pat_vector[pat_ini], (len_hash[v_pos] + rest_len));
 					cout << "HashTrie::getRangeTable - hash_pat_alt: " << hash_pat_alt << "\n";
 					
 //					if( hash_pat_alt != hash_pat_alt_str ){
@@ -1133,7 +1171,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableInternal(vector<unsigned
 //					}
 					
 					if( path_hash != hash_pat_alt ){
-						cout << "HashTrie::getRangeTable - Not Match en nodo completo (" << path_hash << " != " << kr_pat_vector[v_len] << ")\n";
+						cout << "HashTrie::getRangeTable - Not Match en nodo completo (" << path_hash << " != " << hash_pat_alt << ")\n";
 						v_len = 0;
 						break;
 					}
@@ -1172,7 +1210,8 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableInternal(vector<unsigned
 	}
 	else{
 		cout << "HashTrie::getRangeTable - Case 3, checking childs\n";
-		return getRangeRevInternal(v_pos, kr_pat_vector, pos, total, karp_rabin, v_max, pattern);
+//		return getRangeRevInternal(v_pos, kr_pat_vector, pos, total, karp_rabin, v_max, pattern);
+		return getRangeInternal(v_pos, kr_pat_vector, pos, total, karp_rabin, v_max, pattern);
 	}
 	
 	return pair<unsigned int, unsigned int>((unsigned int)(-1), (unsigned int)(-1));
@@ -1301,7 +1340,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(vector<unsig
 //					}
 					
 					if( path_hash != hash_pat_alt ){
-						cout << "HashTrie::getRangeTableRev - Not Match en nodo completo (" << path_hash << " != " << kr_pat_rev_vector[v_len] << ")\n";
+						cout << "HashTrie::getRangeTableRev - Not Match en nodo completo (" << path_hash << " != " << hash_pat_alt << ")\n";
 						v_len = 0;
 						break;
 					}
