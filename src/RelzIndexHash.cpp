@@ -336,7 +336,7 @@ void RelzIndexHash::printSize(){
 
 void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &results, bool use_hash){
 	
-	cout << "RelzIndexHash::findTimes - Start (\"" << pattern << "\")\n";
+//	cout << "RelzIndexHash::findTimes - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
 	
 //	cout << "RelzIndexHash::findTimes - Section A, reference\n";
@@ -378,61 +378,218 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 	for(unsigned int i = 0; i < pattern.length(); ++i){
 		pattern_rev += pattern[pattern.length() - 1 - i];
 	}
-	cout << "-----  pattern: " << pattern << " -----\n";
-	for(unsigned int i = 0; i < kr_pat_vector.size(); ++i){
-		cout << "kr_pat_vector[" << i << "]: " << kr_pat_vector[i] << " \n";
-	}
-	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
+//	cout << "-----  pattern: " << pattern << " -----\n";
+//	for(unsigned int i = 0; i < kr_pat_vector.size(); ++i){
+//		cout << "kr_pat_vector[" << i << "]: " << kr_pat_vector[i] << " \n";
+//	}
+//	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
 //	for(unsigned int i = 0; i < kr_pat_rev_vector.size(); ++i){
 //		cout << "kr_pat_rev_vector[" << i << "]: " << kr_pat_rev_vector[i] << " \n";
 //	}
-	cout << "-----  -----\n";
+//	cout << "-----  -----\n";
 	
 	for(unsigned int i = 1; i < pattern.length(); ++i){
 		timer.reset();
 		
-		cout << "-----  tree_x.getRange -----\n";
+//		cout << "-----  tree_x.getRange -----\n";
 //		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
 		pair<unsigned int, unsigned int> r1 = tree_x.getRangeRev(kr_pat_rev_vector, i, pattern_rev, use_hash);
 		querytime_p3x += timer.getNanosec();
 		timer.reset();
-		cout << "-----\n";
+//		cout << "-----\n";
 		
-		/*
-		cout << "-----  tree_x.getRangeTable -----\n";
-		pair<unsigned int, unsigned int> r1_v2 = tree_x.getRangeTableRev(kr_pat_rev_vector, i, pattern_rev);
+		
+//		cout << "-----  tree_x.getRangeTable -----\n";
+//		pair<unsigned int, unsigned int> r1_v2 = tree_x.getRangeTableRev(kr_pat_rev_vector, i, pattern_rev);
 //		querytime_p3x += timer.getNanosec();
 //		timer.reset();
-		cout << "-----\n";
+//		cout << "-----\n";
 		
-		if( r1.first != r1_v2.first || r1.second != r1_v2.second ){
-			cout << "ERROR [" << r1_v2.first << ", " << r1_v2.second << "] vs [" << r1.first << ", " << r1.second << "]\n";
-			cout << "-----\n";
-			exit(0);
-		}
-		*/
+//		if( r1.first != r1_v2.first || r1.second != r1_v2.second ){
+//			cerr << "ERROR [" << r1_v2.first << ", " << r1_v2.second << "] vs [" << r1.first << ", " << r1.second << "]\n";
+//			cerr << "-----\n";
+//			exit(0);
+//		}
+		
 		
 		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
 			continue;
 		}
 		
-		cout << "-----  tree_y.getRange -----\n";
+//		cout << "-----  tree_y.getRange -----\n";
 		pair<unsigned int, unsigned int> r2 = tree_y.getRange(kr_pat_vector, i, pattern, use_hash);
 		querytime_p3y += timer.getNanosec();
 		timer.reset();
-		cout << "-----\n";
+//		cout << "-----\n";
 		
-		cout << "-----  tree_y.getRangeTable -----\n";
-		pair<unsigned int, unsigned int> r2_v2 = tree_y.getRangeTable(kr_pat_vector, i, pattern);
+//		cout << "-----  tree_y.getRangeTable -----\n";
+//		pair<unsigned int, unsigned int> r2_v2 = tree_y.getRangeTable(kr_pat_vector, i, pattern);
+//		querytime_p3y += timer.getNanosec();
+//		timer.reset();
+//		cout << "-----\n";
+		
+//		if( r2.first != r2_v2.first || r2.second != r2_v2.second ){
+//			cerr << "ERROR [" << r2_v2.first << ", " << r2_v2.second << "] vs [" << r2.first << ", " << r2.second << "]\n";
+//			cerr << "-----\n";
+//			exit(0);
+//		}
+		
+		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
+			continue;
+		}
+		
+//		cout << "RelzIndexHash::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
+//		cout << "RelzIndexHash::findTimes - Adding " << res.second.size() << " points\n";
+		for (auto point : res.second){
+			unsigned int f = arr_y[point.second];
+			unsigned int pu = select1_b(f + 1);
+			
+			// Verificacion
+			bool omit = false;
+			
+			FactorsIteratorCompactedReverse it_x(f-1, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, len_text);
+//			cout << "text_x: ";
+			for(unsigned int pos = 0; pos < i; ++pos){
+				char c = it_x.next();
+//				cout << c << "|" << pattern[ i - 1 - pos ] << " ";
+				if( c != pattern[ i - 1 - pos ] ){
+					omit = true;
+					break;
+				}
+			}
+//			cout << "\n";
+			
+			if( !omit ){
+				FactorsIteratorCompacted it_y(f, n_factors, &select1_s, &select1_b, &select0_b, &pi_inv, ref_text, len_text);
+//				cout << "text_y: ";
+				for(unsigned int pos = 0; pos < pattern.length()-i; ++pos){
+					char c = it_y.next();
+//					cout << c << "|" << pattern[ i + pos ] << " ";
+					if( c != pattern[ i + pos ] ){
+						omit = true;
+						break;
+					}
+				}
+//				cout << "\n";
+			}
+			
+			if( omit ){
+//				cout << "RelzIndexHash::findTimes - Omiting bad result.\n";
+				++occs_d;
+				continue;
+			}
+			
+			results.push_back(pu - i);
+			++occs_c;
+		}
+		querytime_p4 += timer.getNanosec();
+		
+	}
+	
+//	cout << "RelzIndexHash::findTimes - End\n";
+	
+}
+
+void RelzIndexHash::findTimesTable(const string &pattern, vector<unsigned int> &results, bool use_hash){
+	
+//	cout << "RelzIndexHash::findTimes - Start (\"" << pattern << "\")\n";
+	NanoTimer timer;
+	
+//	cout << "RelzIndexHash::findTimes - Section A, reference\n";
+	
+	size_t m = pattern.size();
+	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
+	occs_a += occs;
+	vector<int_vector<64>> arr_locations;
+	if( occs > 0 ){
+		arr_locations.push_back(locate(fm_index, pattern.begin(), pattern.begin()+m));
+		sort(arr_locations.back().begin(), arr_locations.back().end());
+	}
+	querytime_p1 += timer.getNanosec();
+	timer.reset();
+	
+	for( int_vector<64> locations : arr_locations ){
+		for( unsigned int i = 0; i < occs; ++i ){
+			unsigned int occ_i = locations[i];
+			// Comprobar los factores que cuben esta ocurrencia (el string ref[occ_i, occ_i + m - 1])
+			unsigned int select = select0_s(occ_i + 1);
+			unsigned int pos_ez = select - 1 - occ_i;
+			// Now the recursive search in rmq (0 - pos_ez)
+			if( occ_i >= select ){
+				continue;
+			}
+			recursive_rmq(0, pos_ez, (occ_i + m), occ_i, results);
+		}
+	}
+	querytime_p2 += timer.getNanosec();
+	
+//	cout << "RelzIndexHash::findTimes - Section B, ranges\n";
+	
+	vector<unsigned long long> kr_pat_vector;
+	vector<unsigned long long> kr_pat_rev_vector;
+	karp_rabin->hashPrefixes(pattern, kr_pat_vector);
+	karp_rabin->hashPrefixesRev(pattern, kr_pat_rev_vector);
+	
+	string pattern_rev;
+	for(unsigned int i = 0; i < pattern.length(); ++i){
+		pattern_rev += pattern[pattern.length() - 1 - i];
+	}
+//	cout << "-----  pattern: " << pattern << " -----\n";
+//	for(unsigned int i = 0; i < kr_pat_vector.size(); ++i){
+//		cout << "kr_pat_vector[" << i << "]: " << kr_pat_vector[i] << " \n";
+//	}
+//	cout << "-----  pattern_rev: " << pattern_rev << " -----\n";
+//	for(unsigned int i = 0; i < kr_pat_rev_vector.size(); ++i){
+//		cout << "kr_pat_rev_vector[" << i << "]: " << kr_pat_rev_vector[i] << " \n";
+//	}
+//	cout << "-----  -----\n";
+	
+	for(unsigned int i = 1; i < pattern.length(); ++i){
+		timer.reset();
+		
+//		cout << "-----  tree_x.getRange -----\n";
+//		pair<unsigned int, unsigned int> r1 = tree_x.getRange(kr_pat_rev_vector, i, pattern_rev);
+//		pair<unsigned int, unsigned int> r1 = tree_x.getRangeRev(kr_pat_rev_vector, i, pattern_rev, use_hash);
 //		querytime_p3x += timer.getNanosec();
 //		timer.reset();
-		cout << "-----\n";
+//		cout << "-----\n";
 		
-		if( r2.first != r2_v2.first || r2.second != r2_v2.second ){
-			cout << "ERROR [" << r2_v2.first << ", " << r2_v2.second << "] vs [" << r2.first << ", " << r2.second << "]\n";
-			cout << "-----\n";
-			exit(0);
+		
+//		cout << "-----  tree_x.getRangeTable -----\n";
+		pair<unsigned int, unsigned int> r1 = tree_x.getRangeTableRev(kr_pat_rev_vector, i, pattern_rev);
+		querytime_p3x += timer.getNanosec();
+		timer.reset();
+//		cout << "-----\n";
+		
+//		if( r1.first != r1_v2.first || r1.second != r1_v2.second ){
+//			cerr << "ERROR [" << r1_v2.first << ", " << r1_v2.second << "] vs [" << r1.first << ", " << r1.second << "]\n";
+//			cerr << "-----\n";
+//			exit(0);
+//		}
+		
+		
+		if( r1.first == (unsigned int)(-1) || r1.second == (unsigned int)(-1) || r1.second < r1.first ){
+			continue;
 		}
+		
+//		cout << "-----  tree_y.getRange -----\n";
+//		pair<unsigned int, unsigned int> r2 = tree_y.getRange(kr_pat_vector, i, pattern, use_hash);
+//		querytime_p3y += timer.getNanosec();
+//		timer.reset();
+//		cout << "-----\n";
+		
+//		cout << "-----  tree_y.getRangeTable -----\n";
+		pair<unsigned int, unsigned int> r2 = tree_y.getRangeTable(kr_pat_vector, i, pattern);
+		querytime_p3y += timer.getNanosec();
+		timer.reset();
+//		cout << "-----\n";
+		
+//		if( r2.first != r2_v2.first || r2.second != r2_v2.second ){
+//			cerr << "ERROR [" << r2_v2.first << ", " << r2_v2.second << "] vs [" << r2.first << ", " << r2.second << "]\n";
+//			cerr << "-----\n";
+//			exit(0);
+//		}
 		
 		if( r2.first == (unsigned int)(-1) || r2.second == (unsigned int)(-1) || r2.second < r2.first ){
 			continue;
