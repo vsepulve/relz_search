@@ -68,7 +68,9 @@ private:
 	
 	CompactedText *compacted_text;
 	
+	// map<unsigned int, unsigned int> global_hash;
 	unordered_map<unsigned int, unsigned int> global_hash;
+	
 	// Para esta busqueda necesito max_child explicito tambien
 	int_vector<> arr_max_childs;
 	// Con esto se podra calcular len_childs en recorrido, reemplazandolo
