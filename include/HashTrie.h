@@ -17,6 +17,9 @@
 #include <set>
 #include <memory>
 
+/*#include <sparsehash/dense_hash_map>*/
+/*#include <sparsehash/sparse_hash_map>*/
+
 #include "NanoTimer.h"
 #include "KarpRabin.h"
 #include "KarpRabinFactorsSuffixes.h"
@@ -29,6 +32,9 @@
 #define MAX_LEN_HASH 0xff
 
 using namespace std;
+
+/*using google::dense_hash_map;*/
+/*using google::sparse_hash_map;*/
 
 class HashTrieNode{
 
@@ -70,6 +76,8 @@ private:
 	
 	// map<unsigned int, unsigned int> global_hash;
 	unordered_map<unsigned int, unsigned int> global_hash;
+	// sparse_hash_map<unsigned int, unsigned int> global_hash;
+	// dense_hash_map<unsigned int, unsigned int> global_hash;
 	
 	// Para esta busqueda necesito max_child explicito tambien
 	int_vector<> arr_max_childs;

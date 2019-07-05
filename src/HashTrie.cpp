@@ -454,6 +454,11 @@ void HashTrie::build(const char *full_text, unsigned int _len_text, vector<unsig
 	else{
 		prepareHashMap(0, 0, marked_hash);
 	}
+	
+	// Para dense_hash_map / sparse_hash_map
+//	global_hash.set_empty_key(0);
+//	global_hash.resize(marked_hash.size());
+	
 	for(auto it : marked_hash){
 //		cout << "HashTrie::build - global_hash[" << it.first << "] = " << it.second.second << "\n";
 		global_hash[it.first] = it.second.second;
@@ -1442,6 +1447,11 @@ void HashTrie::load(unsigned int _len_text, KarpRabin *_karp_rabin, CompactedTex
 	fstream reader(table_file, fstream::in);
 	unsigned int size_table = 0;
 	reader.read((char*)&size_table, sizeof(int));
+	
+	// Para dense_hash_map / sparse_hash_map
+//	global_hash.set_empty_key(0);
+//	global_hash.resize(size_table);
+	
 	for(unsigned int i = 0; i < size_table; ++i){
 		unsigned int hash = 0;
 		unsigned int pos = 0;
