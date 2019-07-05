@@ -398,6 +398,7 @@ HashTrie::HashTrie(){
 	select1_b = NULL;
 	select0_b = NULL;
 	pi_inv = NULL;
+	n_collisions = 0;
 }
 
 HashTrie::HashTrie(const char *full_text, unsigned int _len_text, vector<unsigned int> &factors_start, int_vector<> *_arr_factors, KarpRabin *_karp_rabin, KarpRabinFactorsSuffixes *kr_factors, bool reverse){
@@ -410,6 +411,7 @@ HashTrie::HashTrie(const char *full_text, unsigned int _len_text, vector<unsigne
 	select1_b = kr_factors->select1_b;
 	select0_b = kr_factors->select0_b;
 	pi_inv = kr_factors->pi_inv;
+	n_collisions = 0;
 	
 	build(full_text, len_text, factors_start, arr_factors, _karp_rabin, kr_factors, reverse);
 }
@@ -1092,6 +1094,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableInternal(vector<unsigned
 					}
 				}
 				if( collision ){
+					++n_collisions;
 //					cout << "HashTrie::getRangeTable - Error de texto (" << test_text << " != " << pattern.substr(pat_ini, next) << "), omitiendo por colision\n";
 					continue;
 				}
@@ -1255,6 +1258,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(vector<unsig
 					}
 				}
 				if( collision ){
+					++n_collisions;
 //					cout << "HashTrie::getRangeTableRev - Error de texto (" << test_text << " != " << pattern_rev.substr(pat_ini, next) << "), omitiendo por colision\n";
 					continue;
 				}

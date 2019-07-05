@@ -152,6 +152,8 @@ public:
 	
 	static constexpr char decodeChar[] = "ACGT";
 	
+	unsigned int n_collisions;
+	
 };
 
 
