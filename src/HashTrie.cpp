@@ -1081,6 +1081,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableInternal(vector<unsigned
 				// Quizas habria que agregar una verificacion de texto adicional en este caso
 				// Esa verificacion es relativamente cara, pero solo se realiza si hubo match de hash
 				bool collision = false;
+				
 				unsigned int min_factor_pos = (*arr_factors)[ min_childs[it->second] ];
 				FactorsIteratorCompacted it_y(min_factor_pos, arr_factors->size(), select1_s, select1_b, select0_b, pi_inv, compacted_text, len_text);
 				string test_text = "";
@@ -1093,6 +1094,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableInternal(vector<unsigned
 						break;
 					}
 				}
+				
 				if( collision ){
 					++n_collisions;
 //					cout << "HashTrie::getRangeTable - Error de texto (" << test_text << " != " << pattern.substr(pat_ini, next) << "), omitiendo por colision\n";
@@ -1119,8 +1121,12 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableInternal(vector<unsigned
 						}
 					}
 					
-					test_text = "";
+//					unsigned int min_factor_pos = (*arr_factors)[ min_childs[v_pos] ];
+//					FactorsIteratorCompacted it_y(min_factor_pos, arr_factors->size(), select1_s, select1_b, select0_b, pi_inv, compacted_text, len_text);
+//					string test_text = "";
+					
 					it_y.reset(len_hash[v_pos]);
+					test_text = "";
 					for(unsigned int i = 0; i < rest_len; ++i){
 						test_text += it_y.next();
 					}
@@ -1242,6 +1248,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(vector<unsig
 				// Quizas habria que agregar una verificacion de texto adicional en este caso
 				// Esa verificacion es relativamente cara, pero solo se realiza si hubo match de hash
 				bool collision = false;
+				
 				unsigned int min_factor_pos = (*arr_factors)[ min_childs[it->second] ];
 				unsigned int cur_pi = (*pi_inv)[min_factor_pos-1];
 				unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
@@ -1257,6 +1264,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(vector<unsig
 						break;
 					}
 				}
+				
 				if( collision ){
 					++n_collisions;
 //					cout << "HashTrie::getRangeTableRev - Error de texto (" << test_text << " != " << pattern_rev.substr(pat_ini, next) << "), omitiendo por colision\n";
@@ -1283,13 +1291,14 @@ pair<unsigned int, unsigned int> HashTrie::getRangeTableRevInternal(vector<unsig
 						}
 					}
 					
-					test_text = "";
 //					string test_text = "";
 //					unsigned int min_factor_pos = (*arr_factors)[ min_childs[v_pos] ];
 //					unsigned int cur_pi = (*pi_inv)[min_factor_pos-1];
 //					unsigned int tu = select1_s->operator()(cur_pi + 1) - cur_pi;
 //					unsigned int pu = select1_b->operator()(min_factor_pos-1 + 1);
 //					unsigned int lu = select1_b->operator()(min_factor_pos-1 + 2) - pu;
+
+					test_text = "";
 					for(unsigned int i = 0; i < rest_len; ++i){
 						test_text += compacted_text->at(tu + lu - len_hash[v_pos] - i - 1);
 					}
