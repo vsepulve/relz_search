@@ -17,8 +17,8 @@
 #include <set>
 #include <memory>
 
-/*#include <sparsehash/dense_hash_map>*/
-/*#include <sparsehash/sparse_hash_map>*/
+#include <sparsehash/dense_hash_map>
+#include <sparsehash/sparse_hash_map>
 
 #include "NanoTimer.h"
 #include "KarpRabin.h"
@@ -33,8 +33,8 @@
 
 using namespace std;
 
-/*using google::dense_hash_map;*/
-/*using google::sparse_hash_map;*/
+using google::dense_hash_map;
+using google::sparse_hash_map;
 
 class HashTrieNode{
 
@@ -75,8 +75,8 @@ private:
 	CompactedText *compacted_text;
 	
 	// map<unsigned int, unsigned int> global_hash;
-	unordered_map<unsigned int, unsigned int> global_hash;
-	// sparse_hash_map<unsigned int, unsigned int> global_hash;
+	// unordered_map<unsigned int, unsigned int> global_hash;
+	sparse_hash_map<unsigned int, unsigned int> global_hash;
 	// dense_hash_map<unsigned int, unsigned int> global_hash;
 	
 	// Para esta busqueda necesito max_child explicito tambien
@@ -163,6 +163,8 @@ public:
 	static constexpr char decodeChar[] = "ACGT";
 	
 	unsigned int n_collisions;
+	unsigned long long nano_search_global;
+	unsigned long long nano_search_collisions;
 	
 };
 
