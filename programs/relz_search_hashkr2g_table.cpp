@@ -110,8 +110,10 @@ int main(int argc, char* argv[]){
 	cout << "WT: " << ((long double)(index.querytime_p4))/(total_occ * 1000) << " microsec/occ (" << ((long double)index.querytime_p4/total_nano)*100 << " \%)\n";
 	cout << "Milisec total: " << (total_nano)/(1000000) << "\n";
 	
-	cout << "Collisions X: " << index.tree_x.n_collisions << "\n";
-	cout << "Collisions Y: " << index.tree_y.n_collisions << "\n";
+//	cout << "Collisions X: " << index.tree_x.n_collisions << "\n";
+//	cout << "Collisions Y: " << index.tree_y.n_collisions << "\n";
+//	cout << "Nano Search Global: " << index.tree_y.nano_search_global << "\n";
+//	cout << "Nano Search Collisions: " << index.tree_y.nano_search_collisions << " (" << (100.0*((long double)index.tree_y.nano_search_collisions)/index.tree_y.nano_search_global) << " \%)\n";
 		
 
 }
