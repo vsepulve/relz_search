@@ -493,10 +493,10 @@ void RelzIndexHash::findTimes(const string &pattern, vector<unsigned int> &resul
 
 void RelzIndexHash::findTimesTable(const string &pattern, vector<unsigned int> &results, bool use_hash){
 	
-//	cout << "RelzIndexHash::findTimes - Start (\"" << pattern << "\")\n";
+//	cout << "RelzIndexHash::findTimesTable - Start (\"" << pattern << "\")\n";
 	NanoTimer timer;
 	
-//	cout << "RelzIndexHash::findTimes - Section A, reference\n";
+//	cout << "RelzIndexHash::findTimesTable - Section A, reference\n";
 	
 	size_t m = pattern.size();
 	size_t occs = sdsl::count(fm_index, pattern.begin(), pattern.end());
@@ -524,7 +524,7 @@ void RelzIndexHash::findTimesTable(const string &pattern, vector<unsigned int> &
 	}
 	querytime_p2 += timer.getNanosec();
 	
-//	cout << "RelzIndexHash::findTimes - Section B, ranges\n";
+//	cout << "RelzIndexHash::findTimesTable - Section B, ranges\n";
 	
 	vector<unsigned long long> kr_pat_vector;
 	vector<unsigned long long> kr_pat_rev_vector;
@@ -595,9 +595,9 @@ void RelzIndexHash::findTimesTable(const string &pattern, vector<unsigned int> &
 			continue;
 		}
 		
-//		cout << "RelzIndexHash::findTimes - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
+//		cout << "RelzIndexHash::findTimesTable - Searching in [" << r1.first << ", " << r1.second << "] x [" << r2.first << ", " << r2.second << "]:\n";
 		auto res = wt.range_search_2d(r1.first, r1.second, r2.first, r2.second);
-//		cout << "RelzIndexHash::findTimes - Adding " << res.second.size() << " points\n";
+//		cout << "RelzIndexHash::findTimesTable - Adding " << res.second.size() << " points\n";
 		for (auto point : res.second){
 			unsigned int f = arr_y[point.second];
 			unsigned int pu = select1_b(f + 1);
@@ -632,7 +632,7 @@ void RelzIndexHash::findTimesTable(const string &pattern, vector<unsigned int> &
 			}
 			
 			if( omit ){
-//				cout << "RelzIndexHash::findTimes - Omiting bad result.\n";
+//				cout << "RelzIndexHash::findTimesTable - Omiting bad result.\n";
 				++occs_d;
 				continue;
 			}
@@ -644,7 +644,7 @@ void RelzIndexHash::findTimesTable(const string &pattern, vector<unsigned int> &
 		
 	}
 	
-//	cout << "RelzIndexHash::findTimes - End\n";
+//	cout << "RelzIndexHash::findTimesTable - End\n";
 	
 }
 
