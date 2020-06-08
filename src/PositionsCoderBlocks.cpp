@@ -89,7 +89,7 @@ unsigned int PositionsCoderBlocks::encodeBlockVarByte(unsigned int *arr_pos, uns
 
 //Metodo de Lectura
 void PositionsCoderBlocks::open(const char *_nombre_archivo, unsigned int _byte_ini){
-	cout<<"PositionsCoderBlocks::open - inicio (\""<<_nombre_archivo<<"\" desde byte "<<_byte_ini<<")\n";
+//	cout<<"PositionsCoderBlocks::open - inicio (\""<<_nombre_archivo<<"\" desde byte "<<_byte_ini<<")\n";
 	//En lugar de hacer un open explicito (que mantenga abierto el stream) solo lo trato de ese modo
 	//Por seguridad, abro el archivo solo al leerlo (quizas pueda recibirse un stream abierto por el llamador)
 	nombre_archivo = _nombre_archivo;

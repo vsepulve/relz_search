@@ -761,6 +761,7 @@ pair<unsigned int, unsigned int> HashTrie::getRangeInternal(unsigned int node_po
 			child_len = len_text - pu - processed;
 		}
 		
+		// Verificacion solo para DEBUG
 		unsigned int child_len_alt = len_path[pos_child_abs] - len_path[node_pos];
 		if( child_len_alt != child_len ){
 			cerr << "HashTrie::getRangeInternal - Error child_len_alt: " << child_len_alt << " vs " << child_len << "\n";

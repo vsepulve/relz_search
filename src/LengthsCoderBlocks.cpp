@@ -74,7 +74,7 @@ unsigned int LengthsCoderBlocks::encodeBlockGolomb(unsigned int *arr_len, unsign
 
 //Metodo de Lectura
 void LengthsCoderBlocks::open(const char *_nombre_archivo, unsigned int _byte_ini){
-	cout<<"LengthsCoderBlocks::open - inicio (\""<<_nombre_archivo<<"\" desde byte "<<_byte_ini<<")\n";
+//	cout<<"LengthsCoderBlocks::open - inicio (\""<<_nombre_archivo<<"\" desde byte "<<_byte_ini<<")\n";
 	//En lugar de hacer un open explicito (que mantenga abierto el stream) solo lo trato de ese modo
 	//Por seguridad, abro el archivo solo al leerlo (quizas pueda recibirse un stream abierto por el llamador)
 	nombre_archivo = _nombre_archivo;
