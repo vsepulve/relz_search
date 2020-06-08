@@ -89,6 +89,7 @@ Testing Hash Version
 
 Testing Hash with Global Table Version
 -------------------
+This implementation was not fully tested.
 ```
 ./bin/relz_search_hash_table index_yeast/ ../data/yeast_queries_10k_10.txt
 ./bin/relz_search_hash_table index_yeast/ ../data/yeast_queries_10k_20.txt
