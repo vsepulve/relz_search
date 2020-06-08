@@ -2,15 +2,24 @@
 
 Repository for the extension of compressed search based on RLZ.
 
-We use some structures from the SDSL (https://github.com/simongog/sdsl-lite).
+We use some structures from the SDSL (https://github.com/simongog/sdsl-lite) and from Google Sparsehash (https://github.com/sparsehash/sparsehash).
 
 install dependecies
 -------------------
+SDSL
 ```
 git clone https://github.com/simongog/sdsl-lite.git
-cd sdsl-lite
+cd sdsl-lite/
 sudo ./install.sh /usr/local/
 cd ..
+```
+Sparsehash
+```
+git clone https://github.com/sparsehash/sparsehash
+cd sparsehash/
+./configure
+make
+sudo make install
 ```
 
 Compile
@@ -76,6 +85,15 @@ Testing Hash Version
 ./bin/relz_search_hash index_yeast/ ../data/yeast_queries_10k_20.txt
 ./bin/relz_search_hash index_yeast/ ../data/yeast_queries_10k_40.txt
 ./bin/relz_search_hash index_yeast/ ../data/yeast_queries_10k_80.txt
+```
+
+Testing Hash with Global Table Version
+-------------------
+```
+./bin/relz_search_hash_table index_yeast/ ../data/yeast_queries_10k_10.txt
+./bin/relz_search_hash_table index_yeast/ ../data/yeast_queries_10k_20.txt
+./bin/relz_search_hash_table index_yeast/ ../data/yeast_queries_10k_40.txt
+./bin/relz_search_hash_table index_yeast/ ../data/yeast_queries_10k_80.txt
 ```
 
 Testing No Hash Version
